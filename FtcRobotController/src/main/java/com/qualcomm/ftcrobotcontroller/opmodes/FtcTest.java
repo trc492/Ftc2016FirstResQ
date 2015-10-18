@@ -17,6 +17,7 @@ public class FtcTest extends FtcRobot
         testMenu.addChoice("Drive 5 sec", TEST_DRIVE_5SEC);
         testMenu.addChoice("Drive forward 8 ft", TEST_DRIVE_8FT);
         testMenu.addChoice("Turn right 360 deg", TEST_TURN_360);
+        double choice = testMenu.getChoice();
     }   //robotInit
 
     @Override
@@ -24,6 +25,12 @@ public class FtcTest extends FtcRobot
     {
 
     }   //startMode
+
+    @Override
+    public void stopMode()
+    {
+
+    }   //stopMode
 
     @Override
     public void runPeriodic()

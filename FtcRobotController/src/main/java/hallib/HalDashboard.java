@@ -4,17 +4,18 @@ import com.qualcomm.robotcore.robocol.Telemetry;
 
 import java.util.NoSuchElementException;
 
-//import trclib.TrcRobot;
-//import trclib.TrcTaskMgr;
+import trclib.TrcRobot;
+import trclib.TrcTaskMgr;
 
-public class HalDashboard // implements TrcTaskMgr.Task
+public class HalDashboard implements TrcTaskMgr.Task
 {
-    public static final int MAX_NUM_TEXTLINES = 16;
+    public static final int MAX_NUM_TEXTLINES = 8;
 
     private static final String moduleName = "HalDashboard";
     private static final String displayKeyFormat = "[%02d]";
     private static Telemetry telemetry = null;
     private static HalDashboard instance = null;
+    private static String[] display = new String[MAX_NUM_TEXTLINES];
 
     public HalDashboard(Telemetry telemetry)
     {
@@ -26,7 +27,7 @@ public class HalDashboard // implements TrcTaskMgr.Task
         this.telemetry = telemetry;
         telemetry.clearData();
         clearDisplay();
-//        TrcTaskMgr.registerTask(moduleName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+        TrcTaskMgr.registerTask(moduleName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
     }   //HalDashboard
 
     public static HalDashboard getInstance()
@@ -36,19 +37,17 @@ public class HalDashboard // implements TrcTaskMgr.Task
 
     public void displayPrintf(int lineNum, String format, Object... args)
     {
-        if (lineNum >= 0 && lineNum < MAX_NUM_TEXTLINES)
+        if (lineNum >= 0 && lineNum < display.length)
         {
-            telemetry.addData(
-                    String.format(displayKeyFormat, lineNum),
-                    String.format(format, args));
+            display[lineNum] = String.format(format, args);
         }
     }   //displayPrintf
 
     public void clearDisplay()
     {
-        for (int i = 0; i < MAX_NUM_TEXTLINES; i++)
+        for (int i = 0; i < display.length; i++)
         {
-            telemetry.addData(String.format(displayKeyFormat, i), "");
+            display[i] = "";
         }
     }   //clearDisplay
 
@@ -171,7 +170,6 @@ public class HalDashboard // implements TrcTaskMgr.Task
         return value;
     }   //getValue
 
-    /*
     //
     // Implements TrcTaskMgr.Task
     //
@@ -189,6 +187,10 @@ public class HalDashboard // implements TrcTaskMgr.Task
 
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
+        for (int i = 0; i < display.length; i++)
+        {
+            telemetry.addData(String.format(displayKeyFormat, i), display[i]);
+        }
     }   //postPeriodicTask
 
     public void preContinuousTask(TrcRobot.RunMode runMode)
@@ -198,6 +200,5 @@ public class HalDashboard // implements TrcTaskMgr.Task
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //postContinuousTask
-    */
 
 }   //class HalDashboard

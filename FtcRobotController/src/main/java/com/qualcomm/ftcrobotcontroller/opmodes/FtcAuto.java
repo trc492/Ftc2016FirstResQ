@@ -18,6 +18,12 @@ public class FtcAuto extends FtcRobot
     }   //startMode
 
     @Override
+    public void stopMode()
+    {
+
+    }   //stopMode
+
+    @Override
     public void runPeriodic()
     {
 

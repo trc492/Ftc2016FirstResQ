@@ -4,8 +4,14 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.util.ArrayList;
 
+import trclib.TrcDbgTrace;
+
 public class FtcMenu
 {
+    private static final String moduleName = "FtcMenu";
+    private static final boolean debugEnabled = false;
+    private TrcDbgTrace dbgTrace = null;
+
     private static final long LOOP_INTERVAL = 300;
 
     private HalDashboard dashboard;
@@ -60,7 +66,7 @@ public class FtcMenu
 
             try
             {
-                wait(LOOP_INTERVAL);
+                Thread.sleep(LOOP_INTERVAL);
             }
             catch (InterruptedException e)
             {

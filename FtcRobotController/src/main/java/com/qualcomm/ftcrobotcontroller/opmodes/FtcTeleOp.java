@@ -1,22 +1,30 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
 import hallib.FtcGamepad;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
 
+//import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
 {
-    HalDashboard dashboard;
-    FtcGamepad driverGamepad;
-    FtcGamepad operatorGamepad;
-    DcMotor leftFrontWheel;
-    DcMotor rightFrontWheel;
-    DcMotor leftRearWheel;
-    DcMotor rightRearWheel;
-    long prevPeriodicTime;
-    long prevContinuousTime;
+    private HalDashboard dashboard;
+    private FtcGamepad driverGamepad;
+    private FtcGamepad operatorGamepad;
+    private DcMotor leftFrontWheel;
+    private DcMotor rightFrontWheel;
+    private DcMotor leftRearWheel;
+    private DcMotor rightRearWheel;
+//    private ColorSensor colorSensor;
+    private OpticalDistanceSensor distanceSensor;
+    private TouchSensor touchSensor;
+    private long prevPeriodicTime;
+    private long prevContinuousTime;
 
     //
     // Implements FtcRobot abstract methods.
@@ -25,6 +33,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     @Override
     public void robotInit()
     {
+        hardwareMap.logDevices();
         dashboard = HalDashboard.getInstance();
         driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, this);
         operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
@@ -38,8 +47,13 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         leftFrontWheel.setDirection(DcMotor.Direction.REVERSE);
         leftRearWheel.setDirection(DcMotor.Direction.REVERSE);
 
+//        colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        distanceSensor = hardwareMap.opticalDistanceSensor.get("distanceSensor");
+        touchSensor = hardwareMap.touchSensor.get("touchSensor");
+
         prevPeriodicTime = System.currentTimeMillis();
         prevContinuousTime = prevPeriodicTime;
+//        dashboard.displayPrintf(7, "Init completed");
     }   //robotInit
 
     @Override
@@ -49,17 +63,25 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     }   //startMode
 
     @Override
+    public void stopMode()
+    {
+
+    }   //stopMode
+
+    @Override
     public void runPeriodic()
     {
         long currTime = System.currentTimeMillis();
-        dashboard.displayPrintf(0, "Periodic: %d", currTime - prevPeriodicTime);
+        dashboard.displayPrintf(1, "Periodic: %d", currTime - prevPeriodicTime);
         prevPeriodicTime = currTime;
 //        double leftPower  = driverGamepad.getLeftStickY(true);
 //        double rightPower = driverGamepad.getRightStickY(true);
         double leftPower = -gamepad1.left_stick_y;
         double rightPower = -gamepad1.right_stick_y;
-        dashboard.displayPrintf(2, "leftPower  = ", leftPower);
-        dashboard.displayPrintf(3, "rightPower = ", rightPower);
+        dashboard.displayPrintf(3, "leftPower  = %f", leftPower);
+        dashboard.displayPrintf(4, "rightPower = %f", rightPower);
+        dashboard.displayPrintf(5, "touch = %s", touchSensor.isPressed()? "Pressed": "Released");
+        dashboard.displayPrintf(6, "distance = %f", distanceSensor.getLightDetected());
 
         // write the values to the motors
         leftFrontWheel.setPower(leftPower);
@@ -73,7 +95,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     public void runContinuous()
     {
         long currTime = System.currentTimeMillis();
-        dashboard.displayPrintf(1, "Continuous: %d", currTime - prevContinuousTime);
+        dashboard.displayPrintf(2, "Continuous: %d", currTime - prevContinuousTime);
         prevContinuousTime = currTime;
 
     }   //runContinuous
@@ -87,7 +109,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     {
         if (gamepad == driverGamepad)
         {
-            dashboard.displayPrintf(4, "Driver[%d] = %s", btnMask, Boolean.toString(pressed));
+//            dashboard.displayPrintf(5, "Driver[%d] = %s", btnMask, Boolean.toString(pressed));
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
@@ -105,7 +127,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         }
         else if (gamepad == operatorGamepad)
         {
-            dashboard.displayPrintf(5, "Operator[%d] = %s", btnMask, Boolean.toString(pressed));
+//            dashboard.displayPrintf(6, "Operator[%d] = %s", btnMask, Boolean.toString(pressed));
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
