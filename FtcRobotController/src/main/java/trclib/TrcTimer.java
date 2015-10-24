@@ -95,16 +95,17 @@ public class TrcTimer implements TrcTaskMgr.Task
         }
 
         this.enabled = enabled;
+        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            TrcTaskMgr.registerTask(
+            taskMgr.registerTask(
                     instanceName,
                     this,
                     TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
         else
         {
-            TrcTaskMgr.unregisterTask(
+            taskMgr.unregisterTask(
                     this,
                     TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }

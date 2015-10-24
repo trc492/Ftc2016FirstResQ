@@ -29,12 +29,14 @@ public class FtcGamepad implements TrcTaskMgr.Task
                 FtcGamepad gamepad,
                 final int btnMask,
                 final boolean pressed);
+        public Gamepad getGamepad(String name);  //??? TEMP
     }   //interface ButonHandler
 
     private static final String moduleName = "FtcGamepad";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private String instanceName;
     private Gamepad gamepad;
     private ButtonHandler buttonHandler;
     private int prevButtons;
@@ -54,17 +56,18 @@ public class FtcGamepad implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        if (gamepad == null)
+        if (instanceName == null || gamepad == null)
         {
-            throw new NullPointerException("Gamepad must not be null");
+            throw new NullPointerException("InstanceName/Gamepad must not be null");
         }
 
+        this.instanceName = instanceName;
         this.gamepad = gamepad;
         this.buttonHandler = buttonHandler;
         prevButtons = getButtons();
         ySign = 1;
 
-        TrcTaskMgr.registerTask(
+        TrcTaskMgr.getInstance().registerTask(
                 instanceName,
                 this,
                 TrcTaskMgr.TaskType.PREPERIODIC_TASK);
@@ -77,11 +80,14 @@ public class FtcGamepad implements TrcTaskMgr.Task
             final double deadbandThreshold)
     {
         this(instanceName, gamepad, buttonHandler);
-        gamepad.setJoystickDeadzone((float)deadbandThreshold);
+        gamepad.setJoystickDeadzone((float) deadbandThreshold);
     }   //FtcGamepad
 
     public int getButtons()
     {
+        final String funcName = "getButtons";
+
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         int buttons = 0;
         buttons |= gamepad.a? GAMEPAD_A: 0;
         buttons |= gamepad.b? GAMEPAD_B: 0;
@@ -97,6 +103,14 @@ public class FtcGamepad implements TrcTaskMgr.Task
         buttons |= gamepad.dpad_right? GAMEPAD_DPAD_RIGHT: 0;
         buttons |= gamepad.dpad_up? GAMEPAD_DPAD_UP: 0;
         buttons |= gamepad.dpad_down? GAMEPAD_DPAD_DOWN: 0;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
+                    "=%x", buttons);
+        }
+
         return buttons;
     }   //getButtons
 
@@ -118,11 +132,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-    }   //set YInverted
+    }   //setYInverted
 
     public double getLeftStickX(boolean squared)
     {
-        return squareValue((double)gamepad.left_stick_x, squared);
+        final String funcName = "getLeftStickX";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double) gamepad.left_stick_x, squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getLeftStickX
 
     public double getLeftStickX()
@@ -132,7 +160,21 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getLeftStickY(boolean squared)
     {
-        return squareValue((double)gamepad.left_stick_y, squared);
+        final String funcName = "getLeftStickY";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double)(ySign*gamepad.left_stick_y), squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getLeftStickY
 
     public double getLeftStickY()
@@ -142,7 +184,21 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getRightStickX(boolean squared)
     {
-        return squareValue((double)gamepad.right_stick_x, squared);
+        final String funcName = "getRightStickX";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double)gamepad.right_stick_x, squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getRightStickX
 
     public double getRightStickX()
@@ -152,7 +208,21 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getRightStickY(boolean squared)
     {
-        return squareValue((double)gamepad.right_stick_y, squared);
+        final String funcName = "getRightStickY";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double)(ySign*gamepad.right_stick_y), squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getRightStickY
 
     public double getRightStickY()
@@ -162,7 +232,21 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getLeftTrigger(boolean squared)
     {
-        return squareValue((double)gamepad.left_trigger, squared);
+        final String funcName = "getLeftTrigger";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double)gamepad.left_trigger, squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getLeftTrigger
 
     public double getLeftTrigger()
@@ -172,7 +256,21 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getRightTrigger(boolean squared)
     {
-        return squareValue((double)gamepad.right_trigger, squared);
+        final String funcName = "getRightTrigger";
+        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        double value = squareValue((double)gamepad.right_trigger, squared);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getRightTrigger
 
     public double getRightTrigger()
@@ -202,7 +300,20 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getLeftStickDirectionRadians(boolean squared)
     {
-        return Math.atan2(getLeftStickY(squared), getLeftStickX(squared));
+        final String funcName = "getLeftStickDirectionRadians";
+        double value = Math.atan2(getLeftStickY(squared), getLeftStickX(squared));
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getLeftStickDirectionRadians
 
     public double getLeftStickDirectionRadians()
@@ -212,7 +323,20 @@ public class FtcGamepad implements TrcTaskMgr.Task
 
     public double getRightStickDirectionRadians(boolean squared)
     {
-        return Math.atan2(getRightStickY(squared), getRightStickX(squared));
+        final String funcName = "getRightStickDirectionRadians";
+        double value = Math.atan2(getRightStickY(squared), getRightStickX(squared));
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "squared=%s",
+                    Boolean.toString(squared));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%f", value);
+        }
+
+        return value;
     }   //getRightStickDirectionRadian
 
     public double getRightStickDirectionRadians()
@@ -239,6 +363,38 @@ public class FtcGamepad implements TrcTaskMgr.Task
     {
         return getRightStickDirectionDegrees(false);
     }   //getRightStickDirectionDegrees
+
+    private double squareValue(double value, boolean squared)
+    {
+        if (squared)
+        {
+            int dir = (value >= 0.0)? 1: -1;
+            value = dir*value*value;
+        }
+        return value;
+    }   //squareValue
+
+    private double getMagnitude(double x, double y)
+    {
+        final String funcName = "getMagnitude";
+        double value = Math.sqrt(x*x + y*y);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                    funcName, TrcDbgTrace.TraceLevel.FUNC,
+                    "x=%f,y=%f", x, y);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
+                    "=%f", value);
+        }
+
+        return value;
+    }   //getMagnitude
+
+    public String toString()
+    {
+        return instanceName;
+    }
 
     //
     // Implements TrcTaskMgr.Task
@@ -328,20 +484,5 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //postContinuousTask
-
-    private double squareValue(double value, boolean squared)
-    {
-        if (squared)
-        {
-            int dir = (value >= 0.0)? 1: -1;
-            value = dir*value*value;
-        }
-        return value;
-    }   //squareValue
-
-    private double getMagnitude(double x, double y)
-    {
-        return Math.sqrt(x*x + y*y);
-    }   //getMagnitude
 
 }   //class FtcGamepad

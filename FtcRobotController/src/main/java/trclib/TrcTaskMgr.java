@@ -7,13 +7,7 @@ public class TrcTaskMgr
 {
     private static final String moduleName = "TrcTaskMgr";
     private static final boolean debugEnabled = false;
-    private static TrcDbgTrace dbgTrace =
-            debugEnabled? new TrcDbgTrace(
-                    moduleName,
-                    false,
-                    TrcDbgTrace.TraceLevel.API,
-                    TrcDbgTrace.MsgLevel.INFO):
-                    null;
+    private TrcDbgTrace dbgTrace = null;
 
     public enum TaskType
     {
@@ -58,6 +52,11 @@ public class TrcTaskMgr
             return taskTypes.remove(type);
         }   //removeTaskType
 
+        public void removeAllTaskTypes()
+        {
+            taskTypes.clear();
+        }   //removeAllTaskTypes
+
         public boolean isSame(Task task)
         {
             return task == this.task;
@@ -85,10 +84,29 @@ public class TrcTaskMgr
 
     }   //class SubsystemTask
 
-    private static ArrayList<SubsystemTask> taskList =
+    private static TrcTaskMgr instance = null;
+    private ArrayList<SubsystemTask> taskList =
             new ArrayList<SubsystemTask>();
 
-    public static boolean registerTask(
+    public TrcTaskMgr()
+    {
+        if (debugEnabled)
+        {
+            dbgTrace = new TrcDbgTrace(
+                    moduleName,
+                    false,
+                    TrcDbgTrace.TraceLevel.API,
+                    TrcDbgTrace.MsgLevel.INFO);
+        }
+        instance = this;
+    }   //TrcTaskMgr
+
+    public static TrcTaskMgr getInstance()
+    {
+        return instance;
+    }   //getInstance
+
+    public boolean registerTask(
             String taskName,
             Task task,
             TaskType type)
@@ -125,7 +143,7 @@ public class TrcTaskMgr
         return subsystemTask != null;
     }   //registerTask
 
-    public static void unregisterTask(Task task, TaskType type)
+    public void unregisterTask(Task task, TaskType type)
     {
         final String funcName = "unregisterTask";
         SubsystemTask subsystemTask = findTask(task);
@@ -135,7 +153,7 @@ public class TrcTaskMgr
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
                     "task=%s,type=%s",
-                    subsystemTask != null? subsystemTask.getName(): "unknown",
+                    subsystemTask != null ? subsystemTask.getName() : "unknown",
                     type.toString());
         }
 
@@ -154,7 +172,7 @@ public class TrcTaskMgr
         }
     }   //unregisterTask
 
-    public static void executeTaskType(TaskType type, TrcRobot.RunMode mode)
+    public void executeTaskType(TaskType type, TrcRobot.RunMode mode)
     {
         final String funcName = "executeTaskType";
 
@@ -236,7 +254,7 @@ public class TrcTaskMgr
         }
     }   //executeTaskType
 
-    private static SubsystemTask findTask(Task task)
+    private SubsystemTask findTask(Task task)
     {
         for (int i = 0; i < taskList.size(); i++)
         {

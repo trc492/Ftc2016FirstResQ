@@ -120,16 +120,17 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
                     "enabled=%s", Boolean.toString(enabled));
         }
 
+        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            TrcTaskMgr.registerTask(
+            taskMgr.registerTask(
                     instanceName,
                     this,
                     TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
         else
         {
-            TrcTaskMgr.unregisterTask(
+            taskMgr.unregisterTask(
                     this,
                     TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }

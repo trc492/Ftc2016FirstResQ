@@ -69,17 +69,18 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         rotScale = 1.0;
         resetPosition();
 
-        TrcTaskMgr.registerTask(
+        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
+        taskMgr.registerTask(
                 moduleName,
                 this,
                 TrcTaskMgr.TaskType.START_TASK);
-        TrcTaskMgr.registerTask(
+        taskMgr.registerTask(
                 moduleName,
                 this,
                 TrcTaskMgr.TaskType.STOP_TASK);
         if (motorPosition != null || gyro != null)
         {
-            TrcTaskMgr.registerTask(
+            taskMgr.registerTask(
                     moduleName,
                     this,
                     TrcTaskMgr.TaskType.PREPERIODIC_TASK);

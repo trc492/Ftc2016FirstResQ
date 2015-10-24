@@ -110,7 +110,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">Gamepad</span>
 extends java.lang.Object</pre>
-<div class="block">Monitor a hardware gamepad.
+<div class="block">Monitor a hardware gp.
  <p>
  The buttons, analog sticks, and triggers are represented a public
  member variables that can be read from or written to directly.
@@ -222,13 +222,13 @@ extends java.lang.Object</pre>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#id">id</a></span></code>
-<div class="block">ID assigned to this gamepad by the OS.</div>
+<div class="block">ID assigned to this gp by the OS.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#ID_UNASSOCIATED">ID_UNASSOCIATED</a></span></code>
-<div class="block">A gamepad with an ID equal to ID_UNASSOCIATED has not been associated with any device.</div>
+<div class="block">A gp with an ID equal to ID_UNASSOCIATED has not been associated with any device.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -313,7 +313,7 @@ extends java.lang.Object</pre>
 <tr class="altColor">
 <td class="colFirst"><code>byte</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#user">user</a></span></code>
-<div class="block">Which user is this gamepad used by</div>
+<div class="block">Which user is this gp used by</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -401,7 +401,7 @@ extends java.lang.Object</pre>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#isGamepadDevice-int-">isGamepadDevice</a></span>(int&nbsp;deviceId)</code>
-<div class="block">Does this device ID belong to a gamepad device?</div>
+<div class="block">Does this device ID belong to a gp device?</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -421,25 +421,25 @@ extends java.lang.Object</pre>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#toString--">toString</a></span>()</code>
-<div class="block">Display a summary of this gamepad, including the state of all buttons, analog sticks, and triggers</div>
+<div class="block">Display a summary of this gp, including the state of all buttons, analog sticks, and triggers</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#type--">type</a></span>()</code>
-<div class="block">Get the type of gamepad as a String.</div>
+<div class="block">Get the type of gp as a String.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#update-android.view.KeyEvent-">update</a></span>(android.view.KeyEvent&nbsp;event)</code>
-<div class="block">Update the gamepad based on a KeyEvent</div>
+<div class="block">Update the gp based on a KeyEvent</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/qualcomm/robotcore/hardware/Gamepad.html#update-android.view.MotionEvent-">update</a></span>(android.view.MotionEvent&nbsp;event)</code>
-<div class="block">Update the gamepad based on a MotionEvent</div>
+<div class="block">Update the gp based on a MotionEvent</div>
 </td>
 </tr>
 </table>
@@ -471,7 +471,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>ID_UNASSOCIATED</h4>
 <pre>public static final&nbsp;int ID_UNASSOCIATED</pre>
-<div class="block">A gamepad with an ID equal to ID_UNASSOCIATED has not been associated with any device.</div>
+<div class="block">A gp with an ID equal to ID_UNASSOCIATED has not been associated with any device.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.qualcomm.robotcore.hardware.Gamepad.ID_UNASSOCIATED">Constant Field Values</a></dd>
@@ -697,7 +697,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>user</h4>
 <pre>public&nbsp;byte user</pre>
-<div class="block">Which user is this gamepad used by</div>
+<div class="block">Which user is this gp used by</div>
 </li>
 </ul>
 <a name="id">
@@ -707,7 +707,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>id</h4>
 <pre>public&nbsp;int id</pre>
-<div class="block">ID assigned to this gamepad by the OS. This value can change each time the device is plugged in</div>
+<div class="block">ID assigned to this gp by the OS. This value can change each time the device is plugged in</div>
 </li>
 </ul>
 <a name="timestamp">
@@ -797,7 +797,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>update</h4>
 <pre>public&nbsp;void&nbsp;update(android.view.MotionEvent&nbsp;event)</pre>
-<div class="block">Update the gamepad based on a MotionEvent</div>
+<div class="block">Update the gp based on a MotionEvent</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>event</code> - motion event</dd>
@@ -811,7 +811,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>update</h4>
 <pre>public&nbsp;void&nbsp;update(android.view.KeyEvent&nbsp;event)</pre>
-<div class="block">Update the gamepad based on a KeyEvent</div>
+<div class="block">Update the gp based on a KeyEvent</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>event</code> - key event</dd>
@@ -876,10 +876,10 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>type</h4>
 <pre>public&nbsp;java.lang.String&nbsp;type()</pre>
-<div class="block">Get the type of gamepad as a String. This method defaults to "Standard".</div>
+<div class="block">Get the type of gp as a String. This method defaults to "Standard".</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>gamepad type</dd>
+<dd>gp type</dd>
 </dl>
 </li>
 </ul>
@@ -890,7 +890,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>toString</h4>
 <pre>public&nbsp;java.lang.String&nbsp;toString()</pre>
-<div class="block">Display a summary of this gamepad, including the state of all buttons, analog sticks, and triggers</div>
+<div class="block">Display a summary of this gp, including the state of all buttons, analog sticks, and triggers</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
@@ -936,7 +936,7 @@ extends java.lang.Object</pre>
                                          int&nbsp;productId)</pre>
 <div class="block">Add a whitelist filter for a specific device vendor/product ID.
  <p>
- This adds a whitelist to the gamepad detection method. If a device has been added to the
+ This adds a whitelist to the gp detection method. If a device has been added to the
  whitelist, then only devices that match the given vendor ID and product ID will be considered
  gamepads. This method can be called multiple times to add multiple devices to the whitelist.
  <p>
@@ -965,12 +965,12 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>isGamepadDevice</h4>
 <pre>public static&nbsp;boolean&nbsp;isGamepadDevice(int&nbsp;deviceId)</pre>
-<div class="block">Does this device ID belong to a gamepad device?</div>
+<div class="block">Does this device ID belong to a gp device?</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>deviceId</code> - </dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>true, if gamepad device; false otherwise</dd>
+<dd>true, if gp device; false otherwise</dd>
 </dl>
 </li>
 </ul>

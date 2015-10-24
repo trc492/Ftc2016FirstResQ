@@ -4,14 +4,16 @@ import com.qualcomm.robotcore.robocol.Telemetry;
 
 import java.util.NoSuchElementException;
 
-import trclib.TrcRobot;
-import trclib.TrcTaskMgr;
+import trclib.TrcDbgTrace;
 
-public class HalDashboard implements TrcTaskMgr.Task
+public class HalDashboard
 {
-    public static final int MAX_NUM_TEXTLINES = 8;
+    public static final int MAX_NUM_TEXTLINES = 16;
 
     private static final String moduleName = "HalDashboard";
+    private static final boolean debugEnabled = false;
+    private TrcDbgTrace dbgTrace = null;
+
     private static final String displayKeyFormat = "[%02d]";
     private static Telemetry telemetry = null;
     private static HalDashboard instance = null;
@@ -19,15 +21,10 @@ public class HalDashboard implements TrcTaskMgr.Task
 
     public HalDashboard(Telemetry telemetry)
     {
-        if (instance != null)
-        {
-            throw new IllegalArgumentException("Dashboard already created");
-        }
         instance = this;
         this.telemetry = telemetry;
         telemetry.clearData();
         clearDisplay();
-        TrcTaskMgr.registerTask(moduleName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
     }   //HalDashboard
 
     public static HalDashboard getInstance()
@@ -40,6 +37,7 @@ public class HalDashboard implements TrcTaskMgr.Task
         if (lineNum >= 0 && lineNum < display.length)
         {
             display[lineNum] = String.format(format, args);
+            telemetry.addData(String.format(displayKeyFormat, lineNum), display[lineNum]);
         }
     }   //displayPrintf
 
@@ -49,12 +47,22 @@ public class HalDashboard implements TrcTaskMgr.Task
         {
             display[i] = "";
         }
+        refreshDisplay();
     }   //clearDisplay
+
+    public void refreshDisplay()
+    {
+        for (int i = 0; i < display.length; i++)
+        {
+            telemetry.addData(String.format(displayKeyFormat, i), display[i]);
+        }
+    }   //refreshDisplay
 
     public boolean getBoolean(String key)
     {
         boolean value;
         String strValue = getValue(key);
+
         if (strValue.equals("true"))
         {
             value = true;
@@ -169,36 +177,5 @@ public class HalDashboard implements TrcTaskMgr.Task
 
         return value;
     }   //getValue
-
-    //
-    // Implements TrcTaskMgr.Task
-    //
-    public void startTask(TrcRobot.RunMode runMode)
-    {
-    }   //startTask
-
-    public void stopTask(TrcRobot.RunMode runMode)
-    {
-    }   //stopTask
-
-    public void prePeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //prePeriodicTask
-
-    public void postPeriodicTask(TrcRobot.RunMode runMode)
-    {
-        for (int i = 0; i < display.length; i++)
-        {
-            telemetry.addData(String.format(displayKeyFormat, i), display[i]);
-        }
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //postContinuousTask
 
 }   //class HalDashboard

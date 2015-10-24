@@ -510,13 +510,14 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     Boolean.toString(enabled));
         }
 
+        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            TrcTaskMgr.registerTask(
+            taskMgr.registerTask(
                     instanceName,
                     this,
                     TrcTaskMgr.TaskType.STOP_TASK);
-            TrcTaskMgr.registerTask(
+            taskMgr.registerTask(
                     instanceName,
                     this,
                     TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
@@ -524,10 +525,10 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         }
         else
         {
-            TrcTaskMgr.unregisterTask(
+            taskMgr.unregisterTask(
                     this,
                     TrcTaskMgr.TaskType.STOP_TASK);
-            TrcTaskMgr.unregisterTask(
+            taskMgr.unregisterTask(
                     this,
                     TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
             flags &= ~PIDMOTORF_ENABLED;

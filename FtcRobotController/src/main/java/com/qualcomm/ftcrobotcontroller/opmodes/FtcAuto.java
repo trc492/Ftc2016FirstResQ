@@ -1,6 +1,5 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.FtcMenu;
 import hallib.FtcRobot;
 
 public class FtcAuto extends FtcRobot
