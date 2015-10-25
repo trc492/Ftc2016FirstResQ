@@ -1,27 +1,26 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import hallib.FtcGamepad;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
+import hallib.HalSpeedController;
+import trclib.TrcDriveBase;
 
 public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
 {
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
-    private DcMotor leftFrontWheel;
-    private DcMotor rightFrontWheel;
-    private DcMotor leftRearWheel;
-    private DcMotor rightRearWheel;
-    private ColorSensor colorSensor;
-    private OpticalDistanceSensor distanceSensor;
-    private TouchSensor touchSensor;
+    private HalSpeedController leftFrontWheel;
+    private HalSpeedController rightFrontWheel;
+    private HalSpeedController leftRearWheel;
+    private HalSpeedController rightRearWheel;
+    private TrcDriveBase driveBase;
+    private Elevator elevator;
+    private ClimberRelease climberRelease;
+    private Chainsaw chainsaw;
 
     //
     // Implements FtcRobot abstract methods.
@@ -38,17 +37,23 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
 
-        leftFrontWheel = hardwareMap.dcMotor.get("leftFrontWheel");
-        rightFrontWheel = hardwareMap.dcMotor.get("rightFrontWheel");
-        leftRearWheel = hardwareMap.dcMotor.get("leftRearWheel");
-        rightRearWheel = hardwareMap.dcMotor.get("rightRearWheel");
-        leftFrontWheel.setDirection(DcMotor.Direction.REVERSE);
-        leftRearWheel.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontWheel = new HalSpeedController(hardwareMap.dcMotor.get("leftFrontWheel"));
+        rightFrontWheel = new HalSpeedController(hardwareMap.dcMotor.get("rightFrontWheel"));
+        leftRearWheel = new HalSpeedController(hardwareMap.dcMotor.get("leftRearWheel"));
+        rightRearWheel = new HalSpeedController(hardwareMap.dcMotor.get("rightRearWheel"));
+        leftFrontWheel.setInverted(true);
+        leftRearWheel.setInverted(true);
 
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        colorSensor.enableLed(false);
-        distanceSensor = hardwareMap.opticalDistanceSensor.get("distanceSensor");
-        touchSensor = hardwareMap.touchSensor.get("touchSensor");
+        driveBase = new TrcDriveBase(
+                leftFrontWheel,
+                leftRearWheel,
+                rightFrontWheel,
+                rightRearWheel,
+                null,
+                null);
+        elevator = new Elevator();
+        climberRelease = new ClimberRelease();
+        chainsaw = new Chainsaw();
     }   //robotInit
 
     @Override
@@ -64,19 +69,19 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     @Override
     public void runPeriodic()
     {
+        //
+        // DriveBase subsystem.
+        //
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
+        driveBase.tankDrive(leftPower, rightPower);
         dashboard.displayPrintf(1, "leftPower  = %f", leftPower);
         dashboard.displayPrintf(2, "rightPower = %f", rightPower);
-        dashboard.displayPrintf(3, "color[%d,%d,%d]", colorSensor.red(), colorSensor.green(), colorSensor.blue());
-        dashboard.displayPrintf(4, "distance = %f", distanceSensor.getLightDetected());
-        dashboard.displayPrintf(5, "touch = %s", touchSensor.isPressed()? "Pressed": "Released");
+        //
+        // Elevator subsystem.
+        //
+        double elevatorHeight = operatorGamepad.getRightStickY(true);
 
-        // write the values to the motors
-        leftFrontWheel.setPower(leftPower);
-        rightFrontWheel.setPower(rightPower);
-        leftRearWheel.setPower(leftPower);
-        rightRearWheel.setPower(rightPower);
     }   //runPeriodic
 
     @Override
