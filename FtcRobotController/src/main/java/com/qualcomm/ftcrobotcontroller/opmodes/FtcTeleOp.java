@@ -78,6 +78,9 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         leftRearWheel.setPower(leftPower);
         rightRearWheel.setPower(rightPower);
     }   //runPeriodic
+
+    @Override
+    public void runContinuous()
     {
     }   //runContinuous
 
