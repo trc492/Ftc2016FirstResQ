@@ -78,9 +78,13 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         dashboard.displayPrintf(1, "leftPower  = %f", leftPower);
         dashboard.displayPrintf(2, "rightPower = %f", rightPower);
         //
+        // Chainsaw subsystem.
+        //
+        double chainsawPower = operatorGamepad.getRightStickY(true);
+        //
         // Elevator subsystem.
         //
-        double elevatorHeight = operatorGamepad.getRightStickY(true);
+        double elevatorHeight = operatorGamepad.getLeftStickY(true);
 
     }   //runPeriodic
 
