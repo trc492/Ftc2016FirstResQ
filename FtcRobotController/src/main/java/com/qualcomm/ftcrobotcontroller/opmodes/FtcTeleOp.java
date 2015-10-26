@@ -19,8 +19,9 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private HalSpeedController rightRearWheel;
     private TrcDriveBase driveBase;
     private Elevator elevator;
-    private ClimberRelease climberRelease;
     private Chainsaw chainsaw;
+    private ClimberRelease climberRelease;
+    private CattleGuard cattleGuard;
 
     //
     // Implements FtcRobot abstract methods.
@@ -52,8 +53,9 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
                 null,
                 null);
         elevator = new Elevator();
-        climberRelease = new ClimberRelease();
         chainsaw = new Chainsaw();
+        climberRelease = new ClimberRelease();
+        cattleGuard = new CattleGuard();
     }   //robotInit
 
     @Override
@@ -75,17 +77,18 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(1, "leftPower  = %f", leftPower);
+        dashboard.displayPrintf(1, "leftPower = %f", leftPower);
         dashboard.displayPrintf(2, "rightPower = %f", rightPower);
+        //
+        // Elevator subsystem.
+        //
+        double elevatorPower = operatorGamepad.getLeftStickY(true);
+        dashboard.displayPrintf(3, "elevatorPower = %f", elevatorPower);
         //
         // Chainsaw subsystem.
         //
         double chainsawPower = operatorGamepad.getRightStickY(true);
-        //
-        // Elevator subsystem.
-        //
-        double elevatorHeight = operatorGamepad.getLeftStickY(true);
-
+        dashboard.displayPrintf(4, "chainsawPower = %f", chainsawPower);
     }   //runPeriodic
 
     @Override
@@ -94,13 +97,14 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     }   //runContinuous
 
     //
-    // Implemnts FtcGamepad interface.
+    // Implemnts FtcGamepad.ButtonHandler interface.
     //
 
     @Override
     public void gamepadButtonEvent(FtcGamepad gamepad, final int btnMask, final boolean pressed)
     {
-        dashboard.displayPrintf(6, "%s: %04x->%s", gamepad.toString(), btnMask, Boolean.toString(pressed));
+        dashboard.displayPrintf(8, "%s: %04x->%s",
+                gamepad.toString(), btnMask, pressed? "Pressed": "Released");
         if (gamepad == driverGamepad)
         {
             switch (btnMask)

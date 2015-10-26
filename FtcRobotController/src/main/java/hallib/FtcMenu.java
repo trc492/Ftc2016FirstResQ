@@ -10,7 +10,7 @@ public class FtcMenu
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private static final long LOOP_INTERVAL = 200;
+    private static final long LOOP_INTERVAL = 50;
 
     private HalDashboard dashboard;
     private String menuTitle;
@@ -72,6 +72,8 @@ public class FtcMenu
     public int getChoice()
     {
         final String funcName = "getChoice";
+        boolean upButtonPressed = false;
+        boolean downButtonPressed = false;
 
         if (debugEnabled)
         {
@@ -80,23 +82,39 @@ public class FtcMenu
 
         while (true)
         {
-            if (menuButtons.isMenuUp())
+            if (menuButtons.isMenuCancel())
             {
-                prevChoice();
-            }
-            else if (menuButtons.isMenuDown())
-            {
-                nextChoice();
+                selectedChoice = -1;
+                break;
             }
             else if (menuButtons.isMenuOk())
             {
                 break;
             }
-            else if (menuButtons.isMenuCancel())
+
+            boolean isUp = menuButtons.isMenuUp();
+            boolean isDown = menuButtons.isMenuDown();
+
+            if (!upButtonPressed && isUp)
             {
-                selectedChoice = -1;
-                break;
+                upButtonPressed = true;
+                prevChoice();
             }
+            else if (upButtonPressed && !isUp)
+            {
+                upButtonPressed = false;
+            }
+
+            if (!downButtonPressed && isDown)
+            {
+                downButtonPressed = true;
+                nextChoice();
+            }
+            else if (downButtonPressed && !isDown)
+            {
+                downButtonPressed = false;
+            }
+
             displayMenu();
 
             try
