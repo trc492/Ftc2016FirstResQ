@@ -124,8 +124,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         dashboard.displayPrintf(4, "leftTriggerPower = %f", leftTriggerPower);
         dashboard.displayPrintf(5, "rightTriggerPower = %f", rightTriggerPower);
 
-        if (leftTriggerPower == 0.0 && rightTriggerPower == 0.0 ||
-            leftTriggerPower != 0.0 && rightTriggerPower != 0.0)
+        if (leftTriggerPower != 0.0 && rightTriggerPower != 0.0)
         {
             chainsaw.setPower(0.0);
         }
