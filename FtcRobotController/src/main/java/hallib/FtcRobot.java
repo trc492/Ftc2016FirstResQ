@@ -110,11 +110,11 @@ public abstract class FtcRobot extends LinearOpMode
                 runMode);
         startMode();
 
-        long nextPeriodTime = System.currentTimeMillis();
+        long nextPeriodTime = HalPlatform.getCurrentTimeMillis();
         while (opModeIsActive())
         {
             dashboard.displayPrintf(0, "%s: %f", runModeName, getRuntime());
-            if (System.currentTimeMillis() >= nextPeriodTime)
+            if (HalPlatform.getCurrentTimeMillis() >= nextPeriodTime)
             {
                 nextPeriodTime += LOOP_PERIOD;
                 if (debugEnabled)
