@@ -5,11 +5,13 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import hallib.FtcGamepad;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
+import hallib.HalPlatform;
 import hallib.HalSpeedController;
 import trclib.TrcDriveBase;
 
 public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
 {
+    private HalPlatform platform;
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
@@ -18,9 +20,11 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private HalSpeedController leftRearWheel;
     private HalSpeedController rightRearWheel;
     private TrcDriveBase driveBase;
-    private Elevator elevator;
     private Chainsaw chainsaw;
-    private ClimberRelease climberRelease;
+    private Elevator elevator;
+    private HangingHook hangingHook;
+    private ClimberRelease leftArm;
+    private ClimberRelease rightArm;
     private CattleGuard cattleGuard;
 
     //
@@ -30,18 +34,26 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     @Override
     public void robotInit()
     {
+        //
+        // Initializing global objects.
+        //
+        platform = new HalPlatform(hardwareMap);
         hardwareMap.logDevices();
         dashboard = HalDashboard.getInstance();
-
+        //
+        // Initializing Gamepads.
+        //
         driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, this);
         operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
-
-        leftFrontWheel = new HalSpeedController(hardwareMap.dcMotor.get("leftFrontWheel"));
-        rightFrontWheel = new HalSpeedController(hardwareMap.dcMotor.get("rightFrontWheel"));
-        leftRearWheel = new HalSpeedController(hardwareMap.dcMotor.get("leftRearWheel"));
-        rightRearWheel = new HalSpeedController(hardwareMap.dcMotor.get("rightRearWheel"));
+        //
+        // DriveBase subsystem.
+        //
+        leftFrontWheel = new HalSpeedController("leftFrontWheel");
+        rightFrontWheel = new HalSpeedController("rightFrontWheel");
+        leftRearWheel = new HalSpeedController("leftRearWheel");
+        rightRearWheel = new HalSpeedController("rightRearWheel");
         leftFrontWheel.setInverted(true);
         leftRearWheel.setInverted(true);
 
@@ -52,9 +64,26 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
                 rightRearWheel,
                 null,
                 null);
-        elevator = new Elevator();
+        //
+        // Chainsaw subsystem.
+        //
         chainsaw = new Chainsaw();
-        climberRelease = new ClimberRelease();
+        //
+        // Elevator subsystem.
+        //
+        elevator = new Elevator();
+        //
+        // Hanging Hook subsystem.
+        //
+        hangingHook = new HangingHook();
+        //
+        // Climber Release subsystem.
+        //
+        leftArm = new ClimberRelease();
+        rightArm = new ClimberRelease();
+        //
+        // Cattle Guard subsystem.
+        //
         cattleGuard = new CattleGuard();
     }   //robotInit
 

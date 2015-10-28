@@ -1,15 +1,20 @@
 package hallib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class HalSpeedController
 {
+    private String instanceName;
+    private HardwareMap hardwareMap;
     private DcMotor motor;
     private int zeroPosition;
 
-    public HalSpeedController(DcMotor motor)
+    public HalSpeedController(String instanceName)
     {
-        this.motor = motor;
+        this.instanceName = instanceName;
+        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        motor = hardwareMap.dcMotor.get(instanceName);
         zeroPosition = motor.getCurrentPosition();
     }   //HalSpeedController
 
@@ -39,5 +44,10 @@ public class HalSpeedController
     {
         zeroPosition = motor.getCurrentPosition();
     }   //resetCurrentPosition
+
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
 
 }   //class HalSpeedController

@@ -1,15 +1,20 @@
 package hallib;
 
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class HalGyro
 {
-    GyroSensor gyro;
-    double zeroAngle;
+    private String instanceName;
+    private HardwareMap hardwareMap;
+    private GyroSensor gyro;
+    private double zeroAngle;
 
-    public HalGyro(GyroSensor gyro)
+    public HalGyro(String instanceName)
     {
-        this.gyro = gyro;
+        this.instanceName = instanceName;
+        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        this.gyro = hardwareMap.gyroSensor.get(instanceName);
         zeroAngle = gyro.getRotation();
     }   //HalGyro
 
@@ -22,5 +27,10 @@ public class HalGyro
     {
         return gyro.getRotation() - zeroAngle;
     }   //getAngle
+
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
 
 }   //class HalGyro
