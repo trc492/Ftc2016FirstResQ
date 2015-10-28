@@ -13,7 +13,7 @@ public class HalSpeedController
     public HalSpeedController(String instanceName)
     {
         this.instanceName = instanceName;
-        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
         motor = hardwareMap.dcMotor.get(instanceName);
         zeroPosition = motor.getCurrentPosition();
     }   //HalSpeedController

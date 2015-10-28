@@ -61,6 +61,7 @@ public class TrcServo implements TrcTaskMgr.Task
         continuousServo = true;
         this.lowerLimitSwitch = lowerLimitSwitch;
         this.upperLimitSwitch = upperLimitSwitch;
+        servo1.setScale(0.0, 1.0);
     }   //TrcServo
 
     public void stop()

@@ -13,7 +13,7 @@ public class HalGyro
     public HalGyro(String instanceName)
     {
         this.instanceName = instanceName;
-        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
         this.gyro = hardwareMap.gyroSensor.get(instanceName);
         zeroAngle = gyro.getRotation();
     }   //HalGyro

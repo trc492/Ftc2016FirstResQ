@@ -12,7 +12,7 @@ public class HalAnalogInput
     public HalAnalogInput(String instanceName)
     {
         this.instanceName = instanceName;
-        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
         this.analogInput = hardwareMap.analogInput.get(instanceName);
     }   //HalAnalogInput
 

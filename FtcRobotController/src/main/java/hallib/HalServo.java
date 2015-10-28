@@ -23,7 +23,7 @@ public class HalServo
     public HalServo(String instanceName)
     {
         this.instanceName = instanceName;
-        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
         servo = hardwareMap.servo.get(instanceName);
     }   //HalServo
 

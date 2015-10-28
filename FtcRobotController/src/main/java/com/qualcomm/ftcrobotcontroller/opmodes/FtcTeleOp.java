@@ -39,7 +39,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Initializing global objects.
         //
-        platform = new HalPlatform(hardwareMap);
+        platform = new HalPlatform(this);
         hardwareMap.logDevices();
         dashboard = HalDashboard.getInstance();
         //

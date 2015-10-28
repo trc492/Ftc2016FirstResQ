@@ -12,7 +12,7 @@ public class HalTouch
     public HalTouch(String instanceName)
     {
         this.instanceName = instanceName;
-        hardwareMap = (HardwareMap)HalPlatform.getPlatformObject();
+        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
     }   //HalTouch
 
