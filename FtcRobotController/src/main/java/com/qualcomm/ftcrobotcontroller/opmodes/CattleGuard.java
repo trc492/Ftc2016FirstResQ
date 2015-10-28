@@ -11,8 +11,8 @@ public class CattleGuard
     // It provides a method to deploy or undeploy the
     // cattle guard.
     //
-    private static final double CATTLEGUARD_EXTEND_POSITION = 1.0;
     private static final double CATTLEGUARD_RETRACT_POSITION = 0.0;
+    private static final double CATTLEGUARD_EXTEND_POSITION = 180.0;
 
     private HalServo leftServo;
     private HalServo rightServo;
@@ -22,6 +22,7 @@ public class CattleGuard
     {
         leftServo = new HalServo("leftCattleGuard");
         rightServo = new HalServo("rightCattleGuard");
+        rightServo.setReverse(true);
         cattleGuardServo = new TrcServo(leftServo, rightServo);
     }   //CattleGuard
 

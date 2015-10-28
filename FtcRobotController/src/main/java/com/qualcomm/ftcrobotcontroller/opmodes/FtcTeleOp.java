@@ -7,6 +7,7 @@ import hallib.FtcRobot;
 import hallib.HalDashboard;
 import hallib.HalPlatform;
 import hallib.HalSpeedController;
+import trclib.TrcBooleanState;
 import trclib.TrcDriveBase;
 
 public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
@@ -26,6 +27,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private ClimberRelease leftArm;
     private ClimberRelease rightArm;
     private CattleGuard cattleGuard;
+    private TrcBooleanState cattleGuardDeployed;
 
     //
     // Implements FtcRobot abstract methods.
@@ -79,12 +81,13 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Climber Release subsystem.
         //
-        leftArm = new ClimberRelease();
-        rightArm = new ClimberRelease();
+        leftArm = new ClimberRelease("leftArm");
+        rightArm = new ClimberRelease("rightArm");
         //
         // Cattle Guard subsystem.
         //
         cattleGuard = new CattleGuard();
+        cattleGuardDeployed = new TrcBooleanState("cattleGuardDeployed", false);
     }   //robotInit
 
     @Override
@@ -116,8 +119,20 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Chainsaw subsystem.
         //
-        double chainsawPower = operatorGamepad.getRightStickY(true);
-        dashboard.displayPrintf(4, "chainsawPower = %f", chainsawPower);
+        double leftTriggerPower = driverGamepad.getLeftTrigger(true);
+        double rightTriggerPower = driverGamepad.getRightTrigger(true);
+        dashboard.displayPrintf(4, "leftTriggerPower = %f", leftTriggerPower);
+        dashboard.displayPrintf(5, "rightTriggerPower = %f", rightTriggerPower);
+
+        if (leftTriggerPower == 0.0 && rightTriggerPower == 0.0 ||
+            leftTriggerPower != 0.0 && rightTriggerPower != 0.0)
+        {
+            chainsaw.setPower(0.0);
+        }
+        else
+        {
+            chainsaw.setPower(-leftTriggerPower + rightTriggerPower);
+        }
     }   //runPeriodic
 
     @Override
@@ -139,6 +154,18 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
+                    if (pressed)
+                    {
+                        cattleGuardDeployed.toggleState();
+                        if (cattleGuardDeployed.getState())
+                        {
+                            cattleGuard.extend();
+                        }
+                        else
+                        {
+                            cattleGuard.retract();
+                        }
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
@@ -149,11 +176,32 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
 
                 case FtcGamepad.GAMEPAD_Y:
                     break;
+
+                case FtcGamepad.GAMEPAD_LBUMPER:
+                    if (pressed)
+                    {
+                        leftArm.extend();
+                    }
+                    else
+                    {
+                        leftArm.retract();
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_RBUMPER:
+                    if (pressed)
+                    {
+                        rightArm.extend();
+                    }
+                    else
+                    {
+                        rightArm.retract();
+                    }
+                    break;
             }
         }
         else if (gamepad == operatorGamepad)
         {
-//            dashboard.displayPrintf(6, "Operator[%d] = %s", btnMask, Boolean.toString(pressed));
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:

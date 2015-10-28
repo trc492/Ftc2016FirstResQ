@@ -40,9 +40,8 @@ public class HalServo
     public void setPosition(double position)
     {
         position = TrcUtil.limit(position, physicalMin, physicalMax);
-        servo.setPosition(
-                TrcUtil.scaleRange(
-                        position, physicalMin, physicalMax, logicalMin, logicalMax));
+        position = TrcUtil.scaleRange(position, physicalMin, physicalMax, logicalMin, logicalMax);
+        servo.setPosition(position);
     }   //setPosition
 
     public double getPosition()
