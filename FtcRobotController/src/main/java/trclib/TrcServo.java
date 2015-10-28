@@ -48,7 +48,7 @@ public class TrcServo implements TrcTaskMgr.Task
 
         this.servo1 = servo1;
         this.servo2 = servo2;
-    }   //TrcSeervo
+    }   //TrcServo
 
     public TrcServo(HalServo servo, HalTouch lowerLimitSwitch, HalTouch upperLimitSwitch)
     {
@@ -61,7 +61,6 @@ public class TrcServo implements TrcTaskMgr.Task
         continuousServo = true;
         this.lowerLimitSwitch = lowerLimitSwitch;
         this.upperLimitSwitch = upperLimitSwitch;
-        servo1.setScale(0.0, 1.0);
     }   //TrcServo
 
     public void stop()

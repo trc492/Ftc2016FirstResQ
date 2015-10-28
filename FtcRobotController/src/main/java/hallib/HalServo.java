@@ -8,7 +8,7 @@ import trclib.TrcUtil;
 public class HalServo
 {
     private static final double DEF_PHYSICAL_MIN = 0.0;
-    private static final double DEF_PHYSICAL_MAX = 180.0;
+    private static final double DEF_PHYSICAL_MAX = 1.0;
     private static final double DEF_LOGICAL_MIN = 0.0;
     private static final double DEF_LOGICAL_MAX = 1.0;
 

@@ -11,7 +11,7 @@ public class ClimberRelease
     // right arm.
     //
     private static final double ARM_RETRACT_POSITION = 0.0;
-    private static final double ARM_EXTEND_POSITION = 180.0;
+    private static final double ARM_EXTEND_POSITION = 1.0;
 
     private HalServo armServo;
 

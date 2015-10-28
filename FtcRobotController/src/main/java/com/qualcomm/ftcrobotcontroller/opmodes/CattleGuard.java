@@ -12,7 +12,7 @@ public class CattleGuard
     // cattle guard.
     //
     private static final double CATTLEGUARD_RETRACT_POSITION = 0.0;
-    private static final double CATTLEGUARD_EXTEND_POSITION = 180.0;
+    private static final double CATTLEGUARD_EXTEND_POSITION = 1.0;
 
     private HalServo leftServo;
     private HalServo rightServo;

@@ -10,8 +10,8 @@ public class ButtonPusher
     // neutral, left or right.
     //
     private static final double PUSHER_LEFT_POSITION = 0.0;
-    private static final double PUSHER_NEUTRAL_POSITION = 90.0;
-    private static final double PUSHER_RIGHT_POSITION = 180.0;
+    private static final double PUSHER_NEUTRAL_POSITION = 0.5;
+    private static final double PUSHER_RIGHT_POSITION = 1.0;
 
     private HalServo pusherServo;
 
