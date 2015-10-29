@@ -1,9 +1,8 @@
 package trclib;
 
-import hallib.HalPlatform;
 import hallib.HalServo;
 import hallib.HalTouch;
-import trclib.TrcDbgTrace;
+import hallib.HalPlatform;
 
 public class TrcServo implements TrcTaskMgr.Task
 {

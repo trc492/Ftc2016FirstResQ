@@ -1,8 +1,8 @@
 package trclib;
 
+import hallib.HalSpeedController;
 import hallib.HalGyro;
 import hallib.HalRobotDrive;
-import hallib.HalSpeedController;
 
 public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 {
@@ -33,7 +33,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
             HalSpeedController leftMotor,
             HalSpeedController rightMotor,
             TrcMotorPosition   motorPosition,
-            HalGyro            gyro)
+            HalGyro gyro)
     {
         this(null, leftMotor, null, rightMotor, motorPosition, gyro);
     }   //TrcDriveBase
@@ -44,7 +44,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
             HalSpeedController rightFrontMotor,
             HalSpeedController rightRearMotor,
             TrcMotorPosition   motorPosition,
-            HalGyro            gyro)
+            HalGyro gyro)
     {
         super(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 

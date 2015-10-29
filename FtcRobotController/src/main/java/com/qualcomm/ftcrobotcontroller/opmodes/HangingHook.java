@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.HalServo;
+import hallib.FtcServo;
 
 public class HangingHook
 {
@@ -11,11 +11,11 @@ public class HangingHook
     private static final double HANGINGHOOK_RETRACT_POSITION = 0.0;
     private static final double HANGINGHOOK_EXTEND_POSITION = 1.0;
 
-    private HalServo hookServo;
+    private FtcServo hookServo;
 
     public HangingHook()
     {
-        hookServo = new HalServo("hangingHook");
+        hookServo = new FtcServo("hangingHook");
     }   //HangingHook
 
     public void extend()

@@ -119,7 +119,7 @@ public class TrcEvent
         return canceled;
     }   //isCanceled
 
-    public String getName()
+    public String toString()
     {
         final String funcName = "getName";
 
@@ -132,6 +132,6 @@ public class TrcEvent
         }
 
         return instanceName;
-    }   //getName
+    }   //toString
 
 }   //class TrcEvent

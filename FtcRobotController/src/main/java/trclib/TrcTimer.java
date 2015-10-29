@@ -41,7 +41,7 @@ public class TrcTimer implements TrcTaskMgr.Task
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
                     "time=%f,event=%s",
-                    time, event != null? event.getName(): "null");
+                    time, event != null? event.toString(): "null");
         }
 
         expired = false;
@@ -155,7 +155,7 @@ public class TrcTimer implements TrcTaskMgr.Task
                 dbgTrace.traceInfo(
                         funcName,
                         "Time expired, notifying %s.",
-                        notifyEvent != null? notifyEvent.getName(): "null");
+                        notifyEvent != null? notifyEvent.toString(): "null");
             }
 
             if (notifyEvent != null)

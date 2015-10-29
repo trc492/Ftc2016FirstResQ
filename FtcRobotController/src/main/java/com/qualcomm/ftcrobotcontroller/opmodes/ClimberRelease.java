@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.HalServo;
+import hallib.FtcServo;
 
 public class ClimberRelease
 {
@@ -13,11 +13,11 @@ public class ClimberRelease
     private static final double ARM_RETRACT_POSITION = 0.0;
     private static final double ARM_EXTEND_POSITION = 1.0;
 
-    private HalServo armServo;
+    private FtcServo armServo;
 
     public ClimberRelease(String instanceName)
     {
-        armServo = new HalServo(instanceName);
+        armServo = new FtcServo(instanceName);
     }   //ClimberRelease
 
     public void extend()

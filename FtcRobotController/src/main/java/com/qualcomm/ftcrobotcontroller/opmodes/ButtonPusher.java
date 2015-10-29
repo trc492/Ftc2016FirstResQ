@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.HalServo;
+import hallib.FtcServo;
 
 public class ButtonPusher
 {
@@ -13,11 +13,11 @@ public class ButtonPusher
     private static final double PUSHER_NEUTRAL_POSITION = 0.5;
     private static final double PUSHER_RIGHT_POSITION = 1.0;
 
-    private HalServo pusherServo;
+    private FtcServo pusherServo;
 
     public ButtonPusher()
     {
-        pusherServo = new HalServo("buttonPusher");
+        pusherServo = new FtcServo("buttonPusher");
     }   //ButtonPusher
 
     public void pushLeftButton()

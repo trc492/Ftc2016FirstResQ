@@ -1,53 +1,13 @@
 package hallib;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-public class HalSpeedController
+public interface HalSpeedController
 {
-    private String instanceName;
-    private HardwareMap hardwareMap;
-    private DcMotor motor;
-    private int zeroPosition;
+    public void setPower(double power);
 
-    public HalSpeedController(String instanceName)
-    {
-        this.instanceName = instanceName;
-        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
-        motor = hardwareMap.dcMotor.get(instanceName);
-        zeroPosition = motor.getCurrentPosition();
-    }   //HalSpeedController
+    public void setInverted(boolean isInverted);
 
-    public void setPower(double power)
-    {
-        motor.setPower(power);
-    }   //set
+    public int getCurrentPosition();
 
-    public void setInverted(boolean isInverted)
-    {
-        if (isInverted)
-        {
-            motor.setDirection(DcMotor.Direction.REVERSE);
-        }
-        else
-        {
-            motor.setDirection(DcMotor.Direction.FORWARD);
-        }
-    }   //setInverted
+    public void resetCurrentPosition();
 
-    public int getCurrentPosition()
-    {
-        return motor.getCurrentPosition() - zeroPosition;
-    }   //getCurrentPosition
-
-    public void resetCurrentPosition()
-    {
-        zeroPosition = motor.getCurrentPosition();
-    }   //resetCurrentPosition
-
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
-
-}   //class HalSpeedController
+}   //interface HalSpeedController

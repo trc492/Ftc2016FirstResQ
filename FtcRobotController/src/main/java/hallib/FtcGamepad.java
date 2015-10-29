@@ -42,10 +42,7 @@ public class FtcGamepad implements TrcTaskMgr.Task
     private int prevButtons;
     private int ySign;
 
-    public FtcGamepad(
-            final String instanceName,
-            Gamepad gamepad,
-            ButtonHandler buttonHandler)
+    public FtcGamepad(final String instanceName, Gamepad gamepad, ButtonHandler buttonHandler)
     {
         if (debugEnabled)
         {
@@ -67,10 +64,13 @@ public class FtcGamepad implements TrcTaskMgr.Task
         prevButtons = getButtons();
         ySign = 1;
 
-        TrcTaskMgr.getInstance().registerTask(
-                instanceName,
-                this,
-                TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+        if (buttonHandler != null)
+        {
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName,
+                    this,
+                    TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+        }
     }   //FtcGamepad
 
     public FtcGamepad(
@@ -118,18 +118,14 @@ public class FtcGamepad implements TrcTaskMgr.Task
     {
         final String funcName = "setYInverted";
 
+        ySign = inverted? -1: 1;
+
         if (debugEnabled)
         {
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
                     "inverted=%s",
                     Boolean.toString(inverted));
-        }
-
-        ySign = inverted? -1: 1;
-
-        if (debugEnabled)
-        {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //setYInverted
@@ -419,51 +415,49 @@ public class FtcGamepad implements TrcTaskMgr.Task
         }
 
         int currButtons = getButtons();
-        if (buttonHandler != null)
+        int changedButtons = prevButtons^currButtons;
+        int buttonMask;
+
+        while (changedButtons != 0)
         {
-            int changedButtons = prevButtons^currButtons;
-            int buttonMask;
-            while (changedButtons != 0)
+            //
+            // buttonMask contains the least significant set bit.
+            //
+            buttonMask = changedButtons & ~(changedButtons^-changedButtons);
+            if ((currButtons & buttonMask) != 0)
             {
                 //
-                // buttonMask contains the least significant set bit.
+                // Button is pressed.
                 //
-                buttonMask = changedButtons & ~(changedButtons^-changedButtons);
-                if ((currButtons & buttonMask) != 0)
+                if (debugEnabled)
                 {
-                    //
-                    // Button is pressed.
-                    //
-                    if (debugEnabled)
-                    {
-                        dbgTrace.traceInfo(
-                                funcName,
-                                "Button %x pressed",
-                                buttonMask);
-                    }
-                    buttonHandler.gamepadButtonEvent(
-                            this, buttonMask, true);
+                    dbgTrace.traceInfo(
+                            funcName,
+                            "Button %x pressed",
+                            buttonMask);
                 }
-                else
-                {
-                    //
-                    // Button is released.
-                    //
-                    if (debugEnabled)
-                    {
-                        dbgTrace.traceInfo(
-                                funcName,
-                                "Button %x released",
-                                buttonMask);
-                    }
-                    buttonHandler.gamepadButtonEvent(
-                            this, buttonMask, false);
-                }
-                //
-                // Clear the least significant set bit.
-                //
-                changedButtons &= ~buttonMask;
+                buttonHandler.gamepadButtonEvent(
+                        this, buttonMask, true);
             }
+            else
+            {
+                //
+                // Button is released.
+                //
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(
+                            funcName,
+                            "Button %x released",
+                            buttonMask);
+                }
+                buttonHandler.gamepadButtonEvent(
+                        this, buttonMask, false);
+            }
+            //
+            // Clear the least significant set bit.
+            //
+            changedButtons &= ~buttonMask;
         }
         prevButtons = currButtons;
 

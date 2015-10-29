@@ -1,7 +1,7 @@
 package trclib;
 
-import hallib.HalPlatform;
 import hallib.HalSpeedController;
+import hallib.HalPlatform;
 
 public class TrcPidMotor implements TrcTaskMgr.Task
 {
@@ -172,7 +172,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     funcName, TrcDbgTrace.TraceLevel.API,
                     "target=%f,hold=%s,event=%s,timeout=%f",
                     target, Boolean.toString(holdTarget),
-                    event != null? event.getName(): "null", timeout);
+                    event != null? event.toString(): "null", timeout);
         }
 
         if ((flags & PIDMOTORF_ENABLED) != 0)

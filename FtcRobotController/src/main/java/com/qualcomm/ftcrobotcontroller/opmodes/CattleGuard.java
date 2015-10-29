@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.HalServo;
+import hallib.FtcServo;
 import trclib.TrcServo;
 
 public class CattleGuard
@@ -14,14 +14,14 @@ public class CattleGuard
     private static final double CATTLEGUARD_RETRACT_POSITION = 0.0;
     private static final double CATTLEGUARD_EXTEND_POSITION = 1.0;
 
-    private HalServo leftServo;
-    private HalServo rightServo;
+    private FtcServo leftServo;
+    private FtcServo rightServo;
     private TrcServo cattleGuardServo;
 
     public CattleGuard()
     {
-        leftServo = new HalServo("leftCattleGuard");
-        rightServo = new HalServo("rightCattleGuard");
+        leftServo = new FtcServo("leftCattleGuard");
+        rightServo = new FtcServo("rightCattleGuard");
         rightServo.setReverse(true);
         cattleGuardServo = new TrcServo(leftServo, rightServo);
     }   //CattleGuard

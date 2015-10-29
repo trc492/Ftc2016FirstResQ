@@ -1,5 +1,8 @@
 package hallib;
 
+import trclib.TrcDbgTrace;
+import trclib.TrcUtil;
+
 public class HalRobotDrive
 {
     public static class MotorType
@@ -22,6 +25,10 @@ public class HalRobotDrive
         }   //MotorType
     }   //class MotorType
 
+    private static final String moduleName = "HalRobotDrive";
+    private static final boolean debugEnabled = false;
+    private TrcDbgTrace dbgTrace = null;
+
     public static double kDefaultSensitivity = 0.5;
     public static double kDefaultMaxOutput = 1.0;
 
@@ -43,6 +50,15 @@ public class HalRobotDrive
             HalSpeedController frontRightMotor,
             HalSpeedController rearRightMotor)
     {
+        if (debugEnabled)
+        {
+            dbgTrace = new TrcDbgTrace(
+                    moduleName,
+                    false,
+                    TrcDbgTrace.TraceLevel.API,
+                    TrcDbgTrace.MsgLevel.INFO);
+        }
+
         sensitivity = kDefaultSensitivity;
         maxOutput = kDefaultMaxOutput;
         numMotors = 0;
@@ -88,8 +104,16 @@ public class HalRobotDrive
 
     public void drive(double magnitude, double curve)
     {
+        final String funcName = "drive";
         double leftOutput;
         double rightOutput;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "mag=%f,curve=%f", magnitude, curve);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
 
         if (curve < 0.0)
         {
@@ -123,6 +147,14 @@ public class HalRobotDrive
 
     public void stopMotor()
     {
+        final String funcName = "stopMotor";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         if (frontLeftMotor != null) frontLeftMotor.setPower(0.0);
         if (frontRightMotor != null) frontRightMotor.setPower(0.0);
         if (rearLeftMotor != null) rearLeftMotor.setPower(0.0);
@@ -131,21 +163,56 @@ public class HalRobotDrive
 
     public void setSensitivity(double sensitivity)
     {
+        final String funcName = "setSensitivity";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "sensitivity=%f", sensitivity);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         this.sensitivity = sensitivity;
     }   //setSensitivity
 
     public void setMaxOutput(double maxOutput)
     {
+        final String funcName = "setMaxOutput";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "maxOutput=%f", maxOutput);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         this.maxOutput = maxOutput;
     }   //setMaxOutput
 
     public int getNumMotors()
     {
+        final String funcName = "getNumMotors";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", numMotors);
+        }
+
         return numMotors;
     }   //getNumMotors
 
     public void setInvertedMotor(MotorType motorType, boolean isInverted)
     {
+        final String funcName = "setInvertedMotor";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "type=%s,inverted=%s",
+                                motorType.toString(), Boolean.toString(isInverted));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         switch (motorType.value)
         {
             case MotorType.kFrontLeft_val:
@@ -180,6 +247,15 @@ public class HalRobotDrive
 
     public void tankDrive(double leftPower, double rightPower)
     {
+        final String funcName = "tankDrive";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "leftPower=%f,rightPower=%f", leftPower, rightPower);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         leftPower = limit(leftPower);
         rightPower = limit(rightPower);
 
@@ -206,8 +282,16 @@ public class HalRobotDrive
 
     public void arcadeDrive(double drivePower, double turnPower)
     {
+        final String funcName = "arcadeDrive";
         double leftPower;
         double rightPower;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "drivePower=%f,turnPower=%f", drivePower, turnPower);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
 
         drivePower = limit(drivePower);
         turnPower = limit(turnPower);
@@ -262,6 +346,15 @@ public class HalRobotDrive
 
     public void mecanumDrive_Cartesian(double x, double y, double rotation, double gyroAngle)
     {
+        final String funcName = "mecanumDrive_Cartesian";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "x=%f,y=%f,rot=%f,angle=%f", x, y, rotation, gyroAngle);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         if (numMotors != MAX_NUM_MOTORS)
         {
             throw new IllegalArgumentException("Mecanum drive requires 4 motors");
@@ -306,6 +399,15 @@ public class HalRobotDrive
 
     public void mecanumDrive_Polar(double magnitude, double direction, double rotation)
     {
+        final String funcName = "mecanumDrive_Polar";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "mag=%f,dir=%f,rot=%f", magnitude, direction, rotation);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         if (numMotors != MAX_NUM_MOTORS)
         {
             throw new IllegalArgumentException("Mecanum drive requires 4 motors");
@@ -346,7 +448,7 @@ public class HalRobotDrive
 
     private double limit(double value)
     {
-        return value < -1.0? -1.0: value > 1.0? 1.0: value;
+        return TrcUtil.limit(value, -1.0, 1.0);
     }   //limit
 
     private void normalize(double[] wheelSpeeds)

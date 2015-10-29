@@ -137,7 +137,23 @@ public class FtcMenu
 
     public double getChoiceValue(int choice)
     {
-        return choiceValueTable.get(choice).doubleValue();
+        final String funcName = "getChoiceValue";
+        double value = choiceValueTable.get(choice).doubleValue();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                               "choice=%d", choice);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%d", value);
+        }
+
+        return value;
+    }   //getChoiceValue
+
+    public double getChoiceValue()
+    {
+        return getChoiceValue(getChoice());
     }   //getChoiceValue
 
     private void displayMenu()
@@ -168,12 +184,6 @@ public class FtcMenu
     {
         final String funcName = "nextChoice";
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-
         if (choiceTextTable.size() == 0)
         {
             selectedChoice = -1;
@@ -186,17 +196,18 @@ public class FtcMenu
                 selectedChoice = 0;
             }
         }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
+                               "! (choice=%d)", selectedChoice);
+        }
     }   //nextChoice
 
     private void prevChoice()
     {
         final String funcName = "prevChoice";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
 
         if (choiceTextTable.size() == 0)
         {
@@ -210,6 +221,13 @@ public class FtcMenu
                 selectedChoice = choiceTextTable.size() - 1;
             }
         }
-    }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
+                               "! (choice=%d)", selectedChoice);
+        }
+    }   //prevChoice
 
 }   //class FtcMenu

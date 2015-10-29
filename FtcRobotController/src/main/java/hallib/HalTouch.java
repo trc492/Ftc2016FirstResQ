@@ -1,29 +1,6 @@
 package hallib;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-
-public class HalTouch
+public interface HalTouch
 {
-    private String instanceName;
-    private HardwareMap hardwareMap;
-    private TouchSensor touchSensor;
-
-    public HalTouch(String instanceName)
-    {
-        this.instanceName = instanceName;
-        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
-        this.touchSensor = hardwareMap.touchSensor.get(instanceName);
-    }   //HalTouch
-
-    public boolean isPressed()
-    {
-        return touchSensor.isPressed();
-    }   //isPressed
-
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
-
-}   //class HalTouch
+    public boolean isPressed();
+}   //interface HalTouch

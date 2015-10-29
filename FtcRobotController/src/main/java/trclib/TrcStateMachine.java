@@ -221,7 +221,7 @@ public class TrcStateMachine
         {
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
-                    "event=%s", event.getName());
+                    "event=%s", event.toString());
         }
 
         if (!eventList.contains(event))

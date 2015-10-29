@@ -118,6 +118,7 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.FUNC,
                     "enabled=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
 
         TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
@@ -134,24 +135,23 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
                     this,
                     TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
     }   //setEnabled
 
     //
     // Implements TrcTaskMgr.Task
     //
+
+    @Override
     public void startTask(TrcRobot.RunMode runMode)
     {
     }   //startTask
 
+    @Override
     public void stopTask(TrcRobot.RunMode runMode)
     {
     }   //stopTask
 
+    @Override
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "prePeriodic";
@@ -198,14 +198,17 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
         }
     }   //prePeriodicTask
 
+    @Override
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
     }   //postPeriodicTask
 
+    @Override
     public void preContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //preContinuousTask
 
+    @Override
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //postContinuousTask

@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.HalSpeedController;
+import hallib.FtcDcMotor;
 
 public class Chainsaw
 {
@@ -9,11 +9,11 @@ public class Chainsaw
     // It provides a method to drive the chainsaw with
     // the given power.
     //
-    private HalSpeedController chainsawMotor;
+    private FtcDcMotor chainsawMotor;
 
     public Chainsaw()
     {
-        chainsawMotor = new HalSpeedController("chainsaw");
+        chainsawMotor = new FtcDcMotor("chainsaw");
     }   //Chainsaw
 
     public void setPower(double power)

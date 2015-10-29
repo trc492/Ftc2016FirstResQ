@@ -2,11 +2,11 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
 import hallib.HalPlatform;
-import hallib.HalSpeedController;
 import trclib.TrcBooleanState;
 import trclib.TrcDriveBase;
 
@@ -16,10 +16,10 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
-    private HalSpeedController leftFrontWheel;
-    private HalSpeedController rightFrontWheel;
-    private HalSpeedController leftRearWheel;
-    private HalSpeedController rightRearWheel;
+    private FtcDcMotor leftFrontWheel;
+    private FtcDcMotor rightFrontWheel;
+    private FtcDcMotor leftRearWheel;
+    private FtcDcMotor rightRearWheel;
     private TrcDriveBase driveBase;
     private Chainsaw chainsaw;
     private Elevator elevator;
@@ -39,8 +39,8 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Initializing global objects.
         //
-        platform = new HalPlatform(this);
         hardwareMap.logDevices();
+        platform = new HalPlatform(this);
         dashboard = HalDashboard.getInstance();
         //
         // Initializing Gamepads.
@@ -52,10 +52,10 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // DriveBase subsystem.
         //
-        leftFrontWheel = new HalSpeedController("leftFrontWheel");
-        rightFrontWheel = new HalSpeedController("rightFrontWheel");
-        leftRearWheel = new HalSpeedController("leftRearWheel");
-        rightRearWheel = new HalSpeedController("rightRearWheel");
+        leftFrontWheel = new FtcDcMotor("leftFrontWheel");
+        rightFrontWheel = new FtcDcMotor("rightFrontWheel");
+        leftRearWheel = new FtcDcMotor("leftRearWheel");
+        rightRearWheel = new FtcDcMotor("rightRearWheel");
         leftFrontWheel.setInverted(true);
         leftRearWheel.setInverted(true);
 

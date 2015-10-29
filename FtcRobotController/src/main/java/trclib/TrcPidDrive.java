@@ -69,7 +69,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
                     funcName, TrcDbgTrace.TraceLevel.API,
                     "x=%f,y=%f,turn=%f,hold=%s,event=%s,timeout=%f",
                     xTarget, yTarget, turnTarget, Boolean.toString(holdTarget),
-                    event.getName(), timeout);
+                    event.toString(), timeout);
         }
 
         if (xPidCtrl != null)
