@@ -25,6 +25,7 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons
     public ClimberRelease leftArm;
     public ClimberRelease rightArm;
     public CattleGuard cattleGuard;
+    public ButtonPusher buttonPusher;
     //
     // Menus.
     //
@@ -34,9 +35,9 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons
     public static final int STRATEGY_DEFENSE = 1;
 
     private FtcMenu allianceMenu;
-    private int alliance = ALLIANCE_RED;
+    public int alliance = ALLIANCE_RED;
     private FtcMenu strategyMenu;
-    private int strategy = STRATEGY_NONE;
+    public int strategy = STRATEGY_NONE;
 
     @Override
     public void robotInit()
@@ -87,6 +88,10 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons
         // Cattle Guard subsystem.
         //
         cattleGuard = new CattleGuard();
+        //
+        // Button Pusher subsystem.
+        //
+        buttonPusher = new ButtonPusher();
         //
         // Menus.
         //

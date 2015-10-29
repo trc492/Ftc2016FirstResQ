@@ -140,7 +140,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     }   //runContinuous
 
     //
-    // Implemnts FtcGamepad.ButtonHandler interface.
+    // Implements FtcGamepad.ButtonHandler interface.
     //
 
     @Override
