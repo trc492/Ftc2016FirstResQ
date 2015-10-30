@@ -1,53 +1,167 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+
+import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
 import hallib.FtcMenu;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
+import hallib.HalPlatform;
+import hallib.HalSpeedController;
+import trclib.TrcDriveBase;
+import trclib.TrcEvent;
+import trclib.TrcMotorPosition;
+import trclib.TrcPidController;
+import trclib.TrcPidDrive;
+import trclib.TrcStateMachine;
+import trclib.TrcTimer;
 
-public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons
+public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
+                                                 TrcPidController.PidInput,
+                                                 TrcMotorPosition
 {
-    private static final int TEST_DRIVE_5SEC    = 0;
-    private static final int TEST_DRIVE_8FT     = 1;
-    private static final int TEST_TURN_360      = 2;
+    private HalPlatform platform;
+    private HalDashboard dashboard;
+    private FtcGamepad driverGamepad;
+    private OpticalDistanceSensor lightSensor;
+    private FtcDcMotor leftFrontWheel;
+    private FtcDcMotor rightFrontWheel;
+    private FtcDcMotor leftRearWheel;
+    private FtcDcMotor rightRearWheel;
+    //
+    // DriveBase subsystem.
+    //
+    private TrcDriveBase driveBase;
+    private static final double DRIVE_KP = 1.0;
+    private static final double DRIVE_KI = 0.0;
+    private static final double DRIVE_KD = 0.0;
+    private static final double DRIVE_KF = 0.0;
+    private static final double DRIVE_TOLERANCE = 2.0;
+    private static final double DRIVE_SETTLING = 0.2;
+    private TrcPidController pidCtrlDrive;
+    private static final double TURN_KP = 1.0;
+    private static final double TURN_KI = 0.0;
+    private static final double TURN_KD = 0.0;
+    private static final double TURN_KF = 0.0;
+    private static final double TURN_TOLERANCE = 2.0;
+    private static final double TURN_SETTLING = 0.2;
+    private TrcPidController pidCtrlTurn;
+    private TrcPidDrive pidDrive;
+    //
+    // Miscellaneous.
+    //
+    private TrcStateMachine sm;
+    private TrcTimer timer;
+    private TrcEvent event;
+    //
+    // Choice menus.
+    //
+    private static final int TEST_CAL_LIGHTSENSOR   = 0;
+    private static final int TEST_DRIVE_TIME        = 1;
+    private static final int TEST_DRIVE_DISTANCE    = 2;
+    private static final int TEST_TURN_DEGREES      = 3;
+    private static final int TEST_LINE_FOLLOWING    = 4;
 
-    private FtcGamepad menuGamepad;
-    private FtcMenu testMenu;
+    private int testChoice = TEST_CAL_LIGHTSENSOR;
+    private double driveTime = 0.0;
+    private double driveDistance = 0.0;
+    private double turnDegrees = 0.0;
 
     @Override
     public void robotInit()
     {
-        menuGamepad = new FtcGamepad("menuGamepad", gamepad1, null);
-        testMenu = new FtcMenu("Tests:", this);
-        testMenu.addChoice("Drive 5 sec", TEST_DRIVE_5SEC);
-        testMenu.addChoice("Drive forward 8 ft", TEST_DRIVE_8FT);
-        testMenu.addChoice("Turn right 360 deg", TEST_TURN_360);
-        int choice = testMenu.getChoice();
-        HalDashboard.getInstance().displayPrintf(15, "Selected = %d", choice);
+        //
+        // Initializing global objects.
+        //
+        hardwareMap.logDevices();
+        platform = new HalPlatform(this);
+        dashboard = HalDashboard.getInstance();
+        //
+        // Initialize input subsystems.
+        //
+        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
+        lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
+        //
+        // DriveBase subsystem.
+        //
+        leftFrontWheel = new FtcDcMotor("leftFrontWheel");
+        rightFrontWheel = new FtcDcMotor("rightFrontWheel");
+        leftRearWheel = new FtcDcMotor("leftRearWheel");
+        rightRearWheel = new FtcDcMotor("rightRearWheel");
+        leftFrontWheel.setInverted(true);
+        leftRearWheel.setInverted(true);
+        //
+        // DriveBase subsystem.
+        //
+        driveBase = new TrcDriveBase(
+                leftFrontWheel,
+                leftRearWheel,
+                rightFrontWheel,
+                rightRearWheel,
+                null,
+                null);
+        pidCtrlDrive = new TrcPidController(
+                "DrivePid",
+                DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF, DRIVE_TOLERANCE, DRIVE_SETTLING,
+                this, 0);
+        pidCtrlTurn = new TrcPidController(
+                "TurnPid",
+                TURN_KP, TURN_KI, TURN_KD, TURN_KF, TURN_TOLERANCE, TURN_SETTLING,
+                this, 0);
+        pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
+        //
+        // Miscellaneous.
+        //
+        sm = new TrcStateMachine("TestSM");
+        timer = new TrcTimer("TestTimer");
+        event = new TrcEvent("TestEvent");
+        //
+        // Choice menus.
+        //
+        doMenus();
     }   //robotInit
 
     @Override
     public void startMode()
     {
-
     }   //startMode
 
     @Override
     public void stopMode()
     {
-
     }   //stopMode
 
     @Override
     public void runPeriodic()
     {
+        switch (testChoice)
+        {
+            case TEST_CAL_LIGHTSENSOR:
+                doCalLightSensor();
+                break;
 
+            case TEST_DRIVE_TIME:
+                doDriveTime(driveTime);
+                break;
+
+            case TEST_DRIVE_DISTANCE:
+                doDriveDistance(driveDistance);
+                break;
+
+            case TEST_TURN_DEGREES:
+                doTurnDegrees(turnDegrees);
+                break;
+
+            case TEST_LINE_FOLLOWING:
+                doLineFollowing();
+                break;
+        }
     }   //runPeriodic
 
     @Override
     public void runContinuous()
     {
-
     }   //runContinuous
 
     //
@@ -77,5 +191,228 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons
     {
         return gamepad1.b;
     }   //isMenuCancel
+
+    private void doMenus()
+    {
+        FtcMenu testMenu = new FtcMenu("Tests:", this);
+        testMenu.addChoice("Calibrate light sensor", TEST_CAL_LIGHTSENSOR);
+        testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME);
+        testMenu.addChoice("Drive forward 8 ft", TEST_DRIVE_DISTANCE);
+        testMenu.addChoice("Turn right 360 deg", TEST_TURN_DEGREES);
+        testMenu.addChoice("Line following", TEST_LINE_FOLLOWING);
+
+        FtcMenu driveTimeMenu = new FtcMenu("Drive time:", this);
+        driveTimeMenu.addChoice("1 sec", 1.0);
+        driveTimeMenu.addChoice("2 sec", 2.0);
+        driveTimeMenu.addChoice("4 sec", 4.0);
+        driveTimeMenu.addChoice("8 sec", 8.0);
+
+        FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", this);
+        driveDistanceMenu.addChoice("2 ft", 24.0);
+        driveDistanceMenu.addChoice("4 ft", 48.0);
+        driveDistanceMenu.addChoice("8 ft", 96.0);
+        driveDistanceMenu.addChoice("10 ft", 120.0);
+
+        FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", this);
+        turnDegreesMenu.addChoice("-90 degrees", -90.0);
+        turnDegreesMenu.addChoice("-180 degrees", -180.0);
+        turnDegreesMenu.addChoice("-360 degrees", -360.0);
+        turnDegreesMenu.addChoice("90 degrees", 90.0);
+        turnDegreesMenu.addChoice("180 degrees", 180.0);
+        turnDegreesMenu.addChoice("360 degrees", 360.0);
+
+        boolean done = false;
+        while (!done)
+        {
+            if (testMenu.getChoice() != -1)
+            {
+                testChoice = (int)testMenu.getSelectedChoiceValue();
+                switch (testChoice)
+                {
+                    case TEST_CAL_LIGHTSENSOR:
+                        done = true;
+                        break;
+
+                    case TEST_DRIVE_TIME:
+                        driveTime = driveTimeMenu.getChoiceValue();
+                        if (driveTime != -1.0)
+                        {
+                            sm.start();
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_DRIVE_DISTANCE:
+                        driveDistance = driveDistanceMenu.getChoiceValue();
+                        if (driveDistance != -1.0)
+                        {
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_TURN_DEGREES:
+                        turnDegrees = turnDegreesMenu.getChoiceValue();
+                        if (driveDistance != -1.0)
+                        {
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_LINE_FOLLOWING:
+                        done = true;
+                        break;
+                }
+            }
+        }
+        HalDashboard.getInstance().displayPrintf(15, "Test selected = %s",
+                                                 testMenu.getSelectedChoiceText());
+    }   //doMenus
+
+    private void doCalLightSensor()
+    {
+        dashboard.displayPrintf(1, "Calibrating light sensor:");
+        double leftPower  = driverGamepad.getLeftStickY(true);
+        double rightPower = driverGamepad.getRightStickY(true);
+        driveBase.tankDrive(leftPower, rightPower);
+        dashboard.displayPrintf(2, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
+    }   //doCalLightSensor
+
+    private void doDriveTime(double time)
+    {
+        dashboard.displayPrintf(1, "Drive %.1f sec", time);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    driveBase.tankDrive(0.5, 0.5);
+                    timer.set(time, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    driveBase.stop();
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doDriveTime
+
+    private void doDriveDistance(double distance)
+    {
+        dashboard.displayPrintf(1, "Drive %.1f ft", distance/12.0);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doDriveDistance
+
+    private void doTurnDegrees(double degrees)
+    {
+        dashboard.displayPrintf(1, "Turn %.1f degrees", degrees);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    pidDrive.setTarget(0.0, degrees, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doTurnDegrees
+
+    private void doLineFollowing()
+    {
+
+    }   //doLineFollowing
+
+    //
+    // Implements TrcPidController.PidInput
+    //
+
+    @Override
+    public double getInput(TrcPidController pidCtrl)
+    {
+        double input = 0.0;
+
+        if (pidCtrl == pidCtrlDrive)
+        {
+            input = driveBase.getYPosition();
+        }
+        else if (pidCtrl == pidCtrlTurn)
+        {
+            input = driveBase.getHeading();
+        }
+
+        return input;
+    }   //getInput
+
+    //
+    // Implements TrcMotorPosition
+    //
+    @Override
+    public double getMotorPosition(HalSpeedController speedController)
+    {
+        return speedController.getCurrentPosition();
+    }   //getMotorPosition
+
+    @Override
+    public double getMotorSpeed(HalSpeedController speedController)
+    {
+        return 0.0;
+    }   //getMotorSpeed
+
+    @Override
+    public void resetMotorPosition(HalSpeedController speedController)
+    {
+        speedController.resetCurrentPosition();
+    }   //resetMotorPosition
+
+    @Override
+    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
+    {
+    }   //reversePositionSensor
+
+    @Override
+    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
+    {
+        return false;
+    }   //isForwardLimitSwitchActive
+
+    @Override
+    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
+    {
+        return false;
+    }   //isReverseLimitSwitchActive
 
 }   //class FtcTest

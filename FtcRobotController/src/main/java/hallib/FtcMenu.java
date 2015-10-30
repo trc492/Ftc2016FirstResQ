@@ -135,6 +135,74 @@ public class FtcMenu
         return selectedChoice;
     }   //getChoice
 
+    public double getChoiceValue()
+    {
+        double value = -1.0;
+
+        if (getChoice() != -1)
+        {
+            value = getSelectedChoiceValue();
+        }
+
+        return value;
+    }   //getChoiceValue
+
+    public String getChoiceText()
+    {
+        String text = null;
+
+        if (getChoice() != -1)
+        {
+            text = getSelectedChoiceText();
+        }
+
+        return text;
+    }   //getChoiceText
+
+    public int getSelectedChoice()
+    {
+        final String funcName = "getSelectedChoice";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%d", selectedChoice);
+        }
+
+        return selectedChoice;
+    }   //getSelectedChoice
+
+    public double getSelectedChoiceValue()
+    {
+        final String funcName = "getSelectedChoiceValue";
+        double value = choiceValueTable.get(selectedChoice).doubleValue();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%f", value);
+        }
+
+        return value;
+    }   //getSelectedChoiceValue
+
+    public String getSelectedChoiceText()
+    {
+        final String funcName = "getSelectedChoiceValue";
+        String text = choiceTextTable.get(selectedChoice);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", text);
+        }
+
+        return text;
+    }   //getSelectedChoiceText
+
     public double getChoiceValue(int choice)
     {
         final String funcName = "getChoiceValue";
@@ -151,10 +219,21 @@ public class FtcMenu
         return value;
     }   //getChoiceValue
 
-    public double getChoiceValue()
+    public String getChoiceText(int choice)
     {
-        return getChoiceValue(getChoice());
-    }   //getChoiceValue
+        final String funcName = "getChoiceText";
+        String text = choiceTextTable.get(choice);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "choice=%d", choice);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", text);
+        }
+
+        return text;
+    }   //getChoiceText
 
     private void displayMenu()
     {
