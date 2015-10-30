@@ -22,6 +22,18 @@ public class RobotInfo
     public static final double TURN_SETTLING            = 0.2;
 
     //
+    // Elevator subsystem.
+    //
+    public static final double ELEVATOR_INCHES_PER_CLICK= 1.0;
+
+    public static final double ELEVATOR_KP              = 1.0;
+    public static final double ELEVATOR_KI              = 0.0;
+    public static final double ELEVATOR_KD              = 0.0;
+    public static final double ELEVATOR_KF              = 0.0;
+    public static final double ELEVATOR_TOLERANCE       = 2.0;
+    public static final double ELEVATOR_SETTLING        = 0.2;
+
+    //
     // ButtonPusher subsystem.
     //
     public static final double PUSHER_LEFT_POSITION = 0.0;
