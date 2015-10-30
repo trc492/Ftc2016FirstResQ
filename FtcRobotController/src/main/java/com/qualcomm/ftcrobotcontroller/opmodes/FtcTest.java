@@ -94,13 +94,13 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                 gyro);
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
-                RobotConfig.DRIVE_KP, RobotConfig.DRIVE_KI, RobotConfig.DRIVE_KD,
-                RobotConfig.DRIVE_KF, RobotConfig.DRIVE_TOLERANCE, RobotConfig.DRIVE_SETTLING,
+                RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI, RobotInfo.DRIVE_KD,
+                RobotInfo.DRIVE_KF, RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
                 this, 0);
         pidCtrlTurn = new TrcPidController(
                 "TurnPid",
-                RobotConfig.TURN_KP, RobotConfig.TURN_KI, RobotConfig.TURN_KD,
-                RobotConfig.TURN_KF, RobotConfig.TURN_TOLERANCE, RobotConfig.TURN_SETTLING,
+                RobotInfo.TURN_KP, RobotInfo.TURN_KI, RobotInfo.TURN_KD,
+                RobotInfo.TURN_KF, RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
                 this, 0);
         pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
         //
@@ -363,7 +363,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
 
         if (pidCtrl == pidCtrlDrive)
         {
-            input = driveBase.getYPosition();
+            input = driveBase.getYPosition()*RobotInfo.DRIVE_INCHES_PER_CLICK;
         }
         else if (pidCtrl == pidCtrlTurn)
         {

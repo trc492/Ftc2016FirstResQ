@@ -18,17 +18,17 @@ public class ButtonPusher
 
     public void pushLeftButton()
     {
-        pusherServo.setPosition(RobotConfig.PUSHER_LEFT_POSITION);
+        pusherServo.setPosition(RobotInfo.PUSHER_LEFT_POSITION);
     }   //pushLeftButton
 
     public void pushRightButton()
     {
-        pusherServo.setPosition(RobotConfig.PUSHER_RIGHT_POSITION);
+        pusherServo.setPosition(RobotInfo.PUSHER_RIGHT_POSITION);
     }   //pushRightButton
 
     public void pushNoButton()
     {
-        pusherServo.setPosition(RobotConfig.PUSHER_NEUTRAL_POSITION);
+        pusherServo.setPosition(RobotInfo.PUSHER_NEUTRAL_POSITION);
     }   //pushNoButton
 
 }   //class ButtonPusher

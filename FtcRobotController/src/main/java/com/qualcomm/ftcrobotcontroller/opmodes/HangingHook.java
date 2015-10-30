@@ -17,12 +17,12 @@ public class HangingHook
 
     public void extend()
     {
-        hookServo.setPosition(RobotConfig.HANGINGHOOK_EXTEND_POSITION);
+        hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        hookServo.setPosition(RobotConfig.HANGINGHOOK_RETRACT_POSITION);
+        hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
     }   //retract
 
 }   //class HangingHook

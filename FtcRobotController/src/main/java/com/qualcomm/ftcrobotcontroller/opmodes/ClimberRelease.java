@@ -19,12 +19,12 @@ public class ClimberRelease
 
     public void extend()
     {
-        armServo.setPosition(RobotConfig.ARM_EXTEND_POSITION);
+        armServo.setPosition(RobotInfo.ARM_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        armServo.setPosition(RobotConfig.ARM_RETRACT_POSITION);
+        armServo.setPosition(RobotInfo.ARM_RETRACT_POSITION);
     }   //retract
 
 }   //class ClimberRelease

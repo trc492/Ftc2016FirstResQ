@@ -25,12 +25,12 @@ public class CattleGuard
 
     public void extend()
     {
-        cattleGuardServo.setPosition(RobotConfig.CATTLEGUARD_EXTEND_POSITION);
+        cattleGuardServo.setPosition(RobotInfo.CATTLEGUARD_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        cattleGuardServo.setPosition(RobotConfig.CATTLEGUARD_RETRACT_POSITION);
+        cattleGuardServo.setPosition(RobotInfo.CATTLEGUARD_RETRACT_POSITION);
     }   //retract
 
 }   //class CattleGuard
