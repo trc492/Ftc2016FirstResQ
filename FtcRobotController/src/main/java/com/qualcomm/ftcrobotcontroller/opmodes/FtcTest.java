@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
+import hallib.FtcGyro;
 import hallib.FtcMenu;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
@@ -24,6 +25,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private HalPlatform platform;
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
+    private FtcGyro gyro;
     private OpticalDistanceSensor lightSensor;
     private FtcDcMotor leftFrontWheel;
     private FtcDcMotor rightFrontWheel;
@@ -33,19 +35,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     // DriveBase subsystem.
     //
     private TrcDriveBase driveBase;
-    private static final double DRIVE_KP = 1.0;
-    private static final double DRIVE_KI = 0.0;
-    private static final double DRIVE_KD = 0.0;
-    private static final double DRIVE_KF = 0.0;
-    private static final double DRIVE_TOLERANCE = 2.0;
-    private static final double DRIVE_SETTLING = 0.2;
     private TrcPidController pidCtrlDrive;
-    private static final double TURN_KP = 1.0;
-    private static final double TURN_KI = 0.0;
-    private static final double TURN_KD = 0.0;
-    private static final double TURN_KF = 0.0;
-    private static final double TURN_TOLERANCE = 2.0;
-    private static final double TURN_SETTLING = 0.2;
     private TrcPidController pidCtrlTurn;
     private TrcPidDrive pidDrive;
     //
@@ -81,6 +71,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
         // Initialize input subsystems.
         //
         driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
+        gyro = new FtcGyro("gyroSensor");
         lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
         //
         // DriveBase subsystem.
@@ -99,15 +90,17 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                 leftRearWheel,
                 rightFrontWheel,
                 rightRearWheel,
-                null,
-                null);
+                this,
+                gyro);
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
-                DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF, DRIVE_TOLERANCE, DRIVE_SETTLING,
+                RobotConfig.DRIVE_KP, RobotConfig.DRIVE_KI, RobotConfig.DRIVE_KD,
+                RobotConfig.DRIVE_KF, RobotConfig.DRIVE_TOLERANCE, RobotConfig.DRIVE_SETTLING,
                 this, 0);
         pidCtrlTurn = new TrcPidController(
                 "TurnPid",
-                TURN_KP, TURN_KI, TURN_KD, TURN_KF, TURN_TOLERANCE, TURN_SETTLING,
+                RobotConfig.TURN_KP, RobotConfig.TURN_KI, RobotConfig.TURN_KD,
+                RobotConfig.TURN_KF, RobotConfig.TURN_TOLERANCE, RobotConfig.TURN_SETTLING,
                 this, 0);
         pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
         //
@@ -246,6 +239,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                         driveDistance = driveDistanceMenu.getChoiceValue();
                         if (driveDistance != -1.0)
                         {
+                            sm.start();
                             done = true;
                         }
                         break;
@@ -254,11 +248,13 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                         turnDegrees = turnDegreesMenu.getChoiceValue();
                         if (driveDistance != -1.0)
                         {
+                            sm.start();
                             done = true;
                         }
                         break;
 
                     case TEST_LINE_FOLLOWING:
+                        sm.start();
                         done = true;
                         break;
                 }
