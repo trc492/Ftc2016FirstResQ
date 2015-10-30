@@ -10,9 +10,6 @@ public class ClimberRelease
     // the left arm. The other is to deploy or undeploy the
     // right arm.
     //
-    private static final double ARM_RETRACT_POSITION = 0.0;
-    private static final double ARM_EXTEND_POSITION = 1.0;
-
     private FtcServo armServo;
 
     public ClimberRelease(String instanceName)
@@ -22,12 +19,12 @@ public class ClimberRelease
 
     public void extend()
     {
-        armServo.setPosition(ARM_EXTEND_POSITION);
+        armServo.setPosition(RobotConfig.ARM_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        armServo.setPosition(ARM_RETRACT_POSITION);
+        armServo.setPosition(RobotConfig.ARM_RETRACT_POSITION);
     }   //retract
 
 }   //class ClimberRelease

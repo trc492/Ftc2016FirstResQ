@@ -11,9 +11,6 @@ public class CattleGuard
     // It provides a method to deploy or undeploy the
     // cattle guard.
     //
-    private static final double CATTLEGUARD_RETRACT_POSITION = 0.0;
-    private static final double CATTLEGUARD_EXTEND_POSITION = 1.0;
-
     private FtcServo leftServo;
     private FtcServo rightServo;
     private TrcServo cattleGuardServo;
@@ -28,12 +25,12 @@ public class CattleGuard
 
     public void extend()
     {
-        cattleGuardServo.setPosition(CATTLEGUARD_EXTEND_POSITION);
+        cattleGuardServo.setPosition(RobotConfig.CATTLEGUARD_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        cattleGuardServo.setPosition(CATTLEGUARD_RETRACT_POSITION);
+        cattleGuardServo.setPosition(RobotConfig.CATTLEGUARD_RETRACT_POSITION);
     }   //retract
 
 }   //class CattleGuard
