@@ -1,6 +1,8 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
@@ -26,7 +28,9 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGyro gyro;
+    private ColorSensor colorSensor;
     private OpticalDistanceSensor lightSensor;
+    private TouchSensor touchSensor;
     private FtcDcMotor leftFrontWheel;
     private FtcDcMotor rightFrontWheel;
     private FtcDcMotor leftRearWheel;
@@ -47,13 +51,13 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     //
     // Choice menus.
     //
-    private static final int TEST_CAL_LIGHTSENSOR   = 0;
+    private static final int TEST_SENSORS           = 0;
     private static final int TEST_DRIVE_TIME        = 1;
     private static final int TEST_DRIVE_DISTANCE    = 2;
     private static final int TEST_TURN_DEGREES      = 3;
     private static final int TEST_LINE_FOLLOWING    = 4;
 
-    private int testChoice = TEST_CAL_LIGHTSENSOR;
+    private int testChoice = TEST_SENSORS;
     private double driveTime = 0.0;
     private double driveDistance = 0.0;
     private double turnDegrees = 0.0;
@@ -72,7 +76,9 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
         //
         driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
         gyro = new FtcGyro("gyroSensor");
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
         lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
+        touchSensor = hardwareMap.touchSensor.get("touchSensor");
         //
         // DriveBase subsystem.
         //
@@ -130,8 +136,8 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     {
         switch (testChoice)
         {
-            case TEST_CAL_LIGHTSENSOR:
-                doCalLightSensor();
+            case TEST_SENSORS:
+                doTestSensors();
                 break;
 
             case TEST_DRIVE_TIME:
@@ -188,7 +194,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private void doMenus()
     {
         FtcMenu testMenu = new FtcMenu("Tests:", this);
-        testMenu.addChoice("Calibrate light sensor", TEST_CAL_LIGHTSENSOR);
+        testMenu.addChoice("Test sensors", TEST_SENSORS);
         testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME);
         testMenu.addChoice("Drive forward 8 ft", TEST_DRIVE_DISTANCE);
         testMenu.addChoice("Turn right 360 deg", TEST_TURN_DEGREES);
@@ -222,7 +228,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                 testChoice = (int)testMenu.getSelectedChoiceValue();
                 switch (testChoice)
                 {
-                    case TEST_CAL_LIGHTSENSOR:
+                    case TEST_SENSORS:
                         done = true;
                         break;
 
@@ -264,14 +270,18 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                                                  testMenu.getSelectedChoiceText());
     }   //doMenus
 
-    private void doCalLightSensor()
+    private void doTestSensors()
     {
-        dashboard.displayPrintf(1, "Calibrating light sensor:");
+        dashboard.displayPrintf(1, "Calibrating sensors:");
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
-    }   //doCalLightSensor
+        dashboard.displayPrintf(2, "Gyro = %f", gyro.getAngle());
+        dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
+                                colorSensor.red(), colorSensor.green(), colorSensor.blue());
+        dashboard.displayPrintf(4, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
+        dashboard.displayPrintf(5, "Touch = %s", touchSensor.isPressed()? "pressed": "released");
+    }   //doTestSensors
 
     private void doDriveTime(double time)
     {
