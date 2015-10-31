@@ -114,7 +114,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Elevator subsystem.
         //
-        double elevatorPower = operatorGamepad.getLeftStickY(true);
+        double elevatorPower = operatorGamepad.getRightStickY(true);
         elevator.setPower(elevatorPower);
         dashboard.displayPrintf(3, "elevatorPower = %f", elevatorPower);
         dashboard.displayPrintf(4, "lowerLimit = %s, upperLimit = %s",
@@ -215,6 +215,17 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:
+                    break;
+
+                case FtcGamepad.GAMEPAD_RBUMPER:
+                    elevator.setElevatorOverride(pressed);
+                    break;
+
+                case FtcGamepad.GAMEPAD_BACK:
+                    if (pressed)
+                    {
+                        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
+                    }
                     break;
             }
         }
