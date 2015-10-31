@@ -1,6 +1,6 @@
 package trclib;
 
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcPidDrive implements TrcTaskMgr.Task
 {
@@ -95,7 +95,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
         this.expiredTime = timeout;
         if (timeout != 0)
         {
-            this.expiredTime += HalPlatform.getCurrentTime();
+            this.expiredTime += HalUtil.getCurrentTime();
         }
 
         flags = 0;
@@ -348,7 +348,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
         double turnPower = (turnPidCtrl == null)? 0.0: turnPidCtrl.getOutput();
 
         boolean expired =
-                expiredTime != 0.0 && HalPlatform.getCurrentTime() >= expiredTime;
+                expiredTime != 0.0 && HalUtil.getCurrentTime() >= expiredTime;
         boolean xOnTarget = xPidCtrl == null || xPidCtrl.isOnTarget();
         boolean yOnTarget = yPidCtrl == null || yPidCtrl.isOnTarget();
         boolean turnOnTarget = turnPidCtrl == null || turnPidCtrl.isOnTarget();

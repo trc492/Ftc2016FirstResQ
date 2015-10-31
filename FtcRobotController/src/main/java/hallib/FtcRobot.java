@@ -20,6 +20,19 @@ public abstract class FtcRobot extends LinearOpMode
 
     private final static long LOOP_PERIOD = 20;
     private TrcRobot.RunMode runMode = TrcRobot.RunMode.INVALID_MODE;
+    private static FtcRobot instance = null;
+    private double startTime = 0.0;
+
+    public FtcRobot()
+    {
+        super();
+        instance = this;
+    }   //FtcRobot
+
+    public static FtcRobot getInstance()
+    {
+        return instance;
+    }   //getInstance
 
     //
     // Implements LinearOpMode
@@ -78,7 +91,7 @@ public abstract class FtcRobot extends LinearOpMode
         }
 
         TrcTaskMgr taskMgr = new TrcTaskMgr();
-        HalDashboard dashboard = new HalDashboard(telemetry);
+        HalDashboard dashboard = new HalDashboard();
 
         //
         // robotInit contains code to initialize the robot.
@@ -97,6 +110,7 @@ public abstract class FtcRobot extends LinearOpMode
             dbgTrace.traceInfo(funcName, "Waiting to start ...");
         }
         waitForStart();
+        startTime = HalUtil.getCurrentTime();
 
         //
         // Prepare for starting autonomous.
@@ -110,11 +124,11 @@ public abstract class FtcRobot extends LinearOpMode
                 runMode);
         startMode();
 
-        long nextPeriodTime = HalPlatform.getCurrentTimeMillis();
+        long nextPeriodTime = HalUtil.getCurrentTimeMillis();
         while (opModeIsActive())
         {
-            dashboard.displayPrintf(0, "%s: %f", runModeName, getRuntime());
-            if (HalPlatform.getCurrentTimeMillis() >= nextPeriodTime)
+            dashboard.displayPrintf(0, "%s: %f", runModeName, HalUtil.getCurrentTime() - startTime);
+            if (HalUtil.getCurrentTimeMillis() >= nextPeriodTime)
             {
                 nextPeriodTime += LOOP_PERIOD;
                 if (debugEnabled)

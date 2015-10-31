@@ -28,7 +28,7 @@ public class FtcGyro implements HalGyro
         }
 
         this.instanceName = instanceName;
-        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
+        hardwareMap = FtcRobot.getInstance().hardwareMap;
         this.gyro = hardwareMap.gyroSensor.get(instanceName);
         zeroAngle = gyro.getRotation();
     }   //FtcGyro

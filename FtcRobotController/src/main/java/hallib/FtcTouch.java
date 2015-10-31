@@ -27,7 +27,7 @@ public class FtcTouch implements HalTouch
         }
 
         this.instanceName = instanceName;
-        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
+        hardwareMap = FtcRobot.getInstance().hardwareMap;
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
     }   //FtcTouch
 

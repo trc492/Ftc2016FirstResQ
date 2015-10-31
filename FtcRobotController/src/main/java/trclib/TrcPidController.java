@@ -1,7 +1,7 @@
 package trclib;
 
 import hallib.HalDashboard;
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcPidController
 {
@@ -329,7 +329,7 @@ public class TrcPidController
             prevError = -prevError;
         }
         totalError = 0.0;
-        settlingStartTime = HalPlatform.getCurrentTime();
+        settlingStartTime = HalUtil.getCurrentTime();
 
         if (debugEnabled)
         {
@@ -388,9 +388,9 @@ public class TrcPidController
         }
         else if (Math.abs(prevError) > tolerance)
         {
-            settlingStartTime = HalPlatform.getCurrentTime();
+            settlingStartTime = HalUtil.getCurrentTime();
         }
-        else if (HalPlatform.getCurrentTime() >= settlingStartTime + settlingTime)
+        else if (HalUtil.getCurrentTime() >= settlingStartTime + settlingTime)
         {
             onTarget = true;
         }

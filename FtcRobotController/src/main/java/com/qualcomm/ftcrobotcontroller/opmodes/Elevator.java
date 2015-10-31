@@ -1,30 +1,32 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-public class Elevator
+import hallib.FtcDcMotor;
+import hallib.FtcTouch;
+import hallib.HalSpeedController;
+import trclib.TrcEvent;
+import trclib.TrcMotorPosition;
+import trclib.TrcPidController;
+import trclib.TrcPidMotor;
+
+public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 {
     //
     // This component consists of an elevator motor, a lower
     // limit switch, an upper limit switch and an encoder to
     // keep track of the position of the elevator.
     //
-}   //class Elevator
-
-/*
-public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
-{
-    private CANTalon elevatorMotor;
-    private TrcPidController pidCtrl;
+    private FtcDcMotor elevatorMotor;
+    private TrcPidController pidController;
     private TrcPidMotor pidMotor;
+    private FtcTouch lowerLimitSwitch;
+    private FtcTouch upperLimitSwitch;
     private boolean elevatorOverride = false;
-    private double lastHeight = 0.0;
-    private boolean stopped = true;
 
     public Elevator()
     {
-        elevatorMotor = new CANTalon(RobotInfo.CANID_ELEVATOR);
-        elevatorMotor.reverseSensor(true);
-        pidCtrl = new TrcPidController(
-                moduleName,
+        elevatorMotor = new FtcDcMotor("elevator");
+        pidController = new TrcPidController(
+                "elevator",
                 RobotInfo.ELEVATOR_KP,
                 RobotInfo.ELEVATOR_KI,
                 RobotInfo.ELEVATOR_KD,
@@ -33,16 +35,15 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
                 RobotInfo.ELEVATOR_SETTLING,
                 this,
                 TrcPidController.PIDCTRLO_ABS_SETPT);
-        elevatorMotor.ConfigFwdLimitSwitchNormallyOpen(false);
-        elevatorMotor.ConfigRevLimitSwitchNormallyOpen(false);
-        pidMotor = new TrcPidMotor(moduleName,elevatorMotor,pidCtrl, this);
+        pidMotor = new TrcPidMotor("elevator", elevatorMotor, pidController, this);
         pidMotor.setTargetScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
-        lastHeight = getHeight();
+        lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
+        upperLimitSwitch = new FtcTouch("upperLimitSwitch");
     }
 
-    public void displayDebugInfo(int lineNum)
+    public void zeroCalibrate(double calPower)
     {
-        pidCtrl.displayPidInfo(lineNum);
+        pidMotor.zeroCalibrate(calPower);
     }
 
     public void setElevatorOverride(boolean enabled)
@@ -50,59 +51,32 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
         elevatorOverride = enabled;
     }
 
-    public void zeroCalibrate(double calPower)
-    {
-        pidMotor.zeroCalibrate(calPower);
-        lastHeight = getHeight();
-    }
-
     public void setPower(double power)
     {
         if (elevatorOverride)
         {
-            pidMotor.setPower(power);
-        }
-        else
-        {
-            pidMotor.setPidPower(
-                    power,
-                    RobotInfo.ELEVATOR_MIN_HEIGHT,
-                    RobotInfo.ELEVATOR_MAX_HEIGHT,
-                    true);
-        }
-
-        if (power == 0.0)
-        {
-            if (!stopped)
+            if (power > 0.0 && !upperLimitSwitch.isPressed() ||
+                power < 0.0 && !lowerLimitSwitch.isPressed())
             {
-                lastHeight = getHeight();
+                pidMotor.setPower(power);
             }
-            stopped = true;
+            else
+            {
+                pidMotor.setPower(0.0);
+            }
         }
         else
         {
-            stopped = false;
+            pidMotor.setPidPower(power,
+                                 RobotInfo.ELEVATOR_MIN_HEIGHT,
+                                 RobotInfo.ELEVATOR_MAX_HEIGHT,
+                                 true);
         }
-    }
-
-    public void setDeltaHeight(double deltaHeight)
-    {
-        lastHeight += deltaHeight;
-        if (lastHeight > RobotInfo.ELEVATOR_MAX_HEIGHT)
-        {
-            lastHeight = RobotInfo.ELEVATOR_MAX_HEIGHT;
-        }
-        else if (lastHeight < RobotInfo.ELEVATOR_MIN_HEIGHT)
-        {
-            lastHeight = RobotInfo.ELEVATOR_MIN_HEIGHT;
-        }
-        pidMotor.setTarget(lastHeight, true);
     }
 
     public void setHeight(double height)
     {
         pidMotor.setTarget(height, true);
-        lastHeight = height;
     }
 
     public void setHeight(double height, TrcEvent event, double timeout)
@@ -112,52 +86,55 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public double getHeight()
     {
-        return getMotorPosition(elevatorMotor)*
-               RobotInfo.ELEVATOR_INCHES_PER_CLICK;
+        return getMotorPosition(elevatorMotor)*RobotInfo.ELEVATOR_INCHES_PER_CLICK;
     }
 
-    public boolean isUpperLimitSwitchActive()
+    public boolean isLowerLimitSwitchPressed()
     {
-        return !elevatorMotor.isFwdLimitSwitchClosed();
+        return lowerLimitSwitch.isPressed();
     }
 
-    public boolean isLowerLimitSwitchActive()
+    public boolean isUpperLimitSwitchPressed()
     {
-        return !elevatorMotor.isRevLimitSwitchClosed();
+        return upperLimitSwitch.isPressed();
     }
+
+    public void displayDebugInfo(int lineNum)
+    {
+        pidController.displayPidInfo(lineNum);
+    }
+
     //
     // Implements TrcDriveBase.MotorPosition.
     //
-    public double getMotorPosition(SpeedController speedController)
+    public double getMotorPosition(HalSpeedController speedController)
     {
-        return ((CANTalon)speedController).getPosition();
+        return speedController.getCurrentPosition();
     }   //getMotorPosition
 
-    public double getMotorSpeed(SpeedController speedController)
+    public double getMotorSpeed(HalSpeedController speedController)
     {
-        return ((CANTalon)speedController).getSpeed()*10.0;
+        return 0.0;
     }   //getMotorSpeed
 
-    public void resetMotorPosition(SpeedController speedController)
+    public void resetMotorPosition(HalSpeedController speedController)
     {
-        ((CANTalon)speedController).setPosition(0.0);
+        speedController.resetCurrentPosition();
     }   //resetMotorPosition
 
-    public void reversePositionSensor(
-            SpeedController speedController,
-            boolean flip)
+    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
     {
-        ((CANTalon)speedController).reverseSensor(flip);
+        return;
     }   //reversePositionSensor
 
-    public boolean isForwardLimitSwitchActive(SpeedController speedController)
+    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
     {
-        return !((CANTalon)speedController).isFwdLimitSwitchClosed();
+        return upperLimitSwitch.isPressed();
     }   //isForwardLimitSwitchActive
 
-    public boolean isReverseLimitSwitchActive(SpeedController speedController)
+    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
     {
-        return !((CANTalon)speedController).isRevLimitSwitchClosed();
+        return lowerLimitSwitch.isPressed();
     }   //isReverseLimitSwitchActive
 
     //
@@ -167,7 +144,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     {
         double value = 0.0;
 
-        if (pidCtrl == this.pidCtrl)
+        if (pidCtrl == pidController)
         {
             value = getHeight();
         }
@@ -175,5 +152,4 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
         return value;
     }   //getInput
 
-}
-*/
+}   //class Elevator

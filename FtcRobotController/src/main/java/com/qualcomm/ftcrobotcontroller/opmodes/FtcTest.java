@@ -3,6 +3,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
@@ -10,7 +11,6 @@ import hallib.FtcGyro;
 import hallib.FtcMenu;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
-import hallib.HalPlatform;
 import hallib.HalSpeedController;
 import trclib.TrcDriveBase;
 import trclib.TrcEvent;
@@ -24,13 +24,13 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
                                                  TrcPidController.PidInput,
                                                  TrcMotorPosition
 {
-    private HalPlatform platform;
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGyro gyro;
     private ColorSensor colorSensor;
     private OpticalDistanceSensor lightSensor;
     private TouchSensor touchSensor;
+    private UltrasonicSensor sonarSensor;
     private FtcDcMotor leftFrontWheel;
     private FtcDcMotor rightFrontWheel;
     private FtcDcMotor leftRearWheel;
@@ -69,7 +69,6 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
         // Initializing global objects.
         //
         hardwareMap.logDevices();
-        platform = new HalPlatform(this);
         dashboard = HalDashboard.getInstance();
         //
         // Initialize input subsystems.
@@ -79,6 +78,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
         lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
         touchSensor = hardwareMap.touchSensor.get("touchSensor");
+        sonarSensor = hardwareMap.ultrasonicSensor.get("sonarSensor");
         //
         // DriveBase subsystem.
         //
@@ -273,14 +273,16 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private void doTestSensors()
     {
         dashboard.displayPrintf(1, "Calibrating sensors:");
-        double leftPower  = driverGamepad.getLeftStickY(true);
-        double rightPower = driverGamepad.getRightStickY(true);
-        driveBase.tankDrive(leftPower, rightPower);
+//        double leftPower  = driverGamepad.getLeftStickY(true);
+//        double rightPower = driverGamepad.getRightStickY(true);
+//        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
+//        driveBase.tankDrive(leftPower, rightPower);
         dashboard.displayPrintf(2, "Gyro = %f", gyro.getAngle());
         dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
                                 colorSensor.red(), colorSensor.green(), colorSensor.blue());
         dashboard.displayPrintf(4, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
         dashboard.displayPrintf(5, "Touch = %s", touchSensor.isPressed()? "pressed": "released");
+        dashboard.displayPrintf(6, "Sonar = %f", sonarSensor.getUltrasonicLevel());
     }   //doTestSensors
 
     private void doDriveTime(double time)

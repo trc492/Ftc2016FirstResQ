@@ -2,7 +2,7 @@ package trclib;
 
 import java.util.ArrayList;
 
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcStateMachine
 {
@@ -155,7 +155,7 @@ public class TrcStateMachine
 
         if (currState != STATE_DISABLED && !ready)
         {
-            if (expiredTime > 0.0 && HalPlatform.getCurrentTime() >= expiredTime)
+            if (expiredTime > 0.0 && HalUtil.getCurrentTime() >= expiredTime)
             {
                 expiredTime = 0.0;
                 ready = true;
@@ -259,7 +259,7 @@ public class TrcStateMachine
         this.expiredTime = timeout;
         if (timeout > 0.0)
         {
-            this.expiredTime += HalPlatform.getCurrentTime();
+            this.expiredTime += HalUtil.getCurrentTime();
         }
         this.waitForAllEvents = waitForAllEvents;
         ready = false;

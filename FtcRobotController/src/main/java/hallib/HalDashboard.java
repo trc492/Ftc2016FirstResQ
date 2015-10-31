@@ -19,7 +19,7 @@ public class HalDashboard
     private static HalDashboard instance = null;
     private static String[] display = new String[MAX_NUM_TEXTLINES];
 
-    public HalDashboard(Telemetry telemetry)
+    public HalDashboard()
     {
         if (debugEnabled)
         {
@@ -31,7 +31,7 @@ public class HalDashboard
         }
 
         instance = this;
-        this.telemetry = telemetry;
+        this.telemetry = FtcRobot.getInstance().telemetry;
         telemetry.clearData();
         clearDisplay();
     }   //HalDashboard

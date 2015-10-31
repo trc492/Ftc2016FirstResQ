@@ -27,7 +27,7 @@ public class FtcAnalogInput implements HalAnalogInput
         }
 
         this.instanceName = instanceName;
-        hardwareMap = ((FtcRobot)HalPlatform.getPlatformObject()).hardwareMap;
+        hardwareMap = FtcRobot.getInstance().hardwareMap;
         this.analogInput = hardwareMap.analogInput.get(instanceName);
     }   //FtcAnalogInput
 

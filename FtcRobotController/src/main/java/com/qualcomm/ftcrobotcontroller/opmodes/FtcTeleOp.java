@@ -6,13 +6,11 @@ import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
 import hallib.FtcRobot;
 import hallib.HalDashboard;
-import hallib.HalPlatform;
 import trclib.TrcBooleanState;
 import trclib.TrcDriveBase;
 
 public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
 {
-    private HalPlatform platform;
     private HalDashboard dashboard;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
@@ -28,6 +26,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private ClimberRelease rightArm;
     private CattleGuard cattleGuard;
     private TrcBooleanState cattleGuardDeployed;
+    private TrcBooleanState climbMode;
 
     //
     // Implements FtcRobot abstract methods.
@@ -40,7 +39,6 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         // Initializing global objects.
         //
         hardwareMap.logDevices();
-        platform = new HalPlatform(this);
         dashboard = HalDashboard.getInstance();
         //
         // Initializing Gamepads.
@@ -70,6 +68,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         // Chainsaw subsystem.
         //
         chainsaw = new Chainsaw();
+        climbMode = new TrcBooleanState("climbMode", false);
         //
         // Elevator subsystem.
         //
@@ -93,6 +92,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     @Override
     public void startMode()
     {
+        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
     }   //startMode
 
     @Override
@@ -115,22 +115,20 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         // Elevator subsystem.
         //
         double elevatorPower = operatorGamepad.getLeftStickY(true);
+        elevator.setPower(elevatorPower);
         dashboard.displayPrintf(3, "elevatorPower = %f", elevatorPower);
+        dashboard.displayPrintf(4, "lowerLimit = %s, upperLimit = %s",
+                                elevator.isLowerLimitSwitchPressed()? "pressed": "released",
+                                elevator.isUpperLimitSwitchPressed()? "pressed": "released");
+        elevator.displayDebugInfo(5);
         //
         // Chainsaw subsystem.
         //
-        double leftTriggerPower = driverGamepad.getLeftTrigger(true);
-        double rightTriggerPower = driverGamepad.getRightTrigger(true);
-        dashboard.displayPrintf(4, "leftTriggerPower = %f", leftTriggerPower);
-        dashboard.displayPrintf(5, "rightTriggerPower = %f", rightTriggerPower);
-
-        if (leftTriggerPower != 0.0 && rightTriggerPower != 0.0)
+        if (climbMode.getState())
         {
-            chainsaw.setPower(0.0);
-        }
-        else
-        {
-            chainsaw.setPower(-leftTriggerPower + rightTriggerPower);
+            double chainsawPower = (leftPower + rightPower)/2.0;
+            chainsaw.setPower(chainsawPower);
+            dashboard.displayPrintf(7, "chainsawPower = %f", chainsawPower);
         }
     }   //runPeriodic
 
@@ -171,6 +169,10 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_X:
+                    if (pressed)
+                    {
+                        climbMode.toggleState();
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:

@@ -1,7 +1,7 @@
 package trclib;
 
 import hallib.HalDbgLog;
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcDbgTrace
 {
@@ -79,7 +79,7 @@ public class TrcDbgTrace
     {
         this.instanceName = instanceName;
         setDbgTraceConfig(traceEnabled, traceLevel, msgLevel);
-        this.nextTraceTime = HalPlatform.getCurrentTime();
+        this.nextTraceTime = HalUtil.getCurrentTime();
     }   //TrcDbgTrace
 
     public void traceEnter(
@@ -190,7 +190,7 @@ public class TrcDbgTrace
     {
         if (level.getValue() <= msgLevel.getValue())
         {
-            double currTime = HalPlatform.getCurrentTime();
+            double currTime = HalUtil.getCurrentTime();
             if (currTime >= nextTraceTime)
             {
                 nextTraceTime = currTime + traceInterval;

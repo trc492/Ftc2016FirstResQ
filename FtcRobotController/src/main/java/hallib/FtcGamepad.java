@@ -87,7 +87,10 @@ public class FtcGamepad implements TrcTaskMgr.Task
     {
         final String funcName = "getButtons";
 
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        if (buttonHandler != null)
+        {
+            gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
+        }
         int buttons = 0;
         buttons |= gamepad.a? GAMEPAD_A: 0;
         buttons |= gamepad.b? GAMEPAD_B: 0;

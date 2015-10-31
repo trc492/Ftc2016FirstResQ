@@ -1,6 +1,6 @@
 package trclib;
 
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcTimer implements TrcTaskMgr.Task
 {
@@ -45,7 +45,7 @@ public class TrcTimer implements TrcTaskMgr.Task
         }
 
         expired = false;
-        expiredTime = HalPlatform.getCurrentTime() + time;
+        expiredTime = HalUtil.getCurrentTime() + time;
         if (event != null)
         {
             event.clear();
@@ -146,7 +146,7 @@ public class TrcTimer implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
-        if (enabled && !expired && HalPlatform.getCurrentTime() >= expiredTime)
+        if (enabled && !expired && HalUtil.getCurrentTime() >= expiredTime)
         {
             setEnabled(false);
 

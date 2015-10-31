@@ -1,7 +1,7 @@
 package trclib;
 
 import hallib.HalSpeedController;
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcPidMotor implements TrcTaskMgr.Task
 {
@@ -190,7 +190,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         expiredTime = timeout;
         if (timeout != 0.0)
         {
-            expiredTime += HalPlatform.getCurrentTime();
+            expiredTime += HalUtil.getCurrentTime();
         }
 
         if (holdTarget)
@@ -294,16 +294,16 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                 // reset timeout, we clear it.
                 //
                 if (resetTimeout == 0.0 ||
-                    HalPlatform.getCurrentTime() - prevTime > resetTimeout)
+                    HalUtil.getCurrentTime() - prevTime > resetTimeout)
                 {
                     prevPos = motorPosition.getMotorPosition(motor1);
-                    prevTime = HalPlatform.getCurrentTime();
+                    prevTime = HalUtil.getCurrentTime();
                     flags &= ~PIDMOTORF_STALLED;
                 }
             }
             else
             {
-                prevTime = HalPlatform.getCurrentTime();
+                prevTime = HalUtil.getCurrentTime();
             }
         }
         else
@@ -321,10 +321,10 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     currPos != prevPos)
                 {
                     prevPos = currPos;
-                    prevTime = HalPlatform.getCurrentTime();
+                    prevTime = HalUtil.getCurrentTime();
                 }
 
-                if (HalPlatform.getCurrentTime() - prevTime > stallTimeout)
+                if (HalUtil.getCurrentTime() - prevTime > stallTimeout)
                 {
                     //
                     // We have detected a stalled condition for at least
@@ -613,7 +613,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         else if ((flags & PIDMOTORF_ENABLED) != 0)
         {
             if ((flags & PIDMOTORF_HOLD_TARGET) == 0 && pidCtrl.isOnTarget() ||
-                expiredTime != 0.0 && HalPlatform.getCurrentTime() >= expiredTime)
+                expiredTime != 0.0 && HalUtil.getCurrentTime() >= expiredTime)
             {
                 stop(true);
                 if (notifyEvent != null)

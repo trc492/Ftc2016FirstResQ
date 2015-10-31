@@ -2,7 +2,7 @@ package trclib;
 
 import hallib.HalServo;
 import hallib.HalTouch;
-import hallib.HalPlatform;
+import hallib.HalUtil;
 
 public class TrcServo implements TrcTaskMgr.Task
 {
@@ -98,7 +98,7 @@ public class TrcServo implements TrcTaskMgr.Task
         {
             this.targetPosition = position;
             this.stepRate = Math.abs(stepRate);
-            this.prevTime = HalPlatform.getCurrentTime();
+            this.prevTime = HalUtil.getCurrentTime();
             this.currPosition = servo1.getPosition();
             servoStepping = true;
             TrcTaskMgr.getInstance().registerTask(
@@ -152,7 +152,7 @@ public class TrcServo implements TrcTaskMgr.Task
     {
         if (runMode != TrcRobot.RunMode.DISABLED_MODE)
         {
-            double currTime = HalPlatform.getCurrentTime();
+            double currTime = HalUtil.getCurrentTime();
             double deltaPos = stepRate * (currTime - prevTime);
 
             if (currPosition < targetPosition)
