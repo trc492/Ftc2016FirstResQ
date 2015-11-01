@@ -32,7 +32,7 @@ public class RobotInfo
     public static final double ELEVATOR_MIN_HEIGHT              = 0.0;
     public static final double ELEVATOR_MAX_HEIGHT              = 48.0;
     public static final double ELEVATOR_INCHES_PER_CLICK        = 1.0;
-    public static final double ELEVATOR_CAL_POWER               = 0.2;
+    public static final double ELEVATOR_CAL_POWER               = -0.2;
 
     //
     // ButtonPusher subsystem.

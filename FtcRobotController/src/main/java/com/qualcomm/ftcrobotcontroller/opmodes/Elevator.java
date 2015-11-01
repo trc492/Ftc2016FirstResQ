@@ -43,7 +43,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public void zeroCalibrate(double calPower)
     {
-        pidMotor.zeroCalibrate(calPower);
+//        pidMotor.zeroCalibrate(calPower);
     }
 
     public void setElevatorOverride(boolean enabled)
@@ -109,7 +109,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     //
     public double getMotorPosition(HalSpeedController speedController)
     {
-        return speedController.getCurrentPosition();
+        return -1.0*speedController.getCurrentPosition();
     }   //getMotorPosition
 
     public double getMotorSpeed(HalSpeedController speedController)

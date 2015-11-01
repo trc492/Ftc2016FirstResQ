@@ -14,6 +14,7 @@ public class Chainsaw
     public Chainsaw()
     {
         chainsawMotor = new FtcDcMotor("chainsaw");
+        chainsawMotor.setInverted(true);
     }   //Chainsaw
 
     public void setPower(double power)
