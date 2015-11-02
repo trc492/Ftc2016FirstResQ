@@ -152,7 +152,6 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
                         driveDistance = distanceMenu.getChoiceValue();
                         if (driveDistance != -1.0)
                         {
-                            sm.start();
                             done = true;
                         }
                         break;
@@ -161,14 +160,12 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
                         mountainZone = (int)mountainZoneMenu.getChoiceValue();
                         if (mountainZone != -1.0)
                         {
-                            sm.start();
                             done = true;
                         }
                         break;
 
                     case STRATEGY_TRIGGER_BEACON:
                         //???
-                        sm.start();
                         done = true;
                         break;
                 }
@@ -276,6 +273,11 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
                 autoStrategy = null;
                 break;
         }
+
+        if (autoStrategy != null)
+        {
+            sm.start();
+        }
     }   //robotInit
 
     @Override
@@ -291,7 +293,10 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
     @Override
     public void runPeriodic()
     {
-        autoStrategy.autoPeriodic();
+        if (autoStrategy != null)
+        {
+            autoStrategy.autoPeriodic();
+        }
     }   //runPeriodic
 
     @Override
