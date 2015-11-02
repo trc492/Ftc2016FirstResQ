@@ -11,4 +11,9 @@ public class TrcRobot
         TEST_MODE
     }   //enum RunMode
 
+    public interface AutoStrategy
+    {
+        public void autoPeriodic();
+    }   //interface AutoStrategy
+
 }   //class TrcRobot

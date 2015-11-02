@@ -26,6 +26,7 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
     private ClimberRelease rightArm;
     private CattleGuard cattleGuard;
     private TrcBooleanState cattleGuardDeployed;
+    private TrcBooleanState hookDeployed;
     private TrcBooleanState climbMode;
 
     //
@@ -73,10 +74,13 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         // Elevator subsystem.
         //
         elevator = new Elevator();
+        elevator.reverseEncoder(true);
+        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
         //
         // Hanging Hook subsystem.
         //
         hangingHook = new HangingHook();
+        hookDeployed = new TrcBooleanState("hangingHook", false);
         //
         // Climber Release subsystem.
         //
@@ -87,12 +91,12 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         cattleGuard = new CattleGuard();
         cattleGuardDeployed = new TrcBooleanState("cattleGuardDeployed", false);
+
     }   //robotInit
 
     @Override
     public void startMode()
     {
-        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
     }   //startMode
 
     @Override
@@ -124,12 +128,13 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
         //
         // Chainsaw subsystem.
         //
+        double chainsawPower = 0.0;
         if (climbMode.getState())
         {
-            double chainsawPower = (leftPower + rightPower)/2.0;
-            chainsaw.setPower(chainsawPower);
-            dashboard.displayPrintf(7, "chainsawPower = %f", chainsawPower);
+            chainsawPower = (leftPower + rightPower)/2.0;
         }
+        chainsaw.setPower(chainsawPower);
+        dashboard.displayPrintf(7, "chainsawPower = %f", chainsawPower);
     }   //runPeriodic
 
     @Override
@@ -151,18 +156,6 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
-                    if (pressed)
-                    {
-                        cattleGuardDeployed.toggleState();
-                        if (cattleGuardDeployed.getState())
-                        {
-                            cattleGuard.extend();
-                        }
-                        else
-                        {
-                            cattleGuard.retract();
-                        }
-                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
@@ -206,9 +199,33 @@ public class FtcTeleOp extends FtcRobot implements FtcGamepad.ButtonHandler
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
+                    if (pressed)
+                    {
+                        cattleGuardDeployed.toggleState();
+                        if (cattleGuardDeployed.getState())
+                        {
+                            cattleGuard.extend();
+                        }
+                        else
+                        {
+                            cattleGuard.retract();
+                        }
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
+                    if (pressed)
+                    {
+                        hookDeployed.toggleState();
+                        if (hookDeployed.getState())
+                        {
+                            hangingHook.extend();
+                        }
+                        else
+                        {
+                            hangingHook.retract();
+                        }
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_X:

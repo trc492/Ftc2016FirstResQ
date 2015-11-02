@@ -69,14 +69,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
-        this.motor1 = motor1;
-        this.motor2 = motor2;
-        this.syncGroup = syncGroup;
-        this.pidCtrl = pidCtrl;
-        this.motorPosition = motorPosition;
-        this.targetScale = 1.0;
-
         if (motor1 == null && motor2 == null)
         {
             throw new IllegalArgumentException("Must have at least one motor.");
@@ -92,6 +84,14 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             throw new IllegalArgumentException(
                     "Must provide the TrcMotorPosition interface.");
         }
+
+        this.instanceName = instanceName;
+        this.motor1 = motor1;
+        this.motor2 = motor2;
+        this.syncGroup = syncGroup;
+        this.pidCtrl = pidCtrl;
+        this.motorPosition = motorPosition;
+        this.targetScale = 1.0;
 
         flags = 0;
         notifyEvent = null;
@@ -268,73 +268,81 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     power, lowerBound, upperBound, Boolean.toString(stopPid));
         }
 
-        if ((flags & PIDMOTORF_ENABLED) != 0 && stopPid)
+        if (power > 0.0 && !motorPosition.isForwardLimitSwitchActive(motor1) ||
+            power < 0.0 && !motorPosition.isReverseLimitSwitchActive(motor1))
         {
-            //
-            // There was a previous unfinished PID operation, cancel it.
-            // Don't stop the motor to prevent jerkiness.
-            //
-            stop(false);
-        }
-
-        if ((flags & PIDMOTORF_INVERTED) != 0)
-        {
-            power *= -1.0;
-        }
-
-        power = power > upperBound? upperBound:
-                power < lowerBound? lowerBound: power;
-
-        if ((flags & PIDMOTORF_STALLED) != 0)
-        {
-            if (power == 0.0)
+            if ((flags & PIDMOTORF_ENABLED) != 0 && stopPid)
             {
                 //
-                // We had a stall but if power is removed for at least
-                // reset timeout, we clear it.
+                // There was a previous unfinished PID operation, cancel it.
+                // Don't stop the motor to prevent jerkiness.
                 //
-                if (resetTimeout == 0.0 ||
-                    HalUtil.getCurrentTime() - prevTime > resetTimeout)
+                stop(false);
+            }
+
+            if ((flags & PIDMOTORF_INVERTED) != 0)
+            {
+                power *= -1.0;
+            }
+
+            power = TrcUtil.limit(power, lowerBound, upperBound);
+
+            if ((flags & PIDMOTORF_STALLED) != 0)
+            {
+                if (power == 0.0)
                 {
-                    prevPos = motorPosition.getMotorPosition(motor1);
+                    //
+                    // We had a stall but if power is removed for at least
+                    // reset timeout, we clear it.
+                    //
+                    if (resetTimeout == 0.0 ||
+                        HalUtil.getCurrentTime() - prevTime > resetTimeout)
+                    {
+                        prevPos = motorPosition.getMotorPosition(motor1);
+                        prevTime = HalUtil.getCurrentTime();
+                        flags &= ~PIDMOTORF_STALLED;
+                    }
+                }
+                else
+                {
                     prevTime = HalUtil.getCurrentTime();
-                    flags &= ~PIDMOTORF_STALLED;
                 }
             }
             else
             {
-                prevTime = HalUtil.getCurrentTime();
+                motorPower = power;
+                if (stallMinPower > 0.0 && stallTimeout > 0.0)
+                {
+                    //
+                    // Stall protection is ON, check for stall condition.
+                    // - power is above stallMinPower
+                    // - motor has not moved for at least stallTimeout.
+                    //
+                    double currPos = motorPosition.getMotorPosition(motor1);
+                    if (Math.abs(power) < Math.abs(stallMinPower) ||
+                        currPos != prevPos)
+                    {
+                        prevPos = currPos;
+                        prevTime = HalUtil.getCurrentTime();
+                    }
+
+                    if (HalUtil.getCurrentTime() - prevTime > stallTimeout)
+                    {
+                        //
+                        // We have detected a stalled condition for at least
+                        // stallTimeout. Kill power to protect the motor.
+                        //
+                        motorPower = 0.0;
+                        flags |= PIDMOTORF_STALLED;
+                    }
+                }
+
+                setMotorPower(motorPower);
             }
         }
         else
         {
-            motorPower = power;
-            if (stallMinPower > 0.0 && stallTimeout > 0.0)
-            {
-                //
-                // Stall protection is ON, check for stall condition.
-                // - power is above stallMinPower
-                // - motor has not moved for at least stallTimeout.
-                //
-                double currPos = motorPosition.getMotorPosition(motor1);
-                if (Math.abs(power) < Math.abs(stallMinPower) ||
-                    currPos != prevPos)
-                {
-                    prevPos = currPos;
-                    prevTime = HalUtil.getCurrentTime();
-                }
-
-                if (HalUtil.getCurrentTime() - prevTime > stallTimeout)
-                {
-                    //
-                    // We have detected a stalled condition for at least
-                    // stallTimeout. Kill power to protect the motor.
-                    //
-                    motorPower = 0.0;
-                    flags |= PIDMOTORF_STALLED;
-                }
-            }
-
+            motorPower = 0.0;
             setMotorPower(motorPower);
         }
 

@@ -21,6 +21,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     private FtcTouch lowerLimitSwitch;
     private FtcTouch upperLimitSwitch;
     private boolean elevatorOverride = false;
+    private double encoderPolarity = 1.0;
 
     public Elevator()
     {
@@ -55,15 +56,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     {
         if (elevatorOverride)
         {
-            if (power > 0.0 && !upperLimitSwitch.isPressed() ||
-                power < 0.0 && !lowerLimitSwitch.isPressed())
-            {
-                pidMotor.setPower(power);
-            }
-            else
-            {
-                pidMotor.setPower(0.0);
-            }
+            pidMotor.setPower(power);
         }
         else
         {
@@ -99,6 +92,11 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
         return upperLimitSwitch.isPressed();
     }
 
+    public void reverseEncoder(boolean reverse)
+    {
+        reversePositionSensor(elevatorMotor, reverse);
+    }
+
     public void displayDebugInfo(int lineNum)
     {
         pidController.displayPidInfo(lineNum);
@@ -109,7 +107,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     //
     public double getMotorPosition(HalSpeedController speedController)
     {
-        return -1.0*speedController.getCurrentPosition();
+        return encoderPolarity*speedController.getCurrentPosition();
     }   //getMotorPosition
 
     public double getMotorSpeed(HalSpeedController speedController)
@@ -124,7 +122,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public void reversePositionSensor(HalSpeedController speedController, boolean flip)
     {
-        return;
+        encoderPolarity = flip? -1.0: 1.0;
     }   //reversePositionSensor
 
     public boolean isForwardLimitSwitchActive(HalSpeedController speedController)

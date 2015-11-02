@@ -62,6 +62,179 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private double driveDistance = 0.0;
     private double turnDegrees = 0.0;
 
+    private void doMenus()
+    {
+        FtcMenu testMenu = new FtcMenu("Tests:", this);
+        testMenu.addChoice("Test sensors", TEST_SENSORS);
+        testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME);
+        testMenu.addChoice("Drive x ft", TEST_DRIVE_DISTANCE);
+        testMenu.addChoice("Turn x deg", TEST_TURN_DEGREES);
+        testMenu.addChoice("Line following", TEST_LINE_FOLLOWING);
+
+        FtcMenu driveTimeMenu = new FtcMenu("Drive time:", this);
+        driveTimeMenu.addChoice("1 sec", 1.0);
+        driveTimeMenu.addChoice("2 sec", 2.0);
+        driveTimeMenu.addChoice("4 sec", 4.0);
+        driveTimeMenu.addChoice("8 sec", 8.0);
+
+        FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", this);
+        driveDistanceMenu.addChoice("2 ft", 24.0);
+        driveDistanceMenu.addChoice("4 ft", 48.0);
+        driveDistanceMenu.addChoice("8 ft", 96.0);
+        driveDistanceMenu.addChoice("10 ft", 120.0);
+
+        FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", this);
+        turnDegreesMenu.addChoice("-90 degrees", -90.0);
+        turnDegreesMenu.addChoice("-180 degrees", -180.0);
+        turnDegreesMenu.addChoice("-360 degrees", -360.0);
+        turnDegreesMenu.addChoice("90 degrees", 90.0);
+        turnDegreesMenu.addChoice("180 degrees", 180.0);
+        turnDegreesMenu.addChoice("360 degrees", 360.0);
+
+        boolean done = false;
+        while (!done)
+        {
+            if (testMenu.getChoice() != -1)
+            {
+                testChoice = (int)testMenu.getSelectedChoiceValue();
+                switch (testChoice)
+                {
+                    case TEST_SENSORS:
+                        done = true;
+                        break;
+
+                    case TEST_DRIVE_TIME:
+                        driveTime = driveTimeMenu.getChoiceValue();
+                        if (driveTime != -1.0)
+                        {
+                            sm.start();
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_DRIVE_DISTANCE:
+                        driveDistance = driveDistanceMenu.getChoiceValue();
+                        if (driveDistance != -1.0)
+                        {
+                            sm.start();
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_TURN_DEGREES:
+                        turnDegrees = turnDegreesMenu.getChoiceValue();
+                        if (driveDistance != -1.0)
+                        {
+                            sm.start();
+                            done = true;
+                        }
+                        break;
+
+                    case TEST_LINE_FOLLOWING:
+                        sm.start();
+                        done = true;
+                        break;
+                }
+            }
+        }
+        HalDashboard.getInstance().displayPrintf(15, "Test selected = %s",
+                                                 testMenu.getSelectedChoiceText());
+    }   //doMenus
+
+    private void doTestSensors()
+    {
+        dashboard.displayPrintf(1, "Testing sensors:");
+//        double leftPower  = driverGamepad.getLeftStickY(true);
+//        double rightPower = driverGamepad.getRightStickY(true);
+//        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
+//        driveBase.tankDrive(leftPower, rightPower);
+        dashboard.displayPrintf(2, "Gyro = %f", gyro.getAngle());
+        dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
+                                colorSensor.red(), colorSensor.green(), colorSensor.blue());
+        dashboard.displayPrintf(4, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
+        dashboard.displayPrintf(5, "Touch = %s", touchSensor.isPressed()? "pressed": "released");
+        dashboard.displayPrintf(6, "Sonar = %f", sonarSensor.getUltrasonicLevel());
+    }   //doTestSensors
+
+    private void doDriveTime(double time)
+    {
+        dashboard.displayPrintf(1, "Drive %.1f sec", time);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    driveBase.tankDrive(0.5, 0.5);
+                    timer.set(time, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    driveBase.stop();
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doDriveTime
+
+    private void doDriveDistance(double distance)
+    {
+        dashboard.displayPrintf(1, "Drive %.1f ft", distance/12.0);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doDriveDistance
+
+    private void doTurnDegrees(double degrees)
+    {
+        dashboard.displayPrintf(1, "Turn %.1f degrees", degrees);
+
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    pidDrive.setTarget(0.0, degrees, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    sm.stop();
+                    break;
+            }
+        }
+    }   //doTurnDegrees
+
+    private void doLineFollowing()
+    {
+
+    }   //doLineFollowing
+
     @Override
     public void robotInit()
     {
@@ -190,179 +363,6 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     {
         return gamepad1.b;
     }   //isMenuCancel
-
-    private void doMenus()
-    {
-        FtcMenu testMenu = new FtcMenu("Tests:", this);
-        testMenu.addChoice("Test sensors", TEST_SENSORS);
-        testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME);
-        testMenu.addChoice("Drive forward 8 ft", TEST_DRIVE_DISTANCE);
-        testMenu.addChoice("Turn right 360 deg", TEST_TURN_DEGREES);
-        testMenu.addChoice("Line following", TEST_LINE_FOLLOWING);
-
-        FtcMenu driveTimeMenu = new FtcMenu("Drive time:", this);
-        driveTimeMenu.addChoice("1 sec", 1.0);
-        driveTimeMenu.addChoice("2 sec", 2.0);
-        driveTimeMenu.addChoice("4 sec", 4.0);
-        driveTimeMenu.addChoice("8 sec", 8.0);
-
-        FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", this);
-        driveDistanceMenu.addChoice("2 ft", 24.0);
-        driveDistanceMenu.addChoice("4 ft", 48.0);
-        driveDistanceMenu.addChoice("8 ft", 96.0);
-        driveDistanceMenu.addChoice("10 ft", 120.0);
-
-        FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", this);
-        turnDegreesMenu.addChoice("-90 degrees", -90.0);
-        turnDegreesMenu.addChoice("-180 degrees", -180.0);
-        turnDegreesMenu.addChoice("-360 degrees", -360.0);
-        turnDegreesMenu.addChoice("90 degrees", 90.0);
-        turnDegreesMenu.addChoice("180 degrees", 180.0);
-        turnDegreesMenu.addChoice("360 degrees", 360.0);
-
-        boolean done = false;
-        while (!done)
-        {
-            if (testMenu.getChoice() != -1)
-            {
-                testChoice = (int)testMenu.getSelectedChoiceValue();
-                switch (testChoice)
-                {
-                    case TEST_SENSORS:
-                        done = true;
-                        break;
-
-                    case TEST_DRIVE_TIME:
-                        driveTime = driveTimeMenu.getChoiceValue();
-                        if (driveTime != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
-
-                    case TEST_DRIVE_DISTANCE:
-                        driveDistance = driveDistanceMenu.getChoiceValue();
-                        if (driveDistance != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
-
-                    case TEST_TURN_DEGREES:
-                        turnDegrees = turnDegreesMenu.getChoiceValue();
-                        if (driveDistance != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
-
-                    case TEST_LINE_FOLLOWING:
-                        sm.start();
-                        done = true;
-                        break;
-                }
-            }
-        }
-        HalDashboard.getInstance().displayPrintf(15, "Test selected = %s",
-                                                 testMenu.getSelectedChoiceText());
-    }   //doMenus
-
-    private void doTestSensors()
-    {
-        dashboard.displayPrintf(1, "Calibrating sensors:");
-//        double leftPower  = driverGamepad.getLeftStickY(true);
-//        double rightPower = driverGamepad.getRightStickY(true);
-//        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
-//        driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "Gyro = %f", gyro.getAngle());
-        dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
-                                colorSensor.red(), colorSensor.green(), colorSensor.blue());
-        dashboard.displayPrintf(4, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
-        dashboard.displayPrintf(5, "Touch = %s", touchSensor.isPressed()? "pressed": "released");
-        dashboard.displayPrintf(6, "Sonar = %f", sonarSensor.getUltrasonicLevel());
-    }   //doTestSensors
-
-    private void doDriveTime(double time)
-    {
-        dashboard.displayPrintf(1, "Drive %.1f sec", time);
-
-        if (sm.isReady())
-        {
-            int state = sm.getState();
-
-            switch (state)
-            {
-                case TrcStateMachine.STATE_STARTED:
-                    driveBase.tankDrive(0.5, 0.5);
-                    timer.set(time, event);
-                    sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
-                    break;
-
-                default:
-                case TrcStateMachine.STATE_STARTED + 1:
-                    driveBase.stop();
-                    sm.stop();
-                    break;
-            }
-        }
-    }   //doDriveTime
-
-    private void doDriveDistance(double distance)
-    {
-        dashboard.displayPrintf(1, "Drive %.1f ft", distance/12.0);
-
-        if (sm.isReady())
-        {
-            int state = sm.getState();
-
-            switch (state)
-            {
-                case TrcStateMachine.STATE_STARTED:
-                    pidDrive.setTarget(distance, 0.0, false, event, 0.0);
-                    sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
-                    break;
-
-                default:
-                case TrcStateMachine.STATE_STARTED + 1:
-                    sm.stop();
-                    break;
-            }
-        }
-    }   //doDriveDistance
-
-    private void doTurnDegrees(double degrees)
-    {
-        dashboard.displayPrintf(1, "Turn %.1f degrees", degrees);
-
-        if (sm.isReady())
-        {
-            int state = sm.getState();
-
-            switch (state)
-            {
-                case TrcStateMachine.STATE_STARTED:
-                    pidDrive.setTarget(0.0, degrees, false, event, 0.0);
-                    sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
-                    break;
-
-                default:
-                case TrcStateMachine.STATE_STARTED + 1:
-                    sm.stop();
-                    break;
-            }
-        }
-    }   //doTurnDegrees
-
-    private void doLineFollowing()
-    {
-
-    }   //doLineFollowing
 
     //
     // Implements TrcPidController.PidInput
