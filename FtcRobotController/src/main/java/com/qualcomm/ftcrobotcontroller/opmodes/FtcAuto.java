@@ -60,11 +60,7 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
     //
     // Strategies.
     //
-    private TrcRobot.AutoStrategy defense = null;
-    private TrcRobot.AutoStrategy parkRepairZone = null;
-    private TrcRobot.AutoStrategy parkFloorGoal = null;
-    private TrcRobot.AutoStrategy parkMoutain = null;
-    private TrcRobot.AutoStrategy triggerBeacon = null;
+    private TrcRobot.AutoStrategy autoStrategy = null;
     //
     // Alliance menu.
     //
@@ -254,12 +250,32 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
         //
         // Strategies.
         //
-        defense = new AutoDefense(alliance, delay, driveDistance);
-        parkRepairZone = new AutoParkRepairZone(alliance, delay);
-        parkFloorGoal = new AutoParkFloorGoal(alliance, delay);
-        parkMoutain = new AutoParkMountain(alliance, delay, mountainZone);
-        triggerBeacon = new AutoTriggerBeacon(alliance, delay);
+        switch (strategy)
+        {
+            case STRATEGY_DEFENSE:
+                autoStrategy = new AutoDefense(alliance, delay, driveDistance);
+                break;
 
+            case STRATEGY_PARK_REPAIR_ZONE:
+                autoStrategy = new AutoParkRepairZone(alliance, delay);
+                break;
+
+            case STRATEGY_PARK_FLOOR_GOAL:
+                autoStrategy = new AutoParkFloorGoal(alliance, delay);
+                break;
+
+            case STRATEGY_PARK_MOUNTAIN:
+                autoStrategy = new AutoParkMountain(alliance, delay, mountainZone);
+                break;
+
+            case STRATEGY_TRIGGER_BEACON:
+                autoStrategy = new AutoTriggerBeacon(alliance, delay);
+                break;
+
+            default:
+                autoStrategy = null;
+                break;
+        }
     }   //robotInit
 
     @Override
@@ -275,30 +291,7 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
     @Override
     public void runPeriodic()
     {
-        switch (strategy)
-        {
-            case STRATEGY_DO_NOTHING:
-                break;
-
-            case STRATEGY_DEFENSE:
-                defense.autoPeriodic();
-                break;
-
-            case STRATEGY_PARK_REPAIR_ZONE:
-                parkRepairZone.autoPeriodic();
-                break;
-
-            case STRATEGY_PARK_FLOOR_GOAL:
-                parkFloorGoal.autoPeriodic();
-                break;
-
-            case STRATEGY_PARK_MOUNTAIN:
-                parkMoutain.autoPeriodic();
-                break;
-
-            case STRATEGY_TRIGGER_BEACON:
-                triggerBeacon.autoPeriodic();
-                break;        }
+        autoStrategy.autoPeriodic();
     }   //runPeriodic
 
     @Override
