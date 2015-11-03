@@ -72,4 +72,10 @@ public class FtcGyro implements HalGyro
         return angle;
     }   //getAngle
 
+    @Override
+    public double getRate()
+    {
+        return 0.0;
+    }   //getRate
+
 }   //class FtcGyro

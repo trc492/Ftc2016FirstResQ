@@ -180,7 +180,8 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 //        double rightPower = driverGamepad.getRightStickY(true);
 //        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
 //        driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "Gyro = %f", robot.gyro.getAngle());
+        dashboard.displayPrintf(2, "Gyro = rate:%f, heading:%f",
+                                robot.gyro.getRate(), robot.gyro.getAngle());
         dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
@@ -190,6 +191,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         dashboard.displayPrintf(5, "Touch = %s",
                                 robot.touchSensor.isPressed()? "pressed": "released");
         dashboard.displayPrintf(6, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
+        dashboard.displayPrintf(7, "lowerLimit=%d, upperLimit=%d",
+                                robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
+                                robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors
 
     private void doDriveTime(double time)

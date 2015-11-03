@@ -40,4 +40,9 @@ public class TrcUtil
                         (highSrcRange - lowSrcRange);
     }   //scaleRange
 
+    public static double applyDeadband(double value, double deadband)
+    {
+        return Math.abs(value) >= deadband? value: 0.0;
+    }   //applyDeadband
+
 }   //class TrcUtil

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import ftclib.FtcDcMotor;
-import ftclib.FtcGyro;
+import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import hallib.HalSpeedController;
 import trclib.TrcDriveBase;
@@ -21,7 +21,7 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
     //
     // Sensors.
     //
-    public FtcGyro gyro;
+    public FtcHiTechnicGyro gyro;
     public TouchSensor touchSensor;
     public UltrasonicSensor sonarSensor;
     public ColorSensor colorSensor;
@@ -65,7 +65,7 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
         //
         // Initialize sensors.
         //
-        gyro = new FtcGyro("gyroSensor");
+        gyro = new FtcHiTechnicGyro("gyroSensor");
         colorSensor = ftcOpMode.hardwareMap.colorSensor.get("colorSensor");
         lightSensor = ftcOpMode.hardwareMap.opticalDistanceSensor.get("lightSensor");
         touchSensor = ftcOpMode.hardwareMap.touchSensor.get("touchSensor");
