@@ -1,47 +1,19 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
-
-import hallib.FtcDcMotor;
 import hallib.FtcGamepad;
-import hallib.FtcGyro;
 import hallib.FtcMenu;
-import hallib.FtcRobot;
+import hallib.FtcOpMode;
 import hallib.HalDashboard;
-import hallib.HalSpeedController;
-import trclib.TrcDriveBase;
 import trclib.TrcEvent;
-import trclib.TrcMotorPosition;
-import trclib.TrcPidController;
-import trclib.TrcPidDrive;
+import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
-                                                 TrcPidController.PidInput,
-                                                 TrcMotorPosition
+public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 {
     private HalDashboard dashboard;
+    private FtcRobot robot;
     private FtcGamepad driverGamepad;
-    private FtcGyro gyro;
-    private ColorSensor colorSensor;
-    private OpticalDistanceSensor lightSensor;
-    private TouchSensor touchSensor;
-    private UltrasonicSensor sonarSensor;
-    private FtcDcMotor leftFrontWheel;
-    private FtcDcMotor rightFrontWheel;
-    private FtcDcMotor leftRearWheel;
-    private FtcDcMotor rightRearWheel;
-    //
-    // DriveBase subsystem.
-    //
-    private TrcDriveBase driveBase;
-    private TrcPidController pidCtrlDrive;
-    private TrcPidController pidCtrlTurn;
-    private TrcPidDrive pidDrive;
     //
     // Miscellaneous.
     //
@@ -49,7 +21,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private TrcTimer timer;
     private TrcEvent event;
     //
-    // Choice menus.
+    // Test menu.
     //
     private static final int TEST_SENSORS           = 0;
     private static final int TEST_DRIVE_TIME        = 1;
@@ -61,6 +33,104 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     private double driveTime = 0.0;
     private double driveDistance = 0.0;
     private double turnDegrees = 0.0;
+
+    //
+    // Implements FtcOpMode abstract methods.
+    //
+
+    @Override
+    public void robotInit()
+    {
+        //
+        // Initializing global objects.
+        //
+        dashboard = HalDashboard.getInstance();
+        robot = new FtcRobot(TrcRobot.RunMode.TEST_MODE);
+        //
+        // Initialize input subsystems.
+        //
+        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
+        //
+        // Miscellaneous.
+        //
+        sm = new TrcStateMachine("TestSM");
+        timer = new TrcTimer("TestTimer");
+        event = new TrcEvent("TestEvent");
+        //
+        // Choice menus.
+        //
+        doMenus();
+    }   //robotInit
+
+    @Override
+    public void startMode()
+    {
+    }   //startMode
+
+    @Override
+    public void stopMode()
+    {
+    }   //stopMode
+
+    @Override
+    public void runPeriodic()
+    {
+        switch (testChoice)
+        {
+            case TEST_SENSORS:
+                doTestSensors();
+                break;
+
+            case TEST_DRIVE_TIME:
+                doDriveTime(driveTime);
+                break;
+
+            case TEST_DRIVE_DISTANCE:
+                doDriveDistance(driveDistance);
+                break;
+
+            case TEST_TURN_DEGREES:
+                doTurnDegrees(turnDegrees);
+                break;
+
+            case TEST_LINE_FOLLOWING:
+                doLineFollowing();
+                break;
+        }
+    }   //runPeriodic
+
+    @Override
+    public void runContinuous()
+    {
+    }   //runContinuous
+
+    //
+    // Implements MenuButtons
+    //
+
+    @Override
+    public boolean isMenuUp()
+    {
+        return gamepad1.dpad_up;
+    }   //isMenuUp
+
+    @Override
+    public boolean isMenuDown()
+    {
+        return gamepad1.dpad_down;
+    }   //isMenuDown
+
+    @Override
+    public boolean isMenuOk()
+    {
+        return gamepad1.a;
+    }   //isMenuOk
+
+    @Override
+    public boolean isMenuCancel()
+    {
+        return gamepad1.b;
+    }   //isMenuCancel
 
     private void doMenus()
     {
@@ -148,12 +218,16 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
 //        double rightPower = driverGamepad.getRightStickY(true);
 //        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
 //        driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "Gyro = %f", gyro.getAngle());
+        dashboard.displayPrintf(2, "Gyro = %f", robot.gyro.getAngle());
         dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
-                                colorSensor.red(), colorSensor.green(), colorSensor.blue());
-        dashboard.displayPrintf(4, "RawLightValue = %d", lightSensor.getLightDetectedRaw());
-        dashboard.displayPrintf(5, "Touch = %s", touchSensor.isPressed()? "pressed": "released");
-        dashboard.displayPrintf(6, "Sonar = %f", sonarSensor.getUltrasonicLevel());
+                                robot.colorSensor.red(),
+                                robot.colorSensor.green(),
+                                robot.colorSensor.blue());
+        dashboard.displayPrintf(4, "RawLightValue = %d",
+                                robot.lightSensor.getLightDetectedRaw());
+        dashboard.displayPrintf(5, "Touch = %s",
+                                robot.touchSensor.isPressed()? "pressed": "released");
+        dashboard.displayPrintf(6, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
     }   //doTestSensors
 
     private void doDriveTime(double time)
@@ -167,7 +241,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
-                    driveBase.tankDrive(0.5, 0.5);
+                    robot.driveBase.tankDrive(0.5, 0.5);
                     timer.set(time, event);
                     sm.addEvent(event);
                     sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
@@ -175,7 +249,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
 
                 default:
                 case TrcStateMachine.STATE_STARTED + 1:
-                    driveBase.stop();
+                    robot.driveBase.stop();
                     sm.stop();
                     break;
             }
@@ -193,7 +267,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
-                    pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
                     break;
@@ -217,7 +291,7 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
-                    pidDrive.setTarget(0.0, degrees, false, event, 0.0);
+                    robot.pidDrive.setTarget(0.0, degrees, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
                     break;
@@ -234,193 +308,5 @@ public class FtcTest extends FtcRobot implements FtcMenu.MenuButtons,
     {
 
     }   //doLineFollowing
-
-    @Override
-    public void robotInit()
-    {
-        //
-        // Initializing global objects.
-        //
-        hardwareMap.logDevices();
-        dashboard = HalDashboard.getInstance();
-        //
-        // Initialize input subsystems.
-        //
-        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
-        gyro = new FtcGyro("gyroSensor");
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
-        touchSensor = hardwareMap.touchSensor.get("touchSensor");
-        sonarSensor = hardwareMap.ultrasonicSensor.get("sonarSensor");
-        //
-        // DriveBase subsystem.
-        //
-        leftFrontWheel = new FtcDcMotor("leftFrontWheel");
-        rightFrontWheel = new FtcDcMotor("rightFrontWheel");
-        leftRearWheel = new FtcDcMotor("leftRearWheel");
-        rightRearWheel = new FtcDcMotor("rightRearWheel");
-        leftFrontWheel.setInverted(true);
-        leftRearWheel.setInverted(true);
-        //
-        // DriveBase subsystem.
-        //
-        driveBase = new TrcDriveBase(
-                leftFrontWheel,
-                leftRearWheel,
-                rightFrontWheel,
-                rightRearWheel,
-                this,
-                gyro);
-        pidCtrlDrive = new TrcPidController(
-                "DrivePid",
-                RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI, RobotInfo.DRIVE_KD,
-                RobotInfo.DRIVE_KF, RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
-                this, 0);
-        pidCtrlTurn = new TrcPidController(
-                "TurnPid",
-                RobotInfo.TURN_KP, RobotInfo.TURN_KI, RobotInfo.TURN_KD,
-                RobotInfo.TURN_KF, RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
-                this, 0);
-        pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
-        //
-        // Miscellaneous.
-        //
-        sm = new TrcStateMachine("TestSM");
-        timer = new TrcTimer("TestTimer");
-        event = new TrcEvent("TestEvent");
-        //
-        // Choice menus.
-        //
-        doMenus();
-    }   //robotInit
-
-    @Override
-    public void startMode()
-    {
-    }   //startMode
-
-    @Override
-    public void stopMode()
-    {
-    }   //stopMode
-
-    @Override
-    public void runPeriodic()
-    {
-        switch (testChoice)
-        {
-            case TEST_SENSORS:
-                doTestSensors();
-                break;
-
-            case TEST_DRIVE_TIME:
-                doDriveTime(driveTime);
-                break;
-
-            case TEST_DRIVE_DISTANCE:
-                doDriveDistance(driveDistance);
-                break;
-
-            case TEST_TURN_DEGREES:
-                doTurnDegrees(turnDegrees);
-                break;
-
-            case TEST_LINE_FOLLOWING:
-                doLineFollowing();
-                break;
-        }
-    }   //runPeriodic
-
-    @Override
-    public void runContinuous()
-    {
-    }   //runContinuous
-
-    //
-    // Implements MenuButtons
-    //
-
-    @Override
-    public boolean isMenuUp()
-    {
-        return gamepad1.dpad_up;
-    }   //isMenuUp
-
-    @Override
-    public boolean isMenuDown()
-    {
-        return gamepad1.dpad_down;
-    }   //isMenuDown
-
-    @Override
-    public boolean isMenuOk()
-    {
-        return gamepad1.a;
-    }   //isMenuOk
-
-    @Override
-    public boolean isMenuCancel()
-    {
-        return gamepad1.b;
-    }   //isMenuCancel
-
-    //
-    // Implements TrcPidController.PidInput
-    //
-
-    @Override
-    public double getInput(TrcPidController pidCtrl)
-    {
-        double input = 0.0;
-
-        if (pidCtrl == pidCtrlDrive)
-        {
-            input = driveBase.getYPosition()*RobotInfo.DRIVE_INCHES_PER_CLICK;
-        }
-        else if (pidCtrl == pidCtrlTurn)
-        {
-            input = driveBase.getHeading();
-        }
-
-        return input;
-    }   //getInput
-
-    //
-    // Implements TrcMotorPosition
-    //
-    @Override
-    public double getMotorPosition(HalSpeedController speedController)
-    {
-        return speedController.getCurrentPosition();
-    }   //getMotorPosition
-
-    @Override
-    public double getMotorSpeed(HalSpeedController speedController)
-    {
-        return 0.0;
-    }   //getMotorSpeed
-
-    @Override
-    public void resetMotorPosition(HalSpeedController speedController)
-    {
-        speedController.resetCurrentPosition();
-    }   //resetMotorPosition
-
-    @Override
-    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
-    {
-    }   //reversePositionSensor
-
-    @Override
-    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isForwardLimitSwitchActive
-
-    @Override
-    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isReverseLimitSwitchActive
 
 }   //class FtcTest

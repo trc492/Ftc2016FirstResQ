@@ -31,7 +31,7 @@ public class HalDashboard
         }
 
         instance = this;
-        this.telemetry = FtcRobot.getInstance().telemetry;
+        this.telemetry = FtcOpMode.getInstance().telemetry;
         telemetry.clearData();
         clearDisplay();
     }   //HalDashboard

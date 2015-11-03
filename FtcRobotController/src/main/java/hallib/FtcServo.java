@@ -37,7 +37,7 @@ public class FtcServo implements HalServo
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcRobot.getInstance().hardwareMap;
+        hardwareMap = FtcOpMode.getInstance().hardwareMap;
         servo = hardwareMap.servo.get(instanceName);
     }   //FtcServo
 

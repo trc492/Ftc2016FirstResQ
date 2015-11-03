@@ -1,62 +1,14 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
-
-import hallib.FtcDcMotor;
-import hallib.FtcGyro;
 import hallib.FtcMenu;
-import hallib.FtcRobot;
+import hallib.FtcOpMode;
 import hallib.HalDashboard;
-import hallib.HalSpeedController;
-import trclib.TrcDriveBase;
-import trclib.TrcMotorPosition;
-import trclib.TrcPidController;
-import trclib.TrcPidDrive;
 import trclib.TrcRobot;
-import trclib.TrcStateMachine;
 
-public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
-                                                 TrcPidController.PidInput,
-                                                 TrcMotorPosition
+public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 {
     private HalDashboard dashboard;
-
-    private FtcGyro gyro;
-    private ColorSensor colorSensor;
-    private OpticalDistanceSensor lightSensor;
-    private TouchSensor touchSensor;
-    private UltrasonicSensor sonarSensor;
-
-    private FtcDcMotor leftFrontWheel;
-    private FtcDcMotor rightFrontWheel;
-    private FtcDcMotor leftRearWheel;
-    private FtcDcMotor rightRearWheel;
-    //
-    // DriveBase ubsystems.
-    //
-    private TrcDriveBase driveBase;
-    private TrcPidController pidCtrlDrive;
-    private TrcPidController pidCtrlTurn;
-    public TrcPidDrive pidDrive;
-    //
-    // Chainsaw subsystem.
-    //
-    public Chainsaw chainsaw;
-    //
-    // Elevator subsystem.
-    //
-    public Elevator elevator;
-    //
-    // HangingHook subsystem.
-    //
-    public HangingHook hangingHook;
-    //
-    // Mscellaneous.
-    //
-    public TrcStateMachine sm;
+    private FtcRobot robot;
     //
     // Strategies.
     //
@@ -86,6 +38,105 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
     private double delay = 0.0;
     private double driveDistance = 0.0;
     private int mountainZone = MOUNTAIN_FLOOR;
+
+    //
+    // Implements FtcOpMode abstract methods.
+    //
+
+    @Override
+    public void robotInit()
+    {
+        //
+        // Initializing global objects.
+        //
+        dashboard = HalDashboard.getInstance();
+        robot = new FtcRobot(TrcRobot.RunMode.AUTO_MODE);
+        //
+        // Choice menus.
+        //
+        doMenus();
+        //
+        // Strategies.
+        //
+        switch (strategy)
+        {
+            case STRATEGY_DEFENSE:
+                autoStrategy = new AutoDefense(alliance, delay, driveDistance);
+                break;
+
+            case STRATEGY_PARK_REPAIR_ZONE:
+                autoStrategy = new AutoParkRepairZone(alliance, delay);
+                break;
+
+            case STRATEGY_PARK_FLOOR_GOAL:
+                autoStrategy = new AutoParkFloorGoal(alliance, delay);
+                break;
+
+            case STRATEGY_PARK_MOUNTAIN:
+                autoStrategy = new AutoParkMountain(alliance, delay, mountainZone);
+                break;
+
+            case STRATEGY_TRIGGER_BEACON:
+                autoStrategy = new AutoTriggerBeacon(alliance, delay);
+                break;
+
+            default:
+                autoStrategy = null;
+                break;
+        }
+    }   //robotInit
+
+    @Override
+    public void startMode()
+    {
+    }   //startMode
+
+    @Override
+    public void stopMode()
+    {
+    }   //stopMode
+
+    @Override
+    public void runPeriodic()
+    {
+        if (autoStrategy != null)
+        {
+            autoStrategy.autoPeriodic();
+        }
+    }   //runPeriodic
+
+    @Override
+    public void runContinuous()
+    {
+    }   //runContinuous
+
+    //
+    // Implements MenuButtons
+    //
+
+    @Override
+    public boolean isMenuUp()
+    {
+        return gamepad1.dpad_up;
+    }   //isMenuUp
+
+    @Override
+    public boolean isMenuDown()
+    {
+        return gamepad1.dpad_down;
+    }   //isMenuDown
+
+    @Override
+    public boolean isMenuOk()
+    {
+        return gamepad1.a;
+    }   //isMenuOk
+
+    @Override
+    public boolean isMenuCancel()
+    {
+        return gamepad1.b;
+    }   //isMenuCancel
 
     private void doMenus()
     {
@@ -175,220 +226,5 @@ public class FtcAuto extends FtcRobot implements FtcMenu.MenuButtons,
                 15, "Strategy selected = %s",
                 strategyMenu.getSelectedChoiceText());
     }   //doMenus
-
-    @Override
-    public void robotInit()
-    {
-        //
-        // Initializing global objects.
-        //
-        hardwareMap.logDevices();
-        dashboard = HalDashboard.getInstance();
-        //
-        // Initialize input subsystems.
-        //
-        gyro = new FtcGyro("gyroSensor");
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        lightSensor = hardwareMap.opticalDistanceSensor.get("lightSensor");
-        touchSensor = hardwareMap.touchSensor.get("touchSensor");
-        sonarSensor = hardwareMap.ultrasonicSensor.get("sonarSensor");
-        //
-        // DriveBase subsystem.
-        //
-        leftFrontWheel = new FtcDcMotor("leftFrontWheel");
-        rightFrontWheel = new FtcDcMotor("rightFrontWheel");
-        leftRearWheel = new FtcDcMotor("leftRearWheel");
-        rightRearWheel = new FtcDcMotor("rightRearWheel");
-        leftFrontWheel.setInverted(true);
-        leftRearWheel.setInverted(true);
-        //
-        // DriveBase subsystem.
-        //
-        driveBase = new TrcDriveBase(
-                leftFrontWheel,
-                leftRearWheel,
-                rightFrontWheel,
-                rightRearWheel,
-                this,
-                gyro);
-        pidCtrlDrive = new TrcPidController(
-                "DrivePid",
-                RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI, RobotInfo.DRIVE_KD,
-                RobotInfo.DRIVE_KF, RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
-                this, 0);
-        pidCtrlTurn = new TrcPidController(
-                "TurnPid",
-                RobotInfo.TURN_KP, RobotInfo.TURN_KI, RobotInfo.TURN_KD,
-                RobotInfo.TURN_KF, RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
-                this, 0);
-        pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
-        //
-        // Chainsaw subsystem.
-        //
-        chainsaw = new Chainsaw();
-        //
-        // Elevator subsystem.
-        //
-        elevator = new Elevator();
-        elevator.reverseEncoder(true);
-        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
-        //
-        // Hanging Hook subsystem.
-        //
-        hangingHook = new HangingHook();
-        //
-        // Miscellaneous.
-        //
-        sm = new TrcStateMachine("TestSM");
-        //
-        // Choice menus.
-        //
-        doMenus();
-        //
-        // Strategies.
-        //
-        switch (strategy)
-        {
-            case STRATEGY_DEFENSE:
-                autoStrategy = new AutoDefense(alliance, delay, driveDistance);
-                break;
-
-            case STRATEGY_PARK_REPAIR_ZONE:
-                autoStrategy = new AutoParkRepairZone(alliance, delay);
-                break;
-
-            case STRATEGY_PARK_FLOOR_GOAL:
-                autoStrategy = new AutoParkFloorGoal(alliance, delay);
-                break;
-
-            case STRATEGY_PARK_MOUNTAIN:
-                autoStrategy = new AutoParkMountain(alliance, delay, mountainZone);
-                break;
-
-            case STRATEGY_TRIGGER_BEACON:
-                autoStrategy = new AutoTriggerBeacon(alliance, delay);
-                break;
-
-            default:
-                autoStrategy = null;
-                break;
-        }
-
-        if (autoStrategy != null)
-        {
-            sm.start();
-        }
-    }   //robotInit
-
-    @Override
-    public void startMode()
-    {
-    }   //startMode
-
-    @Override
-    public void stopMode()
-    {
-    }   //stopMode
-
-    @Override
-    public void runPeriodic()
-    {
-        if (autoStrategy != null)
-        {
-            autoStrategy.autoPeriodic();
-        }
-    }   //runPeriodic
-
-    @Override
-    public void runContinuous()
-    {
-    }   //runContinuous
-
-    //
-    // Implements MenuButtons
-    //
-
-    @Override
-    public boolean isMenuUp()
-    {
-        return gamepad1.dpad_up;
-    }   //isMenuUp
-
-    @Override
-    public boolean isMenuDown()
-    {
-        return gamepad1.dpad_down;
-    }   //isMenuDown
-
-    @Override
-    public boolean isMenuOk()
-    {
-        return gamepad1.a;
-    }   //isMenuOk
-
-    @Override
-    public boolean isMenuCancel()
-    {
-        return gamepad1.b;
-    }   //isMenuCancel
-
-    //
-    // Implements TrcPidController.PidInput
-    //
-
-    @Override
-    public double getInput(TrcPidController pidCtrl)
-    {
-        double input = 0.0;
-
-        if (pidCtrl == pidCtrlDrive)
-        {
-            input = driveBase.getYPosition()*RobotInfo.DRIVE_INCHES_PER_CLICK;
-        }
-        else if (pidCtrl == pidCtrlTurn)
-        {
-            input = driveBase.getHeading();
-        }
-
-        return input;
-    }   //getInput
-
-    //
-    // Implements TrcMotorPosition
-    //
-    @Override
-    public double getMotorPosition(HalSpeedController speedController)
-    {
-        return speedController.getCurrentPosition();
-    }   //getMotorPosition
-
-    @Override
-    public double getMotorSpeed(HalSpeedController speedController)
-    {
-        return 0.0;
-    }   //getMotorSpeed
-
-    @Override
-    public void resetMotorPosition(HalSpeedController speedController)
-    {
-        speedController.resetCurrentPosition();
-    }   //resetMotorPosition
-
-    @Override
-    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
-    {
-    }   //reversePositionSensor
-
-    @Override
-    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isForwardLimitSwitchActive
-
-    @Override
-    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isReverseLimitSwitchActive
 
 }   //class FtcAuto

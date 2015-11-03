@@ -6,9 +6,9 @@ import trclib.TrcDbgTrace;
 import trclib.TrcRobot;
 import trclib.TrcTaskMgr;
 
-public abstract class FtcRobot extends LinearOpMode
+public abstract class FtcOpMode extends LinearOpMode
 {
-    private static final String moduleName = "FtcRobot";
+    private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
@@ -20,16 +20,16 @@ public abstract class FtcRobot extends LinearOpMode
 
     private final static long LOOP_PERIOD = 20;
     private TrcRobot.RunMode runMode = TrcRobot.RunMode.INVALID_MODE;
-    private static FtcRobot instance = null;
+    private static FtcOpMode instance = null;
     private double startTime = 0.0;
 
-    public FtcRobot()
+    public FtcOpMode()
     {
         super();
         instance = this;
-    }   //FtcRobot
+    }   //FtcOpMode
 
-    public static FtcRobot getInstance()
+    public static FtcOpMode getInstance()
     {
         return instance;
     }   //getInstance
@@ -185,4 +185,4 @@ public abstract class FtcRobot extends LinearOpMode
                 runMode);
     }   //runOpMode
 
-}   //class FtcRobot
+}   //class FtcOpMode

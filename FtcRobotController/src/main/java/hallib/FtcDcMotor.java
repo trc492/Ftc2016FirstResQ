@@ -28,7 +28,7 @@ public class FtcDcMotor implements HalSpeedController
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcRobot.getInstance().hardwareMap;
+        hardwareMap = FtcOpMode.getInstance().hardwareMap;
         motor = hardwareMap.dcMotor.get(instanceName);
         zeroPosition = motor.getCurrentPosition();
     }   //FtcDcMotor

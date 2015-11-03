@@ -1,39 +1,42 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.FtcRobot;
+import hallib.FtcOpMode;
 import hallib.HalDashboard;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 
 public class AutoParkMountain implements TrcRobot.AutoStrategy
 {
-    private FtcAuto autoRobot;
+    private FtcAuto autoMode;
     private HalDashboard dashboard;
     private int alliance;
     private double delay;
     private int mountainZone;
+    private TrcStateMachine sm;
 
     public AutoParkMountain(int alliance, double delay, int mountainZone)
     {
-        autoRobot = (FtcAuto)FtcRobot.getInstance();
+        autoMode = (FtcAuto)FtcOpMode.getInstance();
         dashboard = HalDashboard.getInstance();
         this.alliance = alliance;
         this.delay = delay;
         this.mountainZone = mountainZone;
+        sm = new TrcStateMachine("autoParkMountain");
+        sm.start();
     }
 
     public void autoPeriodic()
     {
         dashboard.displayPrintf(1, "ParkMountain: %s alliance, delay=%.1f, zone=%s",
-                                alliance == autoRobot.ALLIANCE_RED? "Red": "Blue",
+                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
                                 delay,
-                                mountainZone == autoRobot.MOUNTAIN_FLOOR? "Floor":
-                                mountainZone == autoRobot.MOUNTAIN_LOW_ZONE? "Low":
-                                mountainZone == autoRobot.MOUNTAIN_MID_ZONE? "Mid": "High");
+                                mountainZone == autoMode.MOUNTAIN_FLOOR? "Floor":
+                                mountainZone == autoMode.MOUNTAIN_LOW_ZONE? "Low":
+                                mountainZone == autoMode.MOUNTAIN_MID_ZONE? "Mid": "High");
 
-        if (autoRobot.sm.isReady())
+        if (sm.isReady())
         {
-            int state = autoRobot.sm.getState();
+            int state = sm.getState();
 
             switch (state)
             {
@@ -41,10 +44,9 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     break;
 
                 default:
-                    autoRobot.sm.stop();
+                    sm.stop();
                     break;
             }
         }
-
     }
 }   //class AutoParkMountain
