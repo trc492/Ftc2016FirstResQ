@@ -1,7 +1,7 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.FtcDcMotor;
-import hallib.FtcTouch;
+import ftclib.FtcDcMotor;
+import ftclib.FtcTouch;
 import hallib.HalSpeedController;
 import trclib.TrcEvent;
 import trclib.TrcMotorPosition;

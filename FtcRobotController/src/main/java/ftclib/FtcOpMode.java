@@ -1,7 +1,9 @@
-package hallib;
+package ftclib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import hallib.HalDashboard;
+import hallib.HalUtil;
 import trclib.TrcDbgTrace;
 import trclib.TrcRobot;
 import trclib.TrcTaskMgr;

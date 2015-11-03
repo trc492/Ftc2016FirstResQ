@@ -1,6 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.FtcServo;
+import ftclib.FtcServo;
 
 public class ButtonPusher
 {

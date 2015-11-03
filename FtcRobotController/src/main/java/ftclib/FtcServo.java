@@ -1,8 +1,10 @@
-package hallib;
+package ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import ftclib.FtcOpMode;
+import hallib.HalServo;
 import trclib.TrcDbgTrace;
 import trclib.TrcUtil;
 

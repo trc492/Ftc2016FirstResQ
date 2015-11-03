@@ -1,7 +1,8 @@
-package hallib;
+package ftclib;
 
 import java.util.ArrayList;
 
+import hallib.HalDashboard;
 import trclib.TrcDbgTrace;
 
 public class FtcMenu

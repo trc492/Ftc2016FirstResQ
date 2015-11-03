@@ -1,21 +1,23 @@
-package hallib;
+package ftclib;
 
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import ftclib.FtcOpMode;
+import hallib.HalTouch;
 import trclib.TrcDbgTrace;
 
-public class FtcAnalogInput implements HalAnalogInput
+public class FtcTouch implements HalTouch
 {
-    private static final String moduleName = "FtcAnalogInput";
+    private static final String moduleName = "FtcTouch";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
     private String instanceName;
     private HardwareMap hardwareMap;
-    private AnalogInput analogInput;
+    private TouchSensor touchSensor;
 
-    public FtcAnalogInput(String instanceName)
+    public FtcTouch(String instanceName)
     {
         if (debugEnabled)
         {
@@ -28,8 +30,8 @@ public class FtcAnalogInput implements HalAnalogInput
 
         this.instanceName = instanceName;
         hardwareMap = FtcOpMode.getInstance().hardwareMap;
-        this.analogInput = hardwareMap.analogInput.get(instanceName);
-    }   //FtcAnalogInput
+        this.touchSensor = hardwareMap.touchSensor.get(instanceName);
+    }   //FtcTouch
 
     public String toString()
     {
@@ -37,22 +39,23 @@ public class FtcAnalogInput implements HalAnalogInput
     }   //toString
 
     //
-    // Implements HalAnalogInput.
+    // Implements HalTouch.
     //
 
     @Override
-    public int getValue()
+    public boolean isPressed()
     {
-        final String funcName = "getValue";
-        int value = analogInput.getValue();
+        final String funcName = "isPressed";
+        boolean pressed = touchSensor.isPressed();
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(pressed));
         }
 
-        return value;
-    }   //getValue
+        return pressed;
+    }   //isPressed
 
-}   //class FtcAnalogInput
+}   //class FtcTouch

@@ -1,8 +1,9 @@
-package hallib;
+package ftclib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import hallib.HalSpeedController;
 import trclib.TrcDbgTrace;
 
 public class FtcDcMotor implements HalSpeedController

@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import hallib.FtcDcMotor;
-import hallib.FtcGyro;
-import hallib.FtcOpMode;
+import ftclib.FtcDcMotor;
+import ftclib.FtcGyro;
+import ftclib.FtcOpMode;
 import hallib.HalSpeedController;
 import trclib.TrcDriveBase;
 import trclib.TrcMotorPosition;
