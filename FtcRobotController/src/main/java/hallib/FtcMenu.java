@@ -126,6 +126,7 @@ public class FtcMenu
     public int getChoice()
     {
         final String funcName = "getChoice";
+        int choice = -1;
         boolean upButtonPressed = false;
         boolean downButtonPressed = false;
 
@@ -138,11 +139,12 @@ public class FtcMenu
         {
             if (menuButtons.isMenuCancel())
             {
-                selectedChoice = -1;
+                choice = -1;
                 break;
             }
             else if (menuButtons.isMenuOk())
             {
+                choice = selectedChoice;
                 break;
             }
 
@@ -183,10 +185,10 @@ public class FtcMenu
         if (debugEnabled)
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                    "=%d", selectedChoice);
+                    "=%d", choice);
         }
 
-        return selectedChoice;
+        return choice;
     }   //getChoice
 
     public double getChoiceValue()
@@ -308,7 +310,7 @@ public class FtcMenu
         {
             dashboard.displayPrintf(
                     i - firstDisplayedChoice + 1,
-                    i == selectedChoice? ">>%s": "%s",
+                    i == selectedChoice? ">>\t%s": "%s",
                     choiceTextTable.get(i));
         }
     }   //displayMenu
@@ -327,6 +329,14 @@ public class FtcMenu
             if (selectedChoice >= choiceTextTable.size())
             {
                 selectedChoice = 0;
+            }
+
+            int lastDisplayedChoice =
+                    Math.min(firstDisplayedChoice + HalDashboard.MAX_NUM_TEXTLINES - 2,
+                             choiceTextTable.size() - 1);
+            if (selectedChoice > lastDisplayedChoice)
+            {
+                firstDisplayedChoice = selectedChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
             }
         }
 
@@ -352,6 +362,11 @@ public class FtcMenu
             if (selectedChoice < 0)
             {
                 selectedChoice = choiceTextTable.size() - 1;
+            }
+
+            if (selectedChoice < firstDisplayedChoice)
+            {
+                firstDisplayedChoice = selectedChoice;
             }
         }
 
