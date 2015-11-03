@@ -134,26 +134,27 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doMenus()
     {
-        FtcMenu testMenu = new FtcMenu("Tests:", this);
+        FtcMenu testMenu = new FtcMenu(null, "Tests:", this);
+        FtcMenu driveTimeMenu = new FtcMenu(testMenu, "Drive time:", this);
+        FtcMenu driveDistanceMenu = new FtcMenu(testMenu, "Drive distance:", this);
+        FtcMenu turnDegreesMenu = new FtcMenu(testMenu, "Turn degrees:", this);
+
         testMenu.addChoice("Test sensors", TEST_SENSORS);
-        testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME);
-        testMenu.addChoice("Drive x ft", TEST_DRIVE_DISTANCE);
-        testMenu.addChoice("Turn x deg", TEST_TURN_DEGREES);
+        testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME, driveTimeMenu);
+        testMenu.addChoice("Drive x ft", TEST_DRIVE_DISTANCE, driveDistanceMenu);
+        testMenu.addChoice("Turn x deg", TEST_TURN_DEGREES, turnDegreesMenu);
         testMenu.addChoice("Line following", TEST_LINE_FOLLOWING);
 
-        FtcMenu driveTimeMenu = new FtcMenu("Drive time:", this);
         driveTimeMenu.addChoice("1 sec", 1.0);
         driveTimeMenu.addChoice("2 sec", 2.0);
         driveTimeMenu.addChoice("4 sec", 4.0);
         driveTimeMenu.addChoice("8 sec", 8.0);
 
-        FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", this);
         driveDistanceMenu.addChoice("2 ft", 24.0);
         driveDistanceMenu.addChoice("4 ft", 48.0);
         driveDistanceMenu.addChoice("8 ft", 96.0);
         driveDistanceMenu.addChoice("10 ft", 120.0);
 
-        FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", this);
         turnDegreesMenu.addChoice("-90 degrees", -90.0);
         turnDegreesMenu.addChoice("-180 degrees", -180.0);
         turnDegreesMenu.addChoice("-360 degrees", -360.0);
@@ -161,52 +162,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         turnDegreesMenu.addChoice("180 degrees", 180.0);
         turnDegreesMenu.addChoice("360 degrees", 360.0);
 
-        boolean done = false;
-        while (!done)
-        {
-            if (testMenu.getChoice() != -1)
-            {
-                testChoice = (int)testMenu.getSelectedChoiceValue();
-                switch (testChoice)
-                {
-                    case TEST_SENSORS:
-                        done = true;
-                        break;
+        testMenu.walkMenuTree();
 
-                    case TEST_DRIVE_TIME:
-                        driveTime = driveTimeMenu.getChoiceValue();
-                        if (driveTime != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
+        testChoice = (int)testMenu.getSelectedChoiceValue();
+        driveTime = driveTimeMenu.getSelectedChoiceValue();
+        driveDistance = driveDistanceMenu.getSelectedChoiceValue();
+        turnDegrees = turnDegreesMenu.getSelectedChoiceValue();
 
-                    case TEST_DRIVE_DISTANCE:
-                        driveDistance = driveDistanceMenu.getChoiceValue();
-                        if (driveDistance != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
-
-                    case TEST_TURN_DEGREES:
-                        turnDegrees = turnDegreesMenu.getChoiceValue();
-                        if (driveDistance != -1.0)
-                        {
-                            sm.start();
-                            done = true;
-                        }
-                        break;
-
-                    case TEST_LINE_FOLLOWING:
-                        sm.start();
-                        done = true;
-                        break;
-                }
-            }
-        }
         HalDashboard.getInstance().displayPrintf(15, "Test selected = %s",
                                                  testMenu.getSelectedChoiceText());
     }   //doMenus
