@@ -1,6 +1,7 @@
 package ftclib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import hallib.HalSpeedController;
@@ -15,7 +16,6 @@ public class FtcDcMotor implements HalSpeedController
     private String instanceName;
     private HardwareMap hardwareMap;
     private DcMotor motor;
-    private int zeroPosition;
 
     public FtcDcMotor(String instanceName)
     {
@@ -31,7 +31,6 @@ public class FtcDcMotor implements HalSpeedController
         this.instanceName = instanceName;
         hardwareMap = FtcOpMode.getInstance().hardwareMap;
         motor = hardwareMap.dcMotor.get(instanceName);
-        zeroPosition = motor.getCurrentPosition();
     }   //FtcDcMotor
 
     public String toString()
@@ -83,7 +82,7 @@ public class FtcDcMotor implements HalSpeedController
     public int getCurrentPosition()
     {
         final String funcName = "getCurrentPosition";
-        int position = motor.getCurrentPosition() - zeroPosition;
+        int position = motor.getCurrentPosition();
 
         if (debugEnabled)
         {
@@ -105,7 +104,7 @@ public class FtcDcMotor implements HalSpeedController
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        zeroPosition = motor.getCurrentPosition();
+        motor.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
     }   //resetCurrentPosition
 
 }   //class FtcDcMotor
