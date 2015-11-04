@@ -2,8 +2,10 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import hallib.FtcOpMode;
 import hallib.HalDashboard;
+import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
+import trclib.TrcTimer;
 
 public class AutoDefense implements TrcRobot.AutoStrategy
 {
@@ -13,6 +15,8 @@ public class AutoDefense implements TrcRobot.AutoStrategy
     private double delay;
     private double distance;
     private TrcStateMachine sm;
+    private TrcTimer timer;
+    private TrcEvent event;
 
     public AutoDefense(int alliance, double delay, double distance)
     {
@@ -23,6 +27,8 @@ public class AutoDefense implements TrcRobot.AutoStrategy
         this.distance = distance;
         sm = new TrcStateMachine("autoDefense");
         sm.start();
+        timer = new TrcTimer("DefenseTimer");
+        event = new TrcEvent("DefenseEvent");
     }
 
     public void autoPeriodic()
@@ -38,9 +44,19 @@ public class AutoDefense implements TrcRobot.AutoStrategy
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    timer.set(delay, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 1:
+                    autoMode.getRobot().pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 2);
                     break;
 
                 default:
+                case TrcStateMachine.STATE_STARTED + 2:
                     sm.stop();
                     break;
             }

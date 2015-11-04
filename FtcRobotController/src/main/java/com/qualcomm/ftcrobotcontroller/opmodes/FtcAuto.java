@@ -138,6 +138,8 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         return gamepad1.b;
     }   //isMenuCancel
 
+    public FtcRobot getRobot() { return robot; }
+
     private void doMenus()
     {
         FtcMenu allianceMenu = new FtcMenu("Alliance:", this);
