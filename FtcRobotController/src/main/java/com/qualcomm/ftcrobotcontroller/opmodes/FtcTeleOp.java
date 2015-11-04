@@ -2,8 +2,8 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import hallib.FtcGamepad;
-import hallib.FtcOpMode;
+import ftclib.FtcGamepad;
+import ftclib.FtcOpMode;
 import hallib.HalDashboard;
 import trclib.TrcBooleanState;
 import trclib.TrcRobot;

@@ -1,7 +1,8 @@
-package hallib;
+package ftclib;
 
 import java.util.ArrayList;
 
+import hallib.HalDashboard;
 import trclib.TrcDbgTrace;
 
 public class FtcMenu
@@ -13,10 +14,12 @@ public class FtcMenu
     private static final long LOOP_INTERVAL = 50;
 
     private HalDashboard dashboard;
+    private FtcMenu parent;
     private String menuTitle;
     private MenuButtons menuButtons;
     private ArrayList<String> choiceTextTable = new ArrayList<String>();
     private ArrayList<Double> choiceValueTable = new ArrayList<Double>();
+    private ArrayList<FtcMenu> childMenuTable = new ArrayList<FtcMenu>();
     private int selectedChoice = -1;
     private int firstDisplayedChoice = 0;
 
@@ -28,7 +31,7 @@ public class FtcMenu
         public boolean isMenuCancel();
     }   //interface MenuButtons
 
-    public FtcMenu(String menuTitle, MenuButtons menuButtons)
+    public FtcMenu(FtcMenu parent, String menuTitle, MenuButtons menuButtons)
     {
         if (debugEnabled)
         {
@@ -45,11 +48,12 @@ public class FtcMenu
         }
 
         dashboard = HalDashboard.getInstance();
+        this.parent = parent;
         this.menuTitle = menuTitle;
         this.menuButtons = menuButtons;
     }   //FtcMenu
 
-    public void addChoice(String choiceText, double choiceValue)
+    public void addChoice(String choiceText, double choiceValue, FtcMenu childMenu)
     {
         final String funcName = "addChoice";
 
@@ -57,21 +61,73 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
-                    "text=%s,value=%f", choiceText, choiceValue);
+                    "text=%s,value=%f,child=%s",
+                    choiceText, choiceValue, childMenu == null? "null": childMenu.getTitle());
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
         choiceTextTable.add(choiceText);
         choiceValueTable.add(choiceValue);
+        childMenuTable.add(childMenu);
         if (selectedChoice == -1)
         {
             selectedChoice = 0;
         }
     }   //addChoice
 
+    public void addChoice(String choiceText, double choiceValue)
+    {
+        addChoice(choiceText, choiceValue, null);
+    }   //addChoice
+
+    public void walkMenuTree()
+    {
+        FtcMenu menu = this;
+
+        while (menu != null)
+        {
+            int choice = menu.getChoice();
+            if (choice != -1)
+            {
+                menu = childMenuTable.get(choice);
+            }
+            else if (menu != this)
+            {
+                menu = menu.getParent();
+            }
+        }
+    }   //walkMenuTree
+
+    public FtcMenu getParent()
+    {
+        final String funcName = "getParent";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", parent.getTitle());
+        }
+
+        return parent;
+    }   //getParent
+
+    public String getTitle()
+    {
+        final String funcName = "getTitle";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", menuTitle);
+        }
+
+        return menuTitle;
+    }   //getTitle
+
     public int getChoice()
     {
         final String funcName = "getChoice";
+        int choice = -1;
         boolean upButtonPressed = false;
         boolean downButtonPressed = false;
 
@@ -84,11 +140,12 @@ public class FtcMenu
         {
             if (menuButtons.isMenuCancel())
             {
-                selectedChoice = -1;
+                choice = -1;
                 break;
             }
             else if (menuButtons.isMenuOk())
             {
+                choice = selectedChoice;
                 break;
             }
 
@@ -129,10 +186,10 @@ public class FtcMenu
         if (debugEnabled)
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                    "=%d", selectedChoice);
+                    "=%d", choice);
         }
 
-        return selectedChoice;
+        return choice;
     }   //getChoice
 
     public double getChoiceValue()
@@ -254,7 +311,7 @@ public class FtcMenu
         {
             dashboard.displayPrintf(
                     i - firstDisplayedChoice + 1,
-                    i == selectedChoice? ">>%s": "%s",
+                    i == selectedChoice? ">>\t%s": "%s",
                     choiceTextTable.get(i));
         }
     }   //displayMenu
@@ -273,6 +330,14 @@ public class FtcMenu
             if (selectedChoice >= choiceTextTable.size())
             {
                 selectedChoice = 0;
+            }
+
+            int lastDisplayedChoice =
+                    Math.min(firstDisplayedChoice + HalDashboard.MAX_NUM_TEXTLINES - 2,
+                             choiceTextTable.size() - 1);
+            if (selectedChoice > lastDisplayedChoice)
+            {
+                firstDisplayedChoice = selectedChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
             }
         }
 
@@ -298,6 +363,11 @@ public class FtcMenu
             if (selectedChoice < 0)
             {
                 selectedChoice = choiceTextTable.size() - 1;
+            }
+
+            if (selectedChoice < firstDisplayedChoice)
+            {
+                firstDisplayedChoice = selectedChoice;
             }
         }
 

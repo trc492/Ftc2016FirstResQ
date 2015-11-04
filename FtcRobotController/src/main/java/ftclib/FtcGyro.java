@@ -1,8 +1,9 @@
-package hallib;
+package ftclib;
 
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import hallib.HalGyro;
 import trclib.TrcDbgTrace;
 
 public class FtcGyro implements HalGyro
@@ -70,5 +71,11 @@ public class FtcGyro implements HalGyro
 
         return angle;
     }   //getAngle
+
+    @Override
+    public double getRate()
+    {
+        return 0.0;
+    }   //getRate
 
 }   //class FtcGyro

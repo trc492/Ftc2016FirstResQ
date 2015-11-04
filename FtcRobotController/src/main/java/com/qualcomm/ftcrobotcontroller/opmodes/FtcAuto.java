@@ -1,7 +1,7 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import hallib.FtcMenu;
-import hallib.FtcOpMode;
+import ftclib.FtcMenu;
+import ftclib.FtcOpMode;
 import hallib.HalDashboard;
 import trclib.TrcRobot;
 
@@ -142,26 +142,28 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doMenus()
     {
-        FtcMenu allianceMenu = new FtcMenu("Alliance:", this);
-        allianceMenu.addChoice("Red", ALLIANCE_RED);
-        allianceMenu.addChoice("Blue", ALLIANCE_BLUE);
+        FtcMenu allianceMenu = new FtcMenu(null, "Alliance:", this);
+        FtcMenu delayMenu = new FtcMenu(allianceMenu, "Delay time:", this);
+        FtcMenu strategyMenu = new FtcMenu(delayMenu, "Strategies:", this);
+        FtcMenu distanceMenu = new FtcMenu(strategyMenu, "Distance:", this);
+        FtcMenu mountainZoneMenu = new FtcMenu(strategyMenu, "Mountain zone:", this);
 
-        FtcMenu delayMenu = new FtcMenu("Delay time:", this);
-        delayMenu.addChoice("1 sec", 1.0);
-        delayMenu.addChoice("2 sec", 2.0);
-        delayMenu.addChoice("4 sec", 4.0);
-        delayMenu.addChoice("8 sec", 8.0);
-        delayMenu.addChoice("10 sec", 10.0);
+        allianceMenu.addChoice("Red", ALLIANCE_RED, delayMenu);
+        allianceMenu.addChoice("Blue", ALLIANCE_BLUE, delayMenu);
 
-        FtcMenu strategyMenu = new FtcMenu("Strategies:", this);
+        delayMenu.addChoice("1 sec", 1.0, strategyMenu);
+        delayMenu.addChoice("2 sec", 2.0, strategyMenu);
+        delayMenu.addChoice("4 sec", 4.0, strategyMenu);
+        delayMenu.addChoice("8 sec", 8.0, strategyMenu);
+        delayMenu.addChoice("10 sec", 10.0, strategyMenu);
+
         strategyMenu.addChoice("Do nothing", STRATEGY_DO_NOTHING);
-        strategyMenu.addChoice("Defense", STRATEGY_DEFENSE);
+        strategyMenu.addChoice("Defense", STRATEGY_DEFENSE, distanceMenu);
         strategyMenu.addChoice("Park repair zone", STRATEGY_PARK_REPAIR_ZONE);
         strategyMenu.addChoice("Park floor goal", STRATEGY_PARK_FLOOR_GOAL);
-        strategyMenu.addChoice("Park mountain", STRATEGY_PARK_MOUNTAIN);
+        strategyMenu.addChoice("Park mountain", STRATEGY_PARK_MOUNTAIN, mountainZoneMenu);
         strategyMenu.addChoice("Trigger beacon", STRATEGY_TRIGGER_BEACON);
 
-        FtcMenu distanceMenu = new FtcMenu("Distance:", this);
         distanceMenu.addChoice("1 ft", 12.0);
         distanceMenu.addChoice("2 ft", 24.0);
         distanceMenu.addChoice("3 ft", 36.0);
@@ -171,59 +173,19 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         distanceMenu.addChoice("8 ft", 96.0);
         distanceMenu.addChoice("10 ft", 120.0);
 
-        FtcMenu mountainZoneMenu = new FtcMenu("Mountain zone:", this);
         mountainZoneMenu.addChoice("Floor", MOUNTAIN_FLOOR);
         mountainZoneMenu.addChoice("Low zone", MOUNTAIN_LOW_ZONE);
         mountainZoneMenu.addChoice("Mid zone", MOUNTAIN_MID_ZONE);
         mountainZoneMenu.addChoice("High zone", MOUNTAIN_HIGH_ZONE);
 
-        do
-        {
-            alliance = (int)allianceMenu.getChoiceValue();
-        } while (alliance == -1);
+        allianceMenu.walkMenuTree();
 
-        do
-        {
-            delay = delayMenu.getChoiceValue();
-        } while (delay == -1.0);
+        alliance = (int)allianceMenu.getSelectedChoiceValue();
+        delay = delayMenu.getSelectedChoiceValue();
+        strategy = (int)strategyMenu.getSelectedChoiceValue();
+        driveDistance = distanceMenu.getSelectedChoiceValue();
+        mountainZone = (int)mountainZoneMenu.getSelectedChoiceValue();
 
-        boolean done = false;
-        while (!done)
-        {
-            if (strategyMenu.getChoice() != -1)
-            {
-                strategy = (int)strategyMenu.getSelectedChoiceValue();
-                switch (strategy)
-                {
-                    case STRATEGY_DO_NOTHING:
-                    case STRATEGY_PARK_REPAIR_ZONE:
-                    case STRATEGY_PARK_FLOOR_GOAL:
-                        done = true;
-                        break;
-
-                    case STRATEGY_DEFENSE:
-                        driveDistance = distanceMenu.getChoiceValue();
-                        if (driveDistance != -1.0)
-                        {
-                            done = true;
-                        }
-                        break;
-
-                    case STRATEGY_PARK_MOUNTAIN:
-                        mountainZone = (int)mountainZoneMenu.getChoiceValue();
-                        if (mountainZone != -1.0)
-                        {
-                            done = true;
-                        }
-                        break;
-
-                    case STRATEGY_TRIGGER_BEACON:
-                        //???
-                        done = true;
-                        break;
-                }
-            }
-        }
         HalDashboard.getInstance().displayPrintf(
                 15, "Strategy selected = %s",
                 strategyMenu.getSelectedChoiceText());

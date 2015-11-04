@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.robocol.Telemetry;
 
 import java.util.NoSuchElementException;
 
+import ftclib.FtcOpMode;
 import trclib.TrcDbgTrace;
 
 public class HalDashboard

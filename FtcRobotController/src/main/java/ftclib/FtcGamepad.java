@@ -1,4 +1,4 @@
-package hallib;
+package ftclib;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
