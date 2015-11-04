@@ -151,6 +151,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         allianceMenu.addChoice("Red", ALLIANCE_RED, delayMenu);
         allianceMenu.addChoice("Blue", ALLIANCE_BLUE, delayMenu);
 
+        delayMenu.addChoice("No delay", 0.0, strategyMenu);
         delayMenu.addChoice("1 sec", 1.0, strategyMenu);
         delayMenu.addChoice("2 sec", 2.0, strategyMenu);
         delayMenu.addChoice("4 sec", 4.0, strategyMenu);

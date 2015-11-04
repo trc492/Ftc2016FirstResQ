@@ -210,7 +210,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     robot.driveBase.tankDrive(0.5, 0.5);
                     timer.set(time, event);
                     sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    sm.waitForEvents(state + 1);
                     break;
 
                 default:
@@ -235,7 +235,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                 case TrcStateMachine.STATE_STARTED:
                     robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    sm.waitForEvents(state + 1);
                     break;
 
                 default:
@@ -259,7 +259,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                 case TrcStateMachine.STATE_STARTED:
                     robot.pidDrive.setTarget(0.0, degrees, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    sm.waitForEvents(state + 1);
                     break;
 
                 default:
@@ -272,7 +272,29 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doLineFollowing()
     {
+        dashboard.displayPrintf(1, "Line following");
 
+        if (sm.isReady())
+        {
+            int state = sm.getState();
+
+            switch (state)
+            {
+                case TrcStateMachine.STATE_STARTED:
+                    //
+                    // Drive forward until we found the line.
+                    //
+                    robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                default:
+                case TrcStateMachine.STATE_STARTED + 1:
+                    sm.stop();
+                    break;
+            }
+        }
     }   //doLineFollowing
 
 }   //class FtcTest

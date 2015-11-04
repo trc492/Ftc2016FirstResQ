@@ -44,15 +44,22 @@ public class AutoDefense implements TrcRobot.AutoStrategy
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
-                    timer.set(delay, event);
-                    sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 1);
+                    if (delay == 0.0)
+                    {
+                        sm.setState(state + 1);
+                    }
+                    else
+                    {
+                        timer.set(delay, event);
+                        sm.addEvent(event);
+                        sm.waitForEvents(state + 1);
+                    }
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     autoMode.getRobot().pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(TrcStateMachine.STATE_STARTED + 2);
+                    sm.waitForEvents(state + 1);
                     break;
 
                 default:
@@ -62,4 +69,5 @@ public class AutoDefense implements TrcRobot.AutoStrategy
             }
         }
     }
+
 }   //class AutoDefense

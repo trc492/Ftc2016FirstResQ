@@ -32,6 +32,15 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         {
             int state = sm.getState();
 
+            //
+            // 1. drive forware about 120" until line detected
+            // 2. if red turn left else turn right until line detected
+            // 3. Follow the line until touch sensor is pressed.
+            // 4. Read color and flip servo accordingly.
+            // 5. Extend hanging hook
+            // 6. wait 1 sec or so
+            // 7. retract hanging hook
+            //
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
@@ -43,4 +52,5 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
             }
         }
     }
+
 }   //class AutoTriggerBeacon
