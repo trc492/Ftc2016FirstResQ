@@ -20,6 +20,8 @@ public class RobotInfo
     public static final double TURN_TOLERANCE                   = 2.0;
     public static final double TURN_SETTLING                    = 0.2;
 
+    public static final double LINE_THRESHOLD                   = 80.0;
+
     //
     // Elevator subsystem.
     //

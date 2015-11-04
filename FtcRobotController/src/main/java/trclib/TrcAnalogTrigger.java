@@ -2,9 +2,9 @@ package trclib;
 
 import hallib.HalAnalogInput;
 
-public class TrcAnalogInput implements TrcTaskMgr.Task
+public class TrcAnalogTrigger implements TrcTaskMgr.Task
 {
-    private static final String moduleName = "TrcAnalogInput";
+    private static final String moduleName = "TrcAnalogTrigger";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
@@ -16,35 +16,31 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
         HIGH_ZONE
     }   //enum Zone
 
-    public interface AnalogEventHandler
+    public interface AnalogTriggerEventHandler
     {
-        public void AnalogEvent(
-                TrcAnalogInput analogInput,
+        public void AnalogTriggerEvent(
+                TrcAnalogTrigger analogTrigger,
                 Zone zone,
                 double value);
-    }   //interface AnalogEventHandler
-
-    public static final int ANALOGINPUTO_FILTER_ENABLED = (1 << 0);
-    public static final int ANALOGINPUTO_INVERTED       = (1 << 1);
+    }   //interface AnalogTriggerEventHandler
 
     private String instanceName;
     private HalAnalogInput analogInput;
-    private double unitScale;
     private double lowThreshold;
     private double highThreshold;
-    private int options;
-    private AnalogEventHandler eventHandler;
-    private TrcKalmanFilter kalman;
+    private AnalogTriggerEventHandler eventHandler;
+    private TrcKalmanFilter kalman = null;
+    private boolean inverted = false;
+    private double unitScale = 1.0;
     private Zone prevZone;
 
-    public TrcAnalogInput(
+    public TrcAnalogTrigger(
             final String instanceName,
             HalAnalogInput analogInput,
-            double unitScale,
             double lowThreshold,
             double highThreshold,
-            int options,
-            AnalogEventHandler eventHandler)
+            AnalogTriggerEventHandler eventHandler,
+            boolean useFilter)
     {
         if (debugEnabled)
         {
@@ -55,28 +51,32 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        if (eventHandler == null)
+        if (analogInput == null || eventHandler == null)
         {
-            throw new NullPointerException("EventHandler must be provided");
+            throw new NullPointerException("AnalogInput/EventHandler must be provided");
         }
 
         this.instanceName = instanceName;
         this.analogInput = analogInput;
-        this.unitScale = unitScale;
         this.lowThreshold = lowThreshold;
         this.highThreshold = highThreshold;
-        this.options = options;
         this.eventHandler = eventHandler;
-        if ((options & ANALOGINPUTO_FILTER_ENABLED) != 0)
+        if (useFilter)
         {
             kalman = new TrcKalmanFilter();
         }
-        else
-        {
-            kalman = null;
-        }
         prevZone = Zone.UNKNOWN_ZONE;
-    }   //TrcAnalogInput
+    }   //TrcAnalogTrigger
+
+    public TrcAnalogTrigger(
+            final String instanceName,
+            HalAnalogInput analogInput,
+            double threshold,
+            AnalogTriggerEventHandler eventHandler,
+            boolean useFilter)
+    {
+        this(instanceName, analogInput, threshold, threshold, eventHandler, useFilter);
+    }   //TrcAnalogTrigger
 
     public void setThresholds(double lowThreshold, double highThreshold)
     {
@@ -94,10 +94,42 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
         this.highThreshold = highThreshold;
     }   //setThresholds
 
+    public void setInverted(boolean inverted)
+    {
+        final String funcName = "setInverted";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "inverted=%s", Boolean.toString(inverted));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.inverted = inverted;
+    }   //setInverted
+
+    public void setScale(double scale)
+    {
+        final String funcName = "setScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.unitScale = scale;
+    }   //setScale
+
     public double getData()
     {
         final String funcName = "getData";
         double data = analogInput.getValue()*unitScale;
+
+        if (kalman != null)
+        {
+            data = kalman.filter(data);
+        }
 
         if (debugEnabled)
         {
@@ -124,16 +156,11 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
         TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            taskMgr.registerTask(
-                    instanceName,
-                    this,
-                    TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
         else
         {
-            taskMgr.unregisterTask(
-                    this,
-                    TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
     }   //setEnabled
 
@@ -155,18 +182,12 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "prePeriodic";
-        double data = analogInput.getValue()*unitScale;
-
-        if (kalman != null)
-        {
-            data = kalman.filter(data);
-        }
+        double data = getData();
 
         Zone zone;
         if (data <= lowThreshold)
         {
-            zone = (options & ANALOGINPUTO_INVERTED) != 0?
-                    Zone.HIGH_ZONE: Zone.LOW_ZONE;
+            zone = inverted? Zone.HIGH_ZONE: Zone.LOW_ZONE;
         }
         else if (data <= highThreshold)
         {
@@ -174,8 +195,7 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
         }
         else
         {
-            zone = (options & ANALOGINPUTO_INVERTED) != 0?
-                   Zone.LOW_ZONE: Zone.HIGH_ZONE;
+            zone = inverted? Zone.LOW_ZONE: Zone.HIGH_ZONE;
         }
 
         if (zone != prevZone)
@@ -186,7 +206,7 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
             prevZone = zone;
             if (eventHandler != null)
             {
-                eventHandler.AnalogEvent(this, zone, data);
+                eventHandler.AnalogTriggerEvent(this, zone, data);
             }
 
             if (debugEnabled)
@@ -213,4 +233,4 @@ public class TrcAnalogInput implements TrcTaskMgr.Task
     {
     }   //postContinuousTask
 
-}   //class TrcAnalogInput
+}   //class TrcAnalogTrigger

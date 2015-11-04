@@ -1,31 +1,34 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import ftclib.FtcDcMotor;
 import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
+import ftclib.FtcOpticalDistanceSensor;
 import hallib.HalSpeedController;
+import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
 import trclib.TrcMotorPosition;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
 
-public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
+public class FtcRobot implements TrcPidController.PidInput,
+                                 TrcMotorPosition,
+                                 TrcAnalogTrigger.AnalogTriggerEventHandler
 {
     private FtcOpMode ftcOpMode = FtcOpMode.getInstance();
     //
     // Sensors.
     //
-    public FtcHiTechnicGyro gyro;
+    public FtcOpticalDistanceSensor lightSensor;
+    public FtcHiTechnicGyro gyroSensor;
+    public ColorSensor colorSensor;
     public TouchSensor touchSensor;
     public UltrasonicSensor sonarSensor;
-    public ColorSensor colorSensor;
-    public OpticalDistanceSensor lightSensor;
     //
     // DriveBase subsystem.
     //
@@ -37,6 +40,7 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
     public TrcPidController pidCtrlDrive;
     public TrcPidController pidCtrlTurn;
     public TrcPidDrive pidDrive;
+    public TrcAnalogTrigger lineTrigger;
     //
     // Chainsaw subsystem.
     //
@@ -65,9 +69,9 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
         //
         // Initialize sensors.
         //
-        gyro = new FtcHiTechnicGyro("gyroSensor");
+        lightSensor = new FtcOpticalDistanceSensor("lightSensor");
+        gyroSensor = new FtcHiTechnicGyro("gyroSensor");
         colorSensor = ftcOpMode.hardwareMap.colorSensor.get("colorSensor");
-        lightSensor = ftcOpMode.hardwareMap.opticalDistanceSensor.get("lightSensor");
         touchSensor = ftcOpMode.hardwareMap.touchSensor.get("touchSensor");
         sonarSensor = ftcOpMode.hardwareMap.ultrasonicSensor.get("sonarSensor");
         //
@@ -85,7 +89,7 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
                 rightFrontWheel,
                 rightRearWheel,
                 this,
-                gyro);
+                gyroSensor);
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
                 RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI, RobotInfo.DRIVE_KD,
@@ -97,6 +101,8 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
                 RobotInfo.TURN_KF, RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
                 this, 0);
         pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
+        lineTrigger = new TrcAnalogTrigger(
+                "lineTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this, false);
         //
         // Chainsaw subsystem.
         //
@@ -172,5 +178,21 @@ public class FtcRobot implements TrcPidController.PidInput, TrcMotorPosition
     {
         return false;
     }   //isReverseLimitSwitchActive
+
+    //
+    // Implements TrcAnalogTrigger.AnalogTriggerEventHandler
+    //
+    public void AnalogTriggerEvent(
+            TrcAnalogTrigger analogTrigger,
+            TrcAnalogTrigger.Zone zone,
+            double value)
+    {
+        if (analogTrigger == lineTrigger &&
+            zone == TrcAnalogTrigger.Zone.HIGH_ZONE &&
+            pidDrive.isEnabled())
+        {
+            pidDrive.cancel();
+        }
+    }   //AnalogTriggerEvent
 
 }   //class FtcRobot

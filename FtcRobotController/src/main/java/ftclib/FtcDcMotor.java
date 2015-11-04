@@ -104,7 +104,7 @@ public class FtcDcMotor implements HalSpeedController
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        motor.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+        motor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
     }   //resetCurrentPosition
 
 }   //class FtcDcMotor

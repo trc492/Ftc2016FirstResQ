@@ -181,13 +181,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 //        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
 //        driveBase.tankDrive(leftPower, rightPower);
         dashboard.displayPrintf(2, "Gyro = rate:%f, heading:%f",
-                                robot.gyro.getRate(), robot.gyro.getAngle());
+                                robot.gyroSensor.getRate(), robot.gyroSensor.getAngle());
         dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue());
         dashboard.displayPrintf(4, "RawLightValue = %d",
-                                robot.lightSensor.getLightDetectedRaw());
+                                robot.lightSensor.getValue());
         dashboard.displayPrintf(5, "Touch = %s",
                                 robot.touchSensor.isPressed()? "pressed": "released");
         dashboard.displayPrintf(6, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
