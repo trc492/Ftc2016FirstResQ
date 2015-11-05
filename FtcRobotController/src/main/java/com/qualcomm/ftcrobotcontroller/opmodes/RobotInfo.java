@@ -21,6 +21,12 @@ public class RobotInfo
     public static final double TURN_SETTLING                    = 0.2;
 
     public static final double LINE_THRESHOLD                   = 80.0;
+    public static final double LINEFOLLOW_KP                    = 1.0;
+    public static final double LINEFOLLOW_KI                    = 0.0;
+    public static final double LINEFOLLOW_KD                    = 0.0;
+    public static final double LINEFOLLOW_KF                    = 0.0;
+    public static final double LINEFOLLOW_TOLERANCE             = 2.0;
+    public static final double LINEFOLLOW_SETTLING              = 0.2;
 
     //
     // Elevator subsystem.

@@ -3,11 +3,10 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import ftclib.FtcOpMode;
-import hallib.HalTouch;
+import hallib.HalDigitalInput;
 import trclib.TrcDbgTrace;
 
-public class FtcTouch implements HalTouch
+public class FtcTouch implements HalDigitalInput
 {
     private static final String moduleName = "FtcTouch";
     private static final boolean debugEnabled = false;
@@ -39,23 +38,23 @@ public class FtcTouch implements HalTouch
     }   //toString
 
     //
-    // Implements HalTouch.
+    // Implements HalDigitalInput.
     //
 
     @Override
-    public boolean isPressed()
+    public boolean isActive()
     {
-        final String funcName = "isPressed";
-        boolean pressed = touchSensor.isPressed();
+        final String funcName = "isActive";
+        boolean active = touchSensor.isPressed();
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(pressed));
+                               "=%s", Boolean.toString(active));
         }
 
-        return pressed;
-    }   //isPressed
+        return active;
+    }   //isActive
 
 }   //class FtcTouch

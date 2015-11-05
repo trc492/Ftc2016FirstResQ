@@ -34,8 +34,8 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
                 RobotInfo.ELEVATOR_KF,
                 RobotInfo.ELEVATOR_TOLERANCE,
                 RobotInfo.ELEVATOR_SETTLING,
-                this,
-                TrcPidController.PIDCTRLO_ABS_SETPT);
+                this);
+        pidController.setAbsoluteSetPoint(true);
         pidMotor = new TrcPidMotor("elevator", elevatorMotor, pidController, this);
         pidMotor.setTargetScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
         lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
@@ -84,12 +84,12 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public boolean isLowerLimitSwitchPressed()
     {
-        return lowerLimitSwitch.isPressed();
+        return lowerLimitSwitch.isActive();
     }
 
     public boolean isUpperLimitSwitchPressed()
     {
-        return upperLimitSwitch.isPressed();
+        return upperLimitSwitch.isActive();
     }
 
     public void reverseEncoder(boolean reverse)
@@ -127,12 +127,12 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
     {
-        return upperLimitSwitch.isPressed();
+        return upperLimitSwitch.isActive();
     }   //isForwardLimitSwitchActive
 
     public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
     {
-        return lowerLimitSwitch.isPressed();
+        return lowerLimitSwitch.isActive();
     }   //isReverseLimitSwitchActive
 
     //

@@ -16,19 +16,19 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
         HIGH_ZONE
     }   //enum Zone
 
-    public interface AnalogTriggerEventHandler
+    public interface AnalogTriggerHandler
     {
         public void AnalogTriggerEvent(
                 TrcAnalogTrigger analogTrigger,
                 Zone zone,
                 double value);
-    }   //interface AnalogTriggerEventHandler
+    }   //interface AnalogTriggerHandler
 
     private String instanceName;
     private HalAnalogInput analogInput;
     private double lowThreshold;
     private double highThreshold;
-    private AnalogTriggerEventHandler eventHandler;
+    private AnalogTriggerHandler eventHandler;
     private TrcKalmanFilter kalman = null;
     private boolean inverted = false;
     private double unitScale = 1.0;
@@ -39,7 +39,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             HalAnalogInput analogInput,
             double lowThreshold,
             double highThreshold,
-            AnalogTriggerEventHandler eventHandler,
+            AnalogTriggerHandler eventHandler,
             boolean useFilter)
     {
         if (debugEnabled)
@@ -72,7 +72,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             final String instanceName,
             HalAnalogInput analogInput,
             double threshold,
-            AnalogTriggerEventHandler eventHandler,
+            AnalogTriggerHandler eventHandler,
             boolean useFilter)
     {
         this(instanceName, analogInput, threshold, threshold, eventHandler, useFilter);

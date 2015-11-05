@@ -23,14 +23,13 @@ public class TrcCascadeController extends TrcPidController
             double       tolerance,
             double       settlingTime,
             PidInput     pidInput,
-            int          options,
             double       secondaryKp,
             double       secondaryKi,
             double       secondaryKd,
             double       secondaryKf)
     {
         super(instanceName + ".primary",
-              kP, kI, kD, kF, tolerance, settlingTime, pidInput, options);
+              kP, kI, kD, kF, tolerance, settlingTime, pidInput);
 
         if (debugEnabled)
         {
@@ -45,7 +44,7 @@ public class TrcCascadeController extends TrcPidController
                 new TrcPidController(
                         instanceName + ".secondary",
                         secondaryKp, secondaryKi, secondaryKd, secondaryKf,
-                        tolerance, settlingTime, pidInput, options);
+                        tolerance, settlingTime, pidInput);
     }   //TrcCascadeController
 
     public double getSecondaryKp()

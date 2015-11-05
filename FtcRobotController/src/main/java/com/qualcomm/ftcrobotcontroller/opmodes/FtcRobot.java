@@ -8,8 +8,10 @@ import ftclib.FtcDcMotor;
 import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
+import ftclib.FtcTouch;
 import hallib.HalSpeedController;
 import trclib.TrcAnalogTrigger;
+import trclib.TrcDigitalTrigger;
 import trclib.TrcDriveBase;
 import trclib.TrcMotorPosition;
 import trclib.TrcPidController;
@@ -18,7 +20,8 @@ import trclib.TrcRobot;
 
 public class FtcRobot implements TrcPidController.PidInput,
                                  TrcMotorPosition,
-                                 TrcAnalogTrigger.AnalogTriggerEventHandler
+                                 TrcAnalogTrigger.AnalogTriggerHandler,
+                                 TrcDigitalTrigger.DigitalTriggerHandler
 {
     private FtcOpMode ftcOpMode = FtcOpMode.getInstance();
     //
@@ -26,8 +29,8 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     public FtcOpticalDistanceSensor lightSensor;
     public FtcHiTechnicGyro gyroSensor;
+    public FtcTouch touchSensor;
     public ColorSensor colorSensor;
-    public TouchSensor touchSensor;
     public UltrasonicSensor sonarSensor;
     //
     // DriveBase subsystem.
@@ -40,7 +43,10 @@ public class FtcRobot implements TrcPidController.PidInput,
     public TrcPidController pidCtrlDrive;
     public TrcPidController pidCtrlTurn;
     public TrcPidDrive pidDrive;
+    public TrcDigitalTrigger touchTrigger;
     public TrcAnalogTrigger lineTrigger;
+    public TrcPidController pidCtrlLineFollow;
+    public TrcPidDrive pidLineFollow;
     //
     // Chainsaw subsystem.
     //
@@ -71,8 +77,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         gyroSensor = new FtcHiTechnicGyro("gyroSensor");
+        touchSensor = new FtcTouch("touchSensor");
         colorSensor = ftcOpMode.hardwareMap.colorSensor.get("colorSensor");
-        touchSensor = ftcOpMode.hardwareMap.touchSensor.get("touchSensor");
         sonarSensor = ftcOpMode.hardwareMap.ultrasonicSensor.get("sonarSensor");
         //
         // DriveBase subsystem.
@@ -92,17 +98,32 @@ public class FtcRobot implements TrcPidController.PidInput,
                 gyroSensor);
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
-                RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI, RobotInfo.DRIVE_KD,
-                RobotInfo.DRIVE_KF, RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
-                this, 0);
+                RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI,
+                RobotInfo.DRIVE_KD, RobotInfo.DRIVE_KF,
+                RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
+                this);
         pidCtrlTurn = new TrcPidController(
                 "TurnPid",
-                RobotInfo.TURN_KP, RobotInfo.TURN_KI, RobotInfo.TURN_KD,
-                RobotInfo.TURN_KF, RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
-                this, 0);
+                RobotInfo.TURN_KP, RobotInfo.TURN_KI,
+                RobotInfo.TURN_KD, RobotInfo.TURN_KF,
+                RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
+                this);
         pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
+        //
+        // PID Line following.
+        //
+        touchTrigger = new TrcDigitalTrigger("touchTrigger", touchSensor, this);
         lineTrigger = new TrcAnalogTrigger(
                 "lineTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this, false);
+        pidCtrlLineFollow = new TrcPidController(
+                "LineFollowPid",
+                RobotInfo.LINEFOLLOW_KP, RobotInfo.LINEFOLLOW_KI,
+                RobotInfo.LINEFOLLOW_KD, RobotInfo.LINEFOLLOW_KF,
+                RobotInfo.LINEFOLLOW_TOLERANCE, RobotInfo.LINEFOLLOW_SETTLING,
+                this);
+        pidCtrlLineFollow.setAbsoluteSetPoint(true);
+        pidLineFollow = new TrcPidDrive(
+                "LineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
         //
         // Chainsaw subsystem.
         //
@@ -136,6 +157,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         else if (pidCtrl == pidCtrlTurn)
         {
             input = driveBase.getHeading();
+        }
+        else if (pidCtrl == pidCtrlLineFollow)
+        {
+            input = lightSensor.getValue();
         }
 
         return input;
@@ -180,7 +205,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     }   //isReverseLimitSwitchActive
 
     //
-    // Implements TrcAnalogTrigger.AnalogTriggerEventHandler
+    // Implements TrcAnalogTrigger.AnalogTriggerHandler
     //
     public void AnalogTriggerEvent(
             TrcAnalogTrigger analogTrigger,
@@ -194,5 +219,16 @@ public class FtcRobot implements TrcPidController.PidInput,
             pidDrive.cancel();
         }
     }   //AnalogTriggerEvent
+
+    //
+    // Implements TrcDigitalTrigger.DigitalTriggerHandler
+    //
+    public void DigitalTriggerEvent(TrcDigitalTrigger digitalTrigger, boolean active)
+    {
+        if (digitalTrigger == touchTrigger && active && pidDrive.isEnabled())
+        {
+            pidDrive.cancel();
+        }
+    }   //DigitalTriggerEvent
 
 }   //class FtcRobot

@@ -10,11 +10,6 @@ public class TrcPidController
     private TrcDbgTrace dbgTrace = null;
     private HalDashboard dashboard;
 
-    public static final int PIDCTRLO_INVERTED   = (1 << 0);
-    public static final int PIDCTRLO_ABS_SETPT  = (1 << 1);
-    public static final int PIDCTRLO_SPEED_CTRL = (1 << 2);
-    public static final int PIDCTRLO_NO_OSC     = (1 << 3);
-
     public interface PidInput
     {
         public double getInput(TrcPidController pidCtrl);
@@ -27,18 +22,21 @@ public class TrcPidController
     private double tolerance;
     private double settlingTime;
     private PidInput pidInput;
-    private int options;
 
-    private double minInput;
-    private double maxInput;
-    private double minOutput;
-    private double maxOutput;
+    private boolean inverted = false;
+    private boolean absSetPoint = false;
+    private boolean speedControl = false;
+    private boolean noOscillation = false;
+    private double minInput = 0.0;
+    private double maxInput = 0.0;
+    private double minOutput = -1.0;
+    private double maxOutput = 1.0;
 
-    private double prevError;
-    private double totalError;
-    private double settlingStartTime;
-    private double setPoint;
-    private double output;
+    private double prevError = 0.0;
+    private double totalError = 0.0;
+    private double settlingStartTime = 0.0;
+    private double setPoint = 0.0;
+    private double output = 0.0;
 
     public TrcPidController(
             final String instanceName,
@@ -48,8 +46,7 @@ public class TrcPidController
             double       kF,
             double       tolerance,
             double       settlingTime,
-            PidInput     pidInput,
-            int          options)
+            PidInput     pidInput)
     {
         if (debugEnabled)
         {
@@ -68,16 +65,6 @@ public class TrcPidController
         this.tolerance = tolerance;
         this.settlingTime = settlingTime;
         this.pidInput = pidInput;
-        this.options = options;
-        this.minInput = 0.0;
-        this.maxInput = 0.0;
-        this.minOutput = -1.0;
-        this.maxOutput = 1.0;
-        this.prevError = 0.0;
-        this.totalError = 0.0;
-        this.settlingStartTime = 0.0;
-        this.setPoint = 0.0;
-        this.output = 0.0;
     }   //TrcPidController
 
     public void displayPidInfo(int lineNum)
@@ -105,6 +92,62 @@ public class TrcPidController
                     minOutput, maxOutput);
         }
     }   //printPidInfo
+
+    public void setInverted(boolean inverted)
+    {
+        final String funcName = "setInverted";
+
+        this.inverted = inverted;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "inverted=%s", Boolean.toString(inverted));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //setInverted
+
+    public void setAbsoluteSetPoint(boolean absolute)
+    {
+        final String funcName = "setAbsoluteSetPoint";
+
+        this.absSetPoint = absolute;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "absolute=%s", Boolean.toString(absolute));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //setAbsoluteSetPoint
+
+    public void setSpeedControlMode(boolean speedControl)
+    {
+        final String funcName = "setSpeedControlMode";
+
+        this.speedControl = speedControl;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "speedControl=%s", Boolean.toString(speedControl));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //setSpeedControlMode
+
+    public void setNoOscillation(boolean noOscillation)
+    {
+        final String funcName = "setNoOscillation";
+
+        this.noOscillation = noOscillation;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "noOsc=%s", Boolean.toString(noOscillation));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //setNoOscillation
 
     public double getKp()
     {
@@ -306,7 +349,7 @@ public class TrcPidController
 
         double input = pidInput.getInput(this);
         setPoint = target;
-        if ((options & PIDCTRLO_ABS_SETPT) == 0)
+        if (!absSetPoint)
         {
             setPoint += input;
         }
@@ -324,7 +367,7 @@ public class TrcPidController
         }
 
         prevError = setPoint - input;
-        if ((options & PIDCTRLO_INVERTED) != 0)
+        if (inverted)
         {
             prevError = -prevError;
         }
@@ -379,7 +422,7 @@ public class TrcPidController
 
         boolean onTarget = false;
 
-        if ((options & PIDCTRLO_NO_OSC) != 0)
+        if (noOscillation)
         {
             if (Math.abs(prevError) <= tolerance)
             {
@@ -415,7 +458,7 @@ public class TrcPidController
         }
 
         double error = setPoint - pidInput.getInput(this);
-        if ((options & PIDCTRLO_INVERTED) != 0)
+        if (inverted)
         {
             error = -error;
         }

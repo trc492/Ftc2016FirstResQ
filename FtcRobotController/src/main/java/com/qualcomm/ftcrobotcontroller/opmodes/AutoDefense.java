@@ -63,7 +63,6 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     break;
 
                 default:
-                case TrcStateMachine.STATE_STARTED + 2:
                     sm.stop();
                     break;
             }

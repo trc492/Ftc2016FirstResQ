@@ -189,7 +189,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         dashboard.displayPrintf(4, "RawLightValue = %d",
                                 robot.lightSensor.getValue());
         dashboard.displayPrintf(5, "Touch = %s",
-                                robot.touchSensor.isPressed()? "pressed": "released");
+                                robot.touchSensor.isActive()? "pressed": "released");
         dashboard.displayPrintf(6, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
         dashboard.displayPrintf(7, "lowerLimit=%d, upperLimit=%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
@@ -284,13 +284,27 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     //
                     // Drive forward until we found the line.
                     //
+                    robot.lineTrigger.setEnabled(true);
                     robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
-                default:
                 case TrcStateMachine.STATE_STARTED + 1:
+                    robot.lineTrigger.setEnabled(false);
+                    robot.touchTrigger.setEnabled(true);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
+                    robot.pidCtrlLineFollow.setOutputRange(-0.3, 0.3);
+                    robot.pidLineFollow.setTarget(
+                            25.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                default:
+                    robot.touchTrigger.setEnabled(false);
+                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

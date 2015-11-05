@@ -1,7 +1,7 @@
 package trclib;
 
+import hallib.HalDigitalInput;
 import hallib.HalServo;
-import hallib.HalTouch;
 import hallib.HalUtil;
 
 public class TrcServo implements TrcTaskMgr.Task
@@ -25,8 +25,8 @@ public class TrcServo implements TrcTaskMgr.Task
     //
     // The following is for continuous servo.
     //
-    private HalTouch lowerLimitSwitch = null;
-    private HalTouch upperLimitSwitch = null;
+    private HalDigitalInput lowerLimitSwitch = null;
+    private HalDigitalInput upperLimitSwitch = null;
 
     public TrcServo(HalServo servo)
     {
@@ -49,7 +49,8 @@ public class TrcServo implements TrcTaskMgr.Task
         this.servo2 = servo2;
     }   //TrcServo
 
-    public TrcServo(HalServo servo, HalTouch lowerLimitSwitch, HalTouch upperLimitSwitch)
+    public TrcServo(
+            HalServo servo, HalDigitalInput lowerLimitSwitch, HalDigitalInput upperLimitSwitch)
     {
         if (servo1 == null)
         {
@@ -113,9 +114,9 @@ public class TrcServo implements TrcTaskMgr.Task
         if (continuousServo)
         {
             if (lowerLimitSwitch != null &&
-                lowerLimitSwitch.isPressed() ||
+                lowerLimitSwitch.isActive() ||
                 upperLimitSwitch != null &&
-                upperLimitSwitch.isPressed())
+                upperLimitSwitch.isActive())
             {
                 //
                 // One of the limit switches is hit, so stop!
