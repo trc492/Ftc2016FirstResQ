@@ -1,7 +1,7 @@
 package trclib;
 
-import hallib.HalSpeedController;
 import hallib.HalGyro;
+import hallib.HalSpeedController;
 import hallib.HalRobotDrive;
 
 public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
@@ -27,7 +27,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private double rotScale;
     private double xSpeed;
     private double ySpeed;
-//    private double turnSpeed;
+    private double turnSpeed;
 
     public TrcDriveBase(
             HalSpeedController leftMotor,
@@ -130,7 +130,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         heading = 0.0;
         xSpeed = 0.0;
         ySpeed = 0.0;
-//        turnSpeed = 0.0;
+        turnSpeed = 0.0;
 
         if (debugEnabled)
         {
@@ -340,7 +340,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         return ySpeed;
     }   //getYSpeed
 
-    /*
     public double getTurnSpeed()
     {
         final String funcName = "getTurnSpeed";
@@ -355,7 +354,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         return turnSpeed;
     }   //getTurnSpeed
-    */
 
     /*
     public void setBrakeModeEnabled(boolean enabled)
@@ -559,8 +557,8 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         if (gyro != null)
         {
-            heading = gyro.getAngle();
-//            turnSpeed = gyro.getRate();
+            heading = gyro.getHeading();
+            turnSpeed = gyro.getRotation();
         }
 
         if (debugEnabled)

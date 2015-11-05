@@ -4,14 +4,11 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import hallib.HalGyro;
-import hallib.HalUtil;
 import trclib.TrcDbgTrace;
+import trclib.TrcGyroIntegrator;
 import trclib.TrcKalmanFilter;
-import trclib.TrcRobot;
-import trclib.TrcTaskMgr;
-import trclib.TrcUtil;
 
-public class FtcHiTechnicGyro implements HalGyro, TrcTaskMgr.Task
+public class FtcHiTechnicGyro implements HalGyro
 {
     private static final String moduleName = "FtcHiTechnicGyro";
     private static final boolean debugEnabled = false;
@@ -24,12 +21,7 @@ public class FtcHiTechnicGyro implements HalGyro, TrcTaskMgr.Task
     private TrcKalmanFilter kalman = null;
     private HardwareMap hardwareMap;
     private GyroSensor gyro;
-    private double zeroOffset = 0.0;
-    private double deadband = 0.0;
-    private double rate = 0.0;
-    private double heading = 0.0;
-    private double prevTime = 0.0;
-    private double sign = 1.0;
+    private TrcGyroIntegrator integrator;
 
     public FtcHiTechnicGyro(String instanceName, boolean useFilter)
     {
@@ -48,11 +40,8 @@ public class FtcHiTechnicGyro implements HalGyro, TrcTaskMgr.Task
         }
         hardwareMap = FtcOpMode.getInstance().hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
-        calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
-        prevTime = HalUtil.getCurrentTime();
-
-        TrcTaskMgr.getInstance().registerTask(
-                instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+        integrator = new TrcGyroIntegrator(instanceName, this);
+        integrator.calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
     }   //FtcHiTechnicGyro
 
     public FtcHiTechnicGyro(String instanceName)
@@ -60,169 +49,61 @@ public class FtcHiTechnicGyro implements HalGyro, TrcTaskMgr.Task
         this(instanceName, false);
     }   //FtcHiTechnicGyro
 
-    public void setInverted(boolean inverted)
+    public String toString()
     {
-        final String funcName = "setInverted";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        sign = inverted? -1.0: 1.0;
-    }   //setInverted
-
-    public void calibrate(int samples, long interval)
-    {
-        final String funcName = "calibrate";
-
-        zeroOffset = 0.0;
-        deadband = 0.0;
-        double minValue = 1024.0;
-        double maxValue = -1024.0;
-        double sum = 0.0;
-
-        for (int i = 0; i < samples; i++)
-        {
-            double rate = gyro.getRotation();
-            sum += rate;
-            if (rate < minValue)
-            {
-                minValue = rate;
-            }
-            else if (rate > maxValue)
-            {
-                maxValue = rate;
-            }
-
-            try
-            {
-                Thread.sleep(interval);
-            }
-            catch (InterruptedException e)
-            {
-            }
-        }
-
-        zeroOffset = sum/samples;
-        deadband = (maxValue - minValue)/2.0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "samples=%d,interval=%d", samples, interval);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "! (offset=%f,deadband=%f)", zeroOffset, deadband);
-        }
-    }   //calibrate
-
-    private void sampleData()
-    {
-        final String funcName = "sampleData";
-
-        double currTime = HalUtil.getCurrentTime();
-        rate = gyro.getRotation();
-
-        rate -= zeroOffset;
-        rate = sign*TrcUtil.applyDeadband(rate, deadband);
-        if (kalman != null)
-        {
-            rate = kalman.filter(rate);
-        }
-        heading += rate*(currTime - prevTime);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (rate=%f,heading=%f,deltaTime=%f)",
-                               rate, heading, currTime - prevTime);
-        }
-
-        prevTime = currTime;
-    }   //sampleData
-
-    //
-    // Implements TrcTaskMgr.Task
-    //
-    public void startTask(TrcRobot.RunMode runMode)
-    {
-    }   //startTask
-
-    public void stopTask(TrcRobot.RunMode runMode)
-    {
-    }   //stopTask
-
-    public void prePeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //prePeriodicTask
-
-    public void postPeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-        final String funcName = "preContinuousTask";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(
-                    funcName, TrcDbgTrace.TraceLevel.TASK,
-                    "mode=%s", runMode.toString());
-        }
-
-        sampleData();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.TASK);
-        }
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //postContinuousTask
+        return instanceName;
+    }   //toString
 
     //
     // Implements HalGyro.
     //
 
     @Override
+    public void calibrate()
+    {
+        integrator.calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
+    }   //calibrate
+
+    @Override
+    public boolean isCalibrating()
+    {
+        return integrator.isCalibrating();
+    }   //isCalibrating
+
+    @Override
     public void reset()
     {
-        final String funcName = "reset";
-
-        sampleData();
-        heading = 0.0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
+        integrator.reset();
     }   //reset
 
     @Override
-    public double getAngle()
+    public double getRawX()
     {
-        final String funcName = "getAngle";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", heading);
-        }
-
-        return heading;
-    }   //getAngle
+        return 0.0;
+    }   //getRawX
 
     @Override
-    public double getRate()
+    public double getRawY()
     {
-        final String funcName = "getRate";
+        return 0.0;
+    }   //getRawY
+
+    @Override
+    public double getRawZ()
+    {
+        return gyro.getRotation();
+    }   //getRawZ
+
+    @Override
+    public double getRotation()
+    {
+        final String funcName = "getRotation";
+        double rate = integrator.getRotation();
+
+        if (kalman != null)
+        {
+            rate = kalman.filter(rate);
+        }
 
         if (debugEnabled)
         {
@@ -231,6 +112,21 @@ public class FtcHiTechnicGyro implements HalGyro, TrcTaskMgr.Task
         }
 
         return rate;
-    }   //getRate
+    }   //getRotation
+
+    @Override
+    public double getHeading()
+    {
+        final String funcName = "getHeading";
+        double heading = integrator.getHeading();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", heading);
+        }
+
+        return heading;
+    }   //getHeading
 
 }   //class FtcHiTechnicGyro
