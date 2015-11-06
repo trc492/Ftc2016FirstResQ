@@ -1,4 +1,4 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package ftc3543.opmodes;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
@@ -7,35 +7,32 @@ import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class AutoDefense implements TrcRobot.AutoStrategy
+public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 {
     private FtcAuto autoMode;
     private HalDashboard dashboard;
     private int alliance;
     private double delay;
-    private double distance;
     private TrcStateMachine sm;
     private TrcTimer timer;
     private TrcEvent event;
 
-    public AutoDefense(int alliance, double delay, double distance)
+    public AutoParkRepairZone(int alliance, double delay)
     {
         autoMode = (FtcAuto)FtcOpMode.getInstance();
         dashboard = HalDashboard.getInstance();
         this.alliance = alliance;
         this.delay = delay;
-        this.distance = distance;
-        sm = new TrcStateMachine("autoDefense");
+        sm = new TrcStateMachine("autoParkRepairZone");
         sm.start();
-        timer = new TrcTimer("DefenseTimer");
-        event = new TrcEvent("DefenseEvent");
+        timer = new TrcTimer("ParkRepairZoneTimer");
+        event = new TrcEvent("ParkRepairZoneEvent");
     }
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "Defense: %s alliance, delay=%.1f, distance=%.1f",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                delay, distance/12.0);
+        dashboard.displayPrintf(1, "ParkRepairZone: %s alliance, delay=%.1f",
+                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue", delay);
 
         if (sm.isReady())
         {
@@ -57,7 +54,26 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
-                    autoMode.getRobot().pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    autoMode.getRobot().pidDrive.setTarget(100.0, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 2:
+                    if (alliance == autoMode.ALLIANCE_RED)
+                    {
+                        autoMode.getRobot().pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
+                    }
+                    else
+                    {
+                        autoMode.getRobot().pidDrive.setTarget(0.0, 45.0, false, event, 0.0);
+                    }
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 3:
+                    autoMode.getRobot().pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -69,4 +85,4 @@ public class AutoDefense implements TrcRobot.AutoStrategy
         }
     }
 
-}   //class AutoDefense
+}   //class AutoParkRepairZone

@@ -1,4 +1,4 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package ftc3543.opmodes;
 
 import ftclib.FtcGamepad;
 import ftclib.FtcMenu;
@@ -215,7 +215,6 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 default:
-                case TrcStateMachine.STATE_STARTED + 1:
                     robot.driveBase.stop();
                     sm.stop();
                     break;
@@ -240,7 +239,6 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 default:
-                case TrcStateMachine.STATE_STARTED + 1:
                     sm.stop();
                     break;
             }
@@ -264,7 +262,6 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 default:
-                case TrcStateMachine.STATE_STARTED + 1:
                     sm.stop();
                     break;
             }
@@ -292,6 +289,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
+                    //
+                    // Follow the line until the touch switch is activated.
+                    //
                     robot.lineTrigger.setEnabled(false);
                     robot.touchTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);

@@ -13,8 +13,8 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
     private String instanceName;
     private HalGyro gyro;
     private double prevTime = 0.0;
-    private double zeroOffset = 0.0;
-    private double deadband = 0.0;
+    private double zeroOffset = 0.0;    //610.76;
+    private double deadband = 0.0;      //1.0;
     private double rate = 0.0;
     private double heading = 0.0;
     private boolean calibrating = false;

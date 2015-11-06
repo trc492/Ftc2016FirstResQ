@@ -129,7 +129,7 @@ public abstract class FtcOpMode extends LinearOpMode
         long nextPeriodTime = HalUtil.getCurrentTimeMillis();
         while (opModeIsActive())
         {
-            dashboard.displayPrintf(0, "%s: %f", runModeName, HalUtil.getCurrentTime() - startTime);
+            dashboard.displayPrintf(0, "%s: %.3f", runModeName, HalUtil.getCurrentTime() - startTime);
             if (HalUtil.getCurrentTimeMillis() >= nextPeriodTime)
             {
                 nextPeriodTime += LOOP_PERIOD;

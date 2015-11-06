@@ -1,4 +1,4 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package ftc3543.opmodes;
 
 import ftclib.FtcGamepad;
 import ftclib.FtcOpMode;
@@ -69,14 +69,14 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         robot.driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(1, "leftPower = %f", leftPower);
-        dashboard.displayPrintf(2, "rightPower = %f", rightPower);
+        dashboard.displayPrintf(1, "leftPower = %.3f", leftPower);
+        dashboard.displayPrintf(2, "rightPower = %.3f", rightPower);
         //
         // Elevator subsystem.
         //
         double elevatorPower = operatorGamepad.getRightStickY(true);
         robot.elevator.setPower(elevatorPower);
-        dashboard.displayPrintf(3, "elevatorPower = %f", elevatorPower);
+        dashboard.displayPrintf(3, "elevatorPower = %.3f", elevatorPower);
         dashboard.displayPrintf(4, "lowerLimit = %s, upperLimit = %s",
                                 robot.elevator.isLowerLimitSwitchPressed()? "pressed": "released",
                                 robot.elevator.isUpperLimitSwitchPressed()? "pressed": "released");
@@ -90,7 +90,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
             chainsawPower = (leftPower + rightPower)/2.0;
         }
         robot.chainsaw.setPower(chainsawPower);
-        dashboard.displayPrintf(7, "chainsawPower = %f", chainsawPower);
+        dashboard.displayPrintf(7, "chainsawPower = %.3f", chainsawPower);
     }   //runPeriodic
 
     @Override

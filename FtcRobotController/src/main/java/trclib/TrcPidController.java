@@ -71,12 +71,12 @@ public class TrcPidController
     {
         dashboard.displayPrintf(
                 lineNum,
-                "Target=%6.1f, Input=%6.1f, Error=%6.1f",
+                "Target=%.1f, Input=%.1f, Error=%.1f",
                 setPoint, pidInput.getInput(this), prevError);
         dashboard.displayPrintf(
                 lineNum + 1,
-                "output=%6.3f, minOutput=%6.3f, maxOutput=%6.3f",
-                output, minOutput, maxOutput);
+                "minOutput=%.1f, Output=%.1f, maxOutput=%.1f",
+                minOutput, output, maxOutput);
     }   //displayPidInfo
 
     public void printPidInfo()
