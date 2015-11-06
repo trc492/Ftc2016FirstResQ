@@ -1,7 +1,5 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import ftclib.FtcGamepad;
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
@@ -206,19 +204,4 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         }
     }   //gamepadButtonEvent
 
-    public Gamepad getGamepad(String name)
-    {
-        if (name.equals("DriverGamepad"))
-        {
-            return gamepad1;
-        }
-        else if (name.equals("OperatorGamepad"))
-        {
-            return gamepad2;
-        }
-        else
-        {
-            return null;
-        }
-    }   //??? TEMP
 }   //class FtcTeleOp

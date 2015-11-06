@@ -50,6 +50,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         // Initialize input subsystems.
         //
         driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
+        driverGamepad.setYInverted(true);
         //
         // Miscellaneous.
         //
@@ -176,22 +177,22 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
     private void doTestSensors()
     {
         dashboard.displayPrintf(1, "Testing sensors:");
-//        double leftPower  = driverGamepad.getLeftStickY(true);
-//        double rightPower = driverGamepad.getRightStickY(true);
-//        for(;;){dashboard.displayPrintf(8, "pause..."); try{sleep(100);}catch(Exception e){break;}}
-//        driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "Gyro = rate:%f, heading:%d",
+        double leftPower  = driverGamepad.getLeftStickY(true);
+        double rightPower = driverGamepad.getRightStickY(true);
+        robot.driveBase.tankDrive(leftPower, rightPower);
+        dashboard.displayPrintf(2, "leftPower = %.1f, rightPower = %.1f", leftPower, rightPower);
+        dashboard.displayPrintf(3, "Gyro = rate:%f, heading:%f",
                                 robot.gyro.getRotation(), robot.gyro.getHeading());
-        dashboard.displayPrintf(3, "Color = [R:%d,G:%d,B:%d]",
+        dashboard.displayPrintf(4, "Color = [R:%d,G:%d,B:%d]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue());
-        dashboard.displayPrintf(4, "RawLightValue = %d",
+        dashboard.displayPrintf(5, "RawLightValue = %d",
                                 robot.lightSensor.getValue());
-        dashboard.displayPrintf(5, "Touch = %s",
+        dashboard.displayPrintf(6, "Touch = %s",
                                 robot.touchSensor.isActive()? "pressed": "released");
-        dashboard.displayPrintf(6, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
-        dashboard.displayPrintf(7, "lowerLimit=%d, upperLimit=%d",
+        dashboard.displayPrintf(7, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
+        dashboard.displayPrintf(8, "lowerLimit=%d, upperLimit=%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors

@@ -29,7 +29,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
                 FtcGamepad gamepad,
                 final int btnMask,
                 final boolean pressed);
-        public Gamepad getGamepad(String name);  //??? TEMP
     }   //interface ButonHandler
 
     private static final String moduleName = "FtcGamepad";
@@ -87,10 +86,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     {
         final String funcName = "getButtons";
 
-        if (buttonHandler != null)
-        {
-            gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
-        }
         int buttons = 0;
         buttons |= gamepad.a? GAMEPAD_A: 0;
         buttons |= gamepad.b? GAMEPAD_B: 0;
@@ -136,7 +131,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getLeftStickX(boolean squared)
     {
         final String funcName = "getLeftStickX";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double) gamepad.left_stick_x, squared);
 
         if (debugEnabled)
@@ -160,7 +154,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getLeftStickY(boolean squared)
     {
         final String funcName = "getLeftStickY";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double)(ySign*gamepad.left_stick_y), squared);
 
         if (debugEnabled)
@@ -184,7 +177,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getRightStickX(boolean squared)
     {
         final String funcName = "getRightStickX";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double)gamepad.right_stick_x, squared);
 
         if (debugEnabled)
@@ -208,7 +200,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getRightStickY(boolean squared)
     {
         final String funcName = "getRightStickY";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double)(ySign*gamepad.right_stick_y), squared);
 
         if (debugEnabled)
@@ -232,7 +223,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getLeftTrigger(boolean squared)
     {
         final String funcName = "getLeftTrigger";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double)gamepad.left_trigger, squared);
 
         if (debugEnabled)
@@ -256,7 +246,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public double getRightTrigger(boolean squared)
     {
         final String funcName = "getRightTrigger";
-        gamepad = buttonHandler.getGamepad(instanceName);   //??? TEMP
         double value = squareValue((double)gamepad.right_trigger, squared);
 
         if (debugEnabled)

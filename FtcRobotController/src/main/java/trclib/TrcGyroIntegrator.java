@@ -1,5 +1,6 @@
 package trclib;
 
+import ftclib.FtcOpMode;
 import hallib.HalGyro;
 import hallib.HalUtil;
 
@@ -51,14 +52,14 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
         sign = inverted? -1.0: 1.0;
     }   //setInverted
 
-    public void calibrate(int samples, long interval)
+    public void calibrate(int samples)
     {
         final String funcName = "calibrate";
 
         zeroOffset = 0.0;
         deadband = 0.0;
-        double minValue = 1024.0;
-        double maxValue = -1024.0;
+        double minValue = gyro.getRawZ();
+        double maxValue = minValue;
         double sum = 0.0;
 
         calibrating = true;
@@ -77,7 +78,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
             try
             {
-                Thread.sleep(interval);
+                FtcOpMode.getInstance().waitOneFullHardwareCycle();
             }
             catch (InterruptedException e)
             {
@@ -90,8 +91,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "samples=%d,interval=%d", samples, interval);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "samples=%d", samples);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "! (offset=%f,deadband=%f)", zeroOffset, deadband);
         }

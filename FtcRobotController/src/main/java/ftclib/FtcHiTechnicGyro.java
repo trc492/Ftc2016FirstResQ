@@ -15,7 +15,6 @@ public class FtcHiTechnicGyro implements HalGyro
     private TrcDbgTrace dbgTrace = null;
 
     private static final int NUM_CAL_SAMPLES = 100;
-    private static final int CAL_INTERVAL = 10;
 
     private String instanceName;
     private TrcKalmanFilter kalman = null;
@@ -41,7 +40,7 @@ public class FtcHiTechnicGyro implements HalGyro
         hardwareMap = FtcOpMode.getInstance().hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
         integrator = new TrcGyroIntegrator(instanceName, this);
-        integrator.calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
+        integrator.calibrate(NUM_CAL_SAMPLES);
     }   //FtcHiTechnicGyro
 
     public FtcHiTechnicGyro(String instanceName)
@@ -61,7 +60,7 @@ public class FtcHiTechnicGyro implements HalGyro
     @Override
     public void calibrate()
     {
-        integrator.calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
+        integrator.calibrate(NUM_CAL_SAMPLES);
     }   //calibrate
 
     @Override
