@@ -20,7 +20,7 @@ public class HalDashboard
     private static HalDashboard instance = null;
     private static String[] display = new String[MAX_NUM_TEXTLINES];
 
-    public HalDashboard()
+    public HalDashboard(Telemetry telemetry)
     {
         if (debugEnabled)
         {
@@ -32,10 +32,15 @@ public class HalDashboard
         }
 
         instance = this;
-        this.telemetry = FtcOpMode.getInstance().telemetry;
+        this.telemetry = telemetry;
         telemetry.clearData();
         clearDisplay();
     }   //HalDashboard
+
+    public HalDashboard()
+    {
+        this(FtcOpMode.getInstance().telemetry);
+    }    //HalDashboard
 
     public static HalDashboard getInstance()
     {

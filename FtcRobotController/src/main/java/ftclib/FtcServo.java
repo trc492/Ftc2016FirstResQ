@@ -27,7 +27,7 @@ public class FtcServo implements HalServo
     private double logicalMin = DEF_LOGICAL_MIN;
     private double logicalMax = DEF_LOGICAL_MAX;
 
-    public FtcServo(String instanceName)
+    public FtcServo(String instanceName, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -39,8 +39,13 @@ public class FtcServo implements HalServo
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         servo = hardwareMap.servo.get(instanceName);
+    }   //FtcServo
+
+    public FtcServo(String instanceName)
+    {
+        this(instanceName, FtcOpMode.getInstance().hardwareMap);
     }   //FtcServo
 
     public String toString()

@@ -22,7 +22,7 @@ public class FtcHiTechnicGyro implements HalGyro
     private GyroSensor gyro;
     private TrcGyroIntegrator integrator;
 
-    public FtcHiTechnicGyro(String instanceName, boolean useFilter)
+    public FtcHiTechnicGyro(String instanceName, boolean useFilter, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -37,10 +37,15 @@ public class FtcHiTechnicGyro implements HalGyro
         {
             kalman = new TrcKalmanFilter();
         }
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
         integrator = new TrcGyroIntegrator(instanceName, this);
         integrator.calibrate(NUM_CAL_SAMPLES);
+    }   //FtcHiTechnicGyro
+
+    public FtcHiTechnicGyro(String instanceName, boolean useFilter)
+    {
+        this(instanceName, useFilter, FtcOpMode.getInstance().hardwareMap);
     }   //FtcHiTechnicGyro
 
     public FtcHiTechnicGyro(String instanceName)

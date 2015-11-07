@@ -256,8 +256,8 @@ public class HalRobotDrive
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        leftPower = limit(leftPower);
-        rightPower = limit(rightPower);
+        leftPower = TrcUtil.limit(leftPower);
+        rightPower = TrcUtil.limit(rightPower);
 
         if (frontLeftMotor != null)
         {
@@ -293,8 +293,8 @@ public class HalRobotDrive
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        drivePower = limit(drivePower);
-        turnPower = limit(turnPower);
+        drivePower = TrcUtil.limit(drivePower);
+        turnPower = TrcUtil.limit(turnPower);
 
         if (drivePower + turnPower > MOTOR_MAX_VALUE)
         {
@@ -360,9 +360,9 @@ public class HalRobotDrive
             throw new IllegalArgumentException("Mecanum drive requires 4 motors");
         }
 
-        x = limit(x);
-        y = limit(y);
-        rotation = limit(rotation);
+        x = TrcUtil.limit(x);
+        y = TrcUtil.limit(y);
+        rotation = TrcUtil.limit(rotation);
 
         double cosA = Math.cos(Math.toRadians(gyroAngle));
         double sinA = Math.sin(Math.toRadians(gyroAngle));
@@ -413,7 +413,7 @@ public class HalRobotDrive
             throw new IllegalArgumentException("Mecanum drive requires 4 motors");
         }
 
-        magnitude = limit(magnitude)*Math.sqrt(2.0);
+        magnitude = TrcUtil.limit(magnitude)*Math.sqrt(2.0);
         double dirInRad = Math.toRadians(direction + 45.0);
         double cosD = Math.cos(dirInRad);
         double sinD = Math.sin(dirInRad);
@@ -445,11 +445,6 @@ public class HalRobotDrive
             rearRightMotor.setPower(wheelSpeeds[MotorType.kRearRight_val]);
         }
     }   //mecanumDrive_Polar
-
-    private double limit(double value)
-    {
-        return TrcUtil.limit(value, -1.0, 1.0);
-    }   //limit
 
     private void normalize(double[] wheelSpeeds)
     {

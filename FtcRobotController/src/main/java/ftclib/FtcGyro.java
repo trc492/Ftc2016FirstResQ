@@ -18,7 +18,7 @@ public class FtcGyro implements HalGyro
     private HardwareMap hardwareMap;
     private GyroSensor gyro;
 
-    public FtcGyro(String instanceName, boolean useFilter)
+    public FtcGyro(String instanceName, boolean useFilter, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -33,7 +33,7 @@ public class FtcGyro implements HalGyro
         {
             kalman = new TrcKalmanFilter();
         }
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
 
         gyro.calibrate();
@@ -47,6 +47,11 @@ public class FtcGyro implements HalGyro
             {
             }
         }
+    }   //FtcGyro
+
+    public FtcGyro(String instanceName, boolean useFilter)
+    {
+        this(instanceName, useFilter, FtcOpMode.getInstance().hardwareMap);
     }   //FtcGyro
 
     public FtcGyro(String instanceName)

@@ -16,7 +16,7 @@ public class FtcAnalogInput implements HalAnalogInput
     private HardwareMap hardwareMap;
     private AnalogInput analogInput;
 
-    public FtcAnalogInput(String instanceName)
+    public FtcAnalogInput(String instanceName, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -28,8 +28,13 @@ public class FtcAnalogInput implements HalAnalogInput
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         this.analogInput = hardwareMap.analogInput.get(instanceName);
+    }   //FtcAnalogInput
+
+    public FtcAnalogInput(String instanceName)
+    {
+        this(instanceName, FtcOpMode.getInstance().hardwareMap);
     }   //FtcAnalogInput
 
     public String toString()

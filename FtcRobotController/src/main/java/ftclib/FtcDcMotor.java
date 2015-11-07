@@ -17,7 +17,7 @@ public class FtcDcMotor implements HalSpeedController
     private HardwareMap hardwareMap;
     private DcMotor motor;
 
-    public FtcDcMotor(String instanceName)
+    public FtcDcMotor(String instanceName, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -29,8 +29,13 @@ public class FtcDcMotor implements HalSpeedController
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         motor = hardwareMap.dcMotor.get(instanceName);
+    }   //FtcDcMotor
+
+    public FtcDcMotor(String instanceName)
+    {
+        this(instanceName, FtcOpMode.getInstance().hardwareMap);
     }   //FtcDcMotor
 
     public String toString()

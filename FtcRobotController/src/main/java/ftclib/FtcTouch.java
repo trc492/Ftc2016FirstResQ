@@ -16,7 +16,7 @@ public class FtcTouch implements HalDigitalInput
     private HardwareMap hardwareMap;
     private TouchSensor touchSensor;
 
-    public FtcTouch(String instanceName)
+    public FtcTouch(String instanceName, HardwareMap hardwareMap)
     {
         if (debugEnabled)
         {
@@ -28,8 +28,13 @@ public class FtcTouch implements HalDigitalInput
         }
 
         this.instanceName = instanceName;
-        hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        this.hardwareMap = hardwareMap;
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
+    }   //FtcTouch
+
+    public FtcTouch(String instanceName)
+    {
+        this(instanceName, FtcOpMode.getInstance().hardwareMap);
     }   //FtcTouch
 
     public String toString()
