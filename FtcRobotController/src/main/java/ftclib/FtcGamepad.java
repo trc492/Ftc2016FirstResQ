@@ -82,6 +82,11 @@ public class FtcGamepad implements TrcTaskMgr.Task
         gamepad.setJoystickDeadzone((float) deadbandThreshold);
     }   //FtcGamepad
 
+    public void setGamepad(Gamepad gamepad)
+    {
+        this.gamepad = gamepad;
+    }   //setGamepad
+
     public int getButtons()
     {
         final String funcName = "getButtons";

@@ -53,6 +53,8 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     @Override
     public void startMode()
     {
+        driverGamepad.setGamepad(gamepad1);
+        operatorGamepad.setGamepad(gamepad2);
     }   //startMode
 
     @Override
