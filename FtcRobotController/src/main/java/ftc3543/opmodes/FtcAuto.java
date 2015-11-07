@@ -7,12 +7,6 @@ import trclib.TrcRobot;
 
 public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 {
-    private HalDashboard dashboard;
-    private FtcRobot robot;
-    //
-    // Strategies.
-    //
-    private TrcRobot.AutoStrategy autoStrategy = null;
     //
     // Alliance menu.
     //
@@ -33,6 +27,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     public static final int MOUNTAIN_MID_ZONE           = 2;
     public static final int MOUNTAIN_HIGH_ZONE          = 3;
 
+    public FtcRobot robot;
+
+    private HalDashboard dashboard;
+    private TrcRobot.AutoStrategy autoStrategy = null;
     private int alliance = ALLIANCE_RED;
     private int strategy = STRATEGY_DO_NOTHING;
     private double delay = 0.0;
@@ -49,8 +47,8 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         //
         // Initializing global objects.
         //
-        dashboard = HalDashboard.getInstance();
         robot = new FtcRobot(TrcRobot.RunMode.AUTO_MODE);
+        dashboard = HalDashboard.getInstance();
         //
         // Choice menus.
         //
@@ -138,8 +136,6 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         return gamepad1.b;
     }   //isMenuCancel
 
-    public FtcRobot getRobot() { return robot; }
-
     private void doMenus()
     {
         FtcMenu allianceMenu = new FtcMenu(null, "Alliance:", this);
@@ -187,9 +183,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         driveDistance = distanceMenu.getSelectedChoiceValue();
         mountainZone = (int)mountainZoneMenu.getSelectedChoiceValue();
 
-        HalDashboard.getInstance().displayPrintf(
-                15, "Strategy selected = %s",
-                strategyMenu.getSelectedChoiceText());
+        dashboard.displayPrintf(15, "Strategy selected = %s", strategyMenu.getSelectedChoiceText());
     }   //doMenus
 
 }   //class FtcAuto

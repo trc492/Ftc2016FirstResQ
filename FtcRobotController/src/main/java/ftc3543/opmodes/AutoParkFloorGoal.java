@@ -7,16 +7,16 @@ import trclib.TrcStateMachine;
 
 public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 {
-    private FtcAuto autoMode;
-    private HalDashboard dashboard;
+    private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
+    private FtcRobot robot = autoMode.robot;
+    private HalDashboard dashboard = HalDashboard.getInstance();
+
     private int alliance;
     private double delay;
     private TrcStateMachine sm;
 
     public AutoParkFloorGoal(int alliance, double delay)
     {
-        autoMode = (FtcAuto)FtcOpMode.getInstance();
-        dashboard = HalDashboard.getInstance();
         this.alliance = alliance;
         this.delay = delay;
         sm = new TrcStateMachine("autoParkFloorGoal");

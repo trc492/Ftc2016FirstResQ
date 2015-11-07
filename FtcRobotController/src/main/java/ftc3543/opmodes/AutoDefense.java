@@ -9,8 +9,10 @@ import trclib.TrcTimer;
 
 public class AutoDefense implements TrcRobot.AutoStrategy
 {
-    private FtcAuto autoMode;
-    private HalDashboard dashboard;
+    private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
+    private FtcRobot robot = autoMode.robot;
+    private HalDashboard dashboard = HalDashboard.getInstance();
+
     private int alliance;
     private double delay;
     private double distance;
@@ -20,8 +22,6 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
     public AutoDefense(int alliance, double delay, double distance)
     {
-        autoMode = (FtcAuto)FtcOpMode.getInstance();
-        dashboard = HalDashboard.getInstance();
         this.alliance = alliance;
         this.delay = delay;
         this.distance = distance;
@@ -57,7 +57,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
-                    autoMode.getRobot().pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;

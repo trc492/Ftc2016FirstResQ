@@ -9,8 +9,10 @@ import trclib.TrcTimer;
 
 public class AutoParkMountain implements TrcRobot.AutoStrategy
 {
-    private FtcAuto autoMode;
-    private HalDashboard dashboard;
+    private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
+    private FtcRobot robot = autoMode.robot;
+    private HalDashboard dashboard = HalDashboard.getInstance();
+
     private int alliance;
     private double delay;
     private int mountainZone;
@@ -20,8 +22,6 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
 
     public AutoParkMountain(int alliance, double delay, int mountainZone)
     {
-        autoMode = (FtcAuto)FtcOpMode.getInstance();
-        dashboard = HalDashboard.getInstance();
         this.alliance = alliance;
         this.delay = delay;
         this.mountainZone = mountainZone;
@@ -60,7 +60,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
-                    autoMode.getRobot().pidDrive.setTarget(70.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(70.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -68,25 +68,25 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                 case TrcStateMachine.STATE_STARTED + 2:
                     if (alliance == autoMode.ALLIANCE_RED)
                     {
-                        autoMode.getRobot().pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
                     }
                     else
                     {
-                        autoMode.getRobot().pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
                     }
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 3:
-                    autoMode.getRobot().pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
-                    autoMode.getRobot().chainsaw.setPower(1.0);
+                    robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
+                    robot.chainsaw.setPower(1.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
-                    autoMode.getRobot().chainsaw.setPower(0.0);
+                    robot.chainsaw.setPower(0.0);
                     sm.stop();
                     break;
             }
