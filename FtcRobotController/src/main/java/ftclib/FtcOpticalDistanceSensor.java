@@ -30,7 +30,7 @@ public class FtcOpticalDistanceSensor implements HalAnalogInput
         this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
         sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
-    }   //FtcAnalogInput
+    }   //FtcOpticalDistanceSensor
 
     public FtcOpticalDistanceSensor(String instanceName)
     {

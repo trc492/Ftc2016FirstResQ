@@ -132,22 +132,22 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                 case FtcGamepad.GAMEPAD_LBUMPER:
                     if (pressed)
                     {
-                        robot.leftArm.extend();
+                        robot.leftWing.extend();
                     }
                     else
                     {
-                        robot.leftArm.retract();
+                        robot.leftWing.retract();
                     }
                     break;
 
                 case FtcGamepad.GAMEPAD_RBUMPER:
                     if (pressed)
                     {
-                        robot.rightArm.extend();
+                        robot.rightWing.extend();
                     }
                     else
                     {
-                        robot.rightArm.retract();
+                        robot.rightWing.retract();
                     }
                     break;
             }

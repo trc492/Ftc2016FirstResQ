@@ -1,6 +1,7 @@
 package ftc3543.opmodes;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import ftclib.FtcDcMotor;
@@ -22,12 +23,11 @@ public class FtcRobot implements TrcPidController.PidInput,
                                  TrcAnalogTrigger.AnalogTriggerHandler,
                                  TrcDigitalTrigger.DigitalTriggerHandler
 {
-    private FtcOpMode ftcOpMode = FtcOpMode.getInstance();
     //
     // Sensors.
     //
-    public FtcOpticalDistanceSensor lightSensor;
     public FtcHiTechnicGyro gyro;
+    public FtcOpticalDistanceSensor lightSensor;
     public FtcTouch touchSensor;
     public ColorSensor colorSensor;
     public UltrasonicSensor sonarSensor;
@@ -61,24 +61,29 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // ClimberRelease subsystem.
     //
-    public ClimberRelease leftArm;
-    public ClimberRelease rightArm;
+    public ClimberRelease leftWing;
+    public ClimberRelease rightWing;
     //
     // CattleGuard subsystem.
     //
     public CattleGuard cattleGuard;
+    //
+    // ButtonPush subsystem.
+    //
+    public ButtonPusher buttonPusher;
 
     public FtcRobot(TrcRobot.RunMode runMode)
     {
-        ftcOpMode.hardwareMap.logDevices();
+        HardwareMap hardwareMap = FtcOpMode.getInstance().hardwareMap;
+        hardwareMap.logDevices();
         //
         // Initialize sensors.
         //
-        lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         gyro = new FtcHiTechnicGyro("gyroSensor");
+        lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         touchSensor = new FtcTouch("touchSensor");
-        colorSensor = ftcOpMode.hardwareMap.colorSensor.get("colorSensor");
-        sonarSensor = ftcOpMode.hardwareMap.ultrasonicSensor.get("sonarSensor");
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        sonarSensor = hardwareMap.ultrasonicSensor.get("sonarSensor");
         //
         // DriveBase subsystem.
         //
@@ -134,10 +139,22 @@ public class FtcRobot implements TrcPidController.PidInput,
         elevator.reverseEncoder(true);
         elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
         //
-        // Hanging Hook subsystem.
+        // HangingHook subsystem.
         //
         hangingHook = new HangingHook();
-
+        //
+        // ClimberRelease subsystem.
+        //
+        leftWing = new ClimberRelease("leftWing");
+        rightWing = new ClimberRelease("rightWing");
+        //
+        // CattleGuard subsystem.
+        //
+        cattleGuard = new CattleGuard();
+        //
+        // ButtonPusher subsystem.
+        //
+//        buttonPusher = new ButtonPusher();
     }   //FtcRobot
 
     //
