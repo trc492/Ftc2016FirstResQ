@@ -187,12 +187,15 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue());
-        dashboard.displayPrintf(5, "RawLightValue = %d",
+        dashboard.displayPrintf(5, "Color = [Hue:%x, Alpha:%d]",
+                                robot.colorSensor.argb(),
+                                robot.colorSensor.alpha());
+        dashboard.displayPrintf(6, "RawLightValue = %d",
                                 robot.lightSensor.getValue());
-        dashboard.displayPrintf(6, "Touch = %s",
+        dashboard.displayPrintf(7, "Touch = %s",
                                 robot.touchSensor.isActive()? "pressed": "released");
-        dashboard.displayPrintf(7, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
-        dashboard.displayPrintf(8, "lowerLimit=%d, upperLimit=%d",
+        dashboard.displayPrintf(8, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
+        dashboard.displayPrintf(9, "lowerLimit=%d, upperLimit=%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors
