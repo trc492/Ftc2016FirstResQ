@@ -1,6 +1,7 @@
 package ftc3543.opmodes;
 
 import ftclib.FtcDcMotor;
+import ftclib.FtcServo;
 import ftclib.FtcTouch;
 import hallib.HalSpeedController;
 import trclib.TrcEvent;
@@ -20,6 +21,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     private TrcPidMotor pidMotor;
     private FtcTouch lowerLimitSwitch;
     private FtcTouch upperLimitSwitch;
+    private FtcServo chainLock;
     private boolean elevatorOverride = false;
     private double encoderPolarity = 1.0;
 
@@ -40,6 +42,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
         pidMotor.setTargetScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
         lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
         upperLimitSwitch = new FtcTouch("upperLimitSwitch");
+        chainLock = new FtcServo("chainLock");
     }
 
     public void zeroCalibrate(double calPower)
@@ -50,6 +53,12 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
     public void setElevatorOverride(boolean enabled)
     {
         elevatorOverride = enabled;
+    }
+
+    public void setChainLock(boolean locked)
+    {
+        chainLock.setPosition(
+                locked? RobotInfo.CHAINLOCK_LOCK_POSITION: RobotInfo.CHAINLOCK_UNLOCK_POSITION);
     }
 
     public void setPower(double power)

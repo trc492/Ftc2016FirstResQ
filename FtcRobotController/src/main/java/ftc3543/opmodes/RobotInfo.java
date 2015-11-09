@@ -41,13 +41,16 @@ public class RobotInfo
     public static final double ELEVATOR_MAX_HEIGHT              = 48.0;
     public static final double ELEVATOR_INCHES_PER_CLICK        = 1.0;
     public static final double ELEVATOR_CAL_POWER               = -0.2;
+    public static final double CHAINLOCK_UNLOCK_POSITION        = 0.0;
+    public static final double CHAINLOCK_LOCK_POSITION          = 1.0;
 
     //
     // ButtonPusher subsystem.
     //
-    public static final double PUSHER_LEFT_POSITION             = 0.0;
-    public static final double PUSHER_NEUTRAL_POSITION          = 0.5;
-    public static final double PUSHER_RIGHT_POSITION            = 1.0;
+    public static final double PUSHER_EXTEND_LEFT               = 0.0;
+    public static final double PUSHER_RETRACT_LEFT              = 1.0;
+    public static final double PUSHER_EXTEND_RIGHT              = 1.0;
+    public static final double PUSHER_RETRACT_RIGHT             = 0.0;
 
     //
     // CattleGuard subsystem.

@@ -9,26 +9,31 @@ public class ButtonPusher
     // It provides methods to set the swing arm position to either
     // neutral, left or right.
     //
-    private FtcServo pusherServo;
+    private FtcServo leftPusher;
+    private FtcServo rightPusher;
 
     public ButtonPusher()
     {
-        pusherServo = new FtcServo("buttonPusher");
+        leftPusher = new FtcServo("leftPusher");
+        rightPusher = new FtcServo("rightPusher");
     }   //ButtonPusher
 
     public void pushLeftButton()
     {
-        pusherServo.setPosition(RobotInfo.PUSHER_LEFT_POSITION);
+        leftPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
+        rightPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
     }   //pushLeftButton
 
     public void pushRightButton()
     {
-        pusherServo.setPosition(RobotInfo.PUSHER_RIGHT_POSITION);
+        leftPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
+        rightPusher.setPosition(RobotInfo.PUSHER_EXTEND_RIGHT);
     }   //pushRightButton
 
     public void pushNoButton()
     {
-        pusherServo.setPosition(RobotInfo.PUSHER_NEUTRAL_POSITION);
+        leftPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
+        rightPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
     }   //pushNoButton
 
 }   //class ButtonPusher

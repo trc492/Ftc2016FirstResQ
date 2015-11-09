@@ -27,6 +27,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     public static final int MOUNTAIN_MID_ZONE           = 2;
     public static final int MOUNTAIN_HIGH_ZONE          = 3;
 
+    public static final int BEACON_OPTION_DO_NOTHING    = 0;
+    public static final int BEACON_OPTION_DEFENSE       = 1;
+    public static final int BEACON_OPTION_PARK_FLOORGOAL= 2;
+
     public FtcRobot robot;
 
     private HalDashboard dashboard;
@@ -36,6 +40,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     private double delay = 0.0;
     private double driveDistance = 0.0;
     private int mountainZone = MOUNTAIN_FLOOR;
+    private int beaconOption = BEACON_OPTION_DO_NOTHING;
 
     //
     // Implements FtcOpMode abstract methods.
@@ -75,7 +80,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 break;
 
             case STRATEGY_TRIGGER_BEACON:
-                autoStrategy = new AutoTriggerBeacon(alliance, delay);
+                autoStrategy = new AutoTriggerBeacon(alliance, delay, beaconOption);
                 break;
 
             default:
@@ -143,6 +148,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         FtcMenu strategyMenu = new FtcMenu(delayMenu, "Strategies:", this);
         FtcMenu distanceMenu = new FtcMenu(strategyMenu, "Distance:", this);
         FtcMenu mountainZoneMenu = new FtcMenu(strategyMenu, "Mountain zone:", this);
+        FtcMenu beaconOptionMenu = new FtcMenu(strategyMenu, "Beacon options", this);
 
         allianceMenu.addChoice("Red", ALLIANCE_RED, delayMenu);
         allianceMenu.addChoice("Blue", ALLIANCE_BLUE, delayMenu);
@@ -175,6 +181,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         mountainZoneMenu.addChoice("Mid zone", MOUNTAIN_MID_ZONE);
         mountainZoneMenu.addChoice("High zone", MOUNTAIN_HIGH_ZONE);
 
+        beaconOptionMenu.addChoice("Do nothing", BEACON_OPTION_DO_NOTHING);
+        beaconOptionMenu.addChoice("Do defense", BEACON_OPTION_DEFENSE);
+        beaconOptionMenu.addChoice("Park floor goal", BEACON_OPTION_PARK_FLOORGOAL);
+
         allianceMenu.walkMenuTree();
 
         alliance = (int)allianceMenu.getSelectedChoiceValue();
@@ -182,6 +192,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         strategy = (int)strategyMenu.getSelectedChoiceValue();
         driveDistance = distanceMenu.getSelectedChoiceValue();
         mountainZone = (int)mountainZoneMenu.getSelectedChoiceValue();
+        beaconOption = (int)beaconOptionMenu.getSelectedChoiceValue();
 
         dashboard.displayPrintf(15, "Strategy selected = %s", strategyMenu.getSelectedChoiceText());
     }   //doMenus

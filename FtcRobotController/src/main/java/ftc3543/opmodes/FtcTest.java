@@ -176,6 +176,10 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doTestSensors()
     {
+        //
+        // Read all sensors and display on the dashboard.
+        // Drive the robot around to sample different locations of the field.
+        //
         dashboard.displayPrintf(1, "Testing sensors:");
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
@@ -211,6 +215,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // Drive the robot forward and set a timer for the given time.
+                    //
                     robot.driveBase.tankDrive(0.5, 0.5);
                     timer.set(time, event);
                     sm.addEvent(event);
@@ -218,6 +225,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 default:
+                    //
+                    // We are done, stop the robot.
+                    //
                     robot.driveBase.stop();
                     sm.stop();
                     break;
@@ -236,12 +246,18 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // Drive the given distance.
+                    //
                     robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
+                    //
+                    // We are done.
+                    //
                     sm.stop();
                     break;
             }
@@ -259,12 +275,18 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // Turn the given degrees.
+                    //
                     robot.pidDrive.setTarget(0.0, degrees, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
+                    //
+                    // We are done.
+                    //
                     sm.stop();
                     break;
             }
@@ -306,6 +328,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 default:
+                    //
+                    // We are done, restore everything.
+                    //
                     robot.touchTrigger.setEnabled(false);
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);

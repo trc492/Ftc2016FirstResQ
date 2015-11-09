@@ -44,6 +44,9 @@ public class AutoDefense implements TrcRobot.AutoStrategy
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // If there is a delay, set the timer for it.
+                    //
                     if (delay == 0.0)
                     {
                         sm.setState(state + 1);
@@ -57,12 +60,18 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
+                    //
+                    // Drive the set distance.
+                    //
                     robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
+                    //
+                    // We are done.
+                    //
                     sm.stop();
                     break;
             }

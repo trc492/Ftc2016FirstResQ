@@ -16,6 +16,7 @@ public class FtcDcMotor implements HalSpeedController
     private String instanceName;
     private HardwareMap hardwareMap;
     private DcMotor motor;
+    private int zeroEncoderValue;
 
     public FtcDcMotor(String instanceName, HardwareMap hardwareMap)
     {
@@ -31,6 +32,7 @@ public class FtcDcMotor implements HalSpeedController
         this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
         motor = hardwareMap.dcMotor.get(instanceName);
+        zeroEncoderValue = motor.getCurrentPosition();
     }   //FtcDcMotor
 
     public FtcDcMotor(String instanceName)
@@ -87,7 +89,7 @@ public class FtcDcMotor implements HalSpeedController
     public int getCurrentPosition()
     {
         final String funcName = "getCurrentPosition";
-        int position = motor.getCurrentPosition();
+        int position = motor.getCurrentPosition() - zeroEncoderValue;
 
         if (debugEnabled)
         {
@@ -109,8 +111,9 @@ public class FtcDcMotor implements HalSpeedController
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        motor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        zeroEncoderValue = motor.getCurrentPosition();
+//        motor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+//        motor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
     }   //resetCurrentPosition
 
 }   //class FtcDcMotor

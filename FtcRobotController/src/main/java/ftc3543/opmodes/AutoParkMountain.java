@@ -47,6 +47,9 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // If there is a delay, set the timer for it.
+                    //
                     if (delay == 0.0)
                     {
                         sm.setState(state + 1);
@@ -60,12 +63,18 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
+                    //
+                    // Move forward towards the mountain.
+                    //
                     robot.pidDrive.setTarget(70.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 2:
+                    //
+                    // Turn to face the mountain.
+                    //
                     if (alliance == autoMode.ALLIANCE_RED)
                     {
                         robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
@@ -79,14 +88,21 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 3:
+                    //
+                    // Turn on the tread drive and run as hard as you could
+                    // to climb up the mountain
+                    //
                     robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
-                    robot.chainsaw.setPower(1.0);
+                    robot.treadDrive.setPower(1.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
-                    robot.chainsaw.setPower(0.0);
+                    //
+                    // We are done, stop the tread drive.
+                    //
+                    robot.treadDrive.setPower(0.0);
                     sm.stop();
                     break;
             }

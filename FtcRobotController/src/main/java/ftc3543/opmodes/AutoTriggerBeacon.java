@@ -2,8 +2,10 @@ package ftc3543.opmodes;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
+import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
+import trclib.TrcTimer;
 
 public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 {
@@ -13,14 +15,21 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     private int alliance;
     private double delay;
+    private int option;
     private TrcStateMachine sm;
+    private TrcTimer timer;
+    private TrcEvent event;
+    private boolean isRed = false;
 
-    public AutoTriggerBeacon(int alliance, double delay)
+    public AutoTriggerBeacon(int alliance, double delay, int option)
     {
         this.alliance = alliance;
         this.delay = delay;
+        this.option = option;
         sm = new TrcStateMachine("autoTriggerBeacon");
         sm.start();
+        timer = new TrcTimer("TriggerBeaconTimer");
+        event = new TrcEvent("TriggerBeaconEvent");
     }
 
     public void autoPeriodic()
@@ -32,21 +41,152 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         {
             int state = sm.getState();
 
-            //
-            // 1. drive forware about 120" until line detected
-            // 2. if red turn left else turn right until line detected
-            // 3. Follow the line until touch sensor is pressed.
-            // 4. Read color and flip servo accordingly.
-            // 5. Extend hanging hook
-            // 6. wait 1 sec or so
-            // 7. retract hanging hook
-            //
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // If there is a delay, set the timer for it.
+                    //
+                    if (delay == 0.0)
+                    {
+                        sm.setState(state + 1);
+                    }
+                    else
+                    {
+                        timer.set(delay, event);
+                        sm.addEvent(event);
+                        sm.waitForEvents(state + 1);
+                    }
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 1:
+                    //
+                    // Drive forward until we reach the line.
+                    //
+                    robot.lineTrigger.setEnabled(true);
+                    robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 2:
+                    //
+                    // Turn slowly to find the edge of the line.
+                    //
+                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
+                    if (alliance == autoMode.ALLIANCE_RED)
+                    {
+                        robot.pidDrive.setTarget(0.0, -60.0, false, event, 0.0);
+                    }
+                    else
+                    {
+                        robot.pidDrive.setTarget(0.0, 60.0, false, event, 0.0);
+                    }
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 3:
+                    //
+                    // Follow the line until the touch sensor is hit.
+                    //
+                    robot.lineTrigger.setEnabled(false);
+                    robot.touchTrigger.setEnabled(true);
+                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLineFollow.setOutputRange(-0.3, 0.3);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
+                    robot.pidDrive.setTarget(30.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 4:
+                    //
+                    // Determine which button to press and press it.
+                    // Simultaneously dump the climbers into the bin and
+                    // wait for it to finish.
+                    //
+                    robot.touchTrigger.setEnabled(false);
+                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);;
+                    int redValue = robot.colorSensor.red();
+                    int blueValue = robot.colorSensor.blue();
+                    int greenValue = robot.colorSensor.green();
+                    isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
+                    if (alliance == autoMode.ALLIANCE_RED && isRed)
+                    {
+                        robot.buttonPusher.pushLeftButton();
+                    }
+                    else
+                    {
+                        robot.buttonPusher.pushRightButton();
+                    }
+                    robot.hangingHook.extend();
+                    timer.set(2.0, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 5:
+                    //
+                    // Release the button pusher and retract the hanging hook.
+                    //
+                    robot.buttonPusher.pushNoButton();
+                    robot.hangingHook.retract();
+                    if (option == autoMode.BEACON_OPTION_DO_NOTHING)
+                    {
+                        //
+                        // Stay there, we are done!
+                        //
+                        sm.setState(1000);
+                    }
+                    else if (option == autoMode.BEACON_OPTION_DEFENSE)
+                    {
+                        //
+                        // Run to the opponent side and bump them if necessary.
+                        //
+                        if (alliance == autoMode.ALLIANCE_RED && isRed)
+                        {
+                            robot.pidDrive.setTarget(-35.0, -45.0, false, event, 0.0);
+                        }
+                        else
+                        {
+                            robot.pidDrive.setTarget(-35.0, 45.0, false, event, 0.0);
+                        }
+                        sm.addEvent(event);
+                        sm.waitForEvents(1000);
+                    }
+                    else if (option == autoMode.BEACON_OPTION_PARK_FLOORGOAL)
+                    {
+                        //
+                        // Turn to face the floor goal.
+                        //
+                        if (alliance == autoMode.ALLIANCE_RED && isRed)
+                        {
+                            robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                        }
+                        else
+                        {
+                            robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                        }
+                        sm.addEvent(event);
+                        sm.waitForEvents(state + 1);
+                    }
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 6:
+                    //
+                    // Go into the floor goal.
+                    //
+                    robot.pidDrive.setTarget(-24.0, 0.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
                     break;
 
                 default:
+                    //
+                    // We are done.
+                    //
                     sm.stop();
                     break;
             }

@@ -41,6 +41,9 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
             switch (state)
             {
                 case TrcStateMachine.STATE_STARTED:
+                    //
+                    // If there is a delay, set the timer for it.
+                    //
                     if (delay == 0.0)
                     {
                         sm.setState(state + 1);
@@ -54,12 +57,18 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
-                    robot.pidDrive.setTarget(100.0, 0.0, false, event, 0.0);
+                    //
+                    // Move forward towards the repair zone.
+                    //
+                    robot.pidDrive.setTarget(100.0, 0.0, false, event, 10.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 2:
+                    //
+                    // Turn to face the repair zone.
+                    //
                     if (alliance == autoMode.ALLIANCE_RED)
                     {
                         robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
@@ -73,12 +82,18 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 3:
+                    //
+                    // Turn to face the repair zone.
+                    //
                     robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 default:
+                    //
+                    // We are done.
+                    //
                     sm.stop();
                     break;
             }

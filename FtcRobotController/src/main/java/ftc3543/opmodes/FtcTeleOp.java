@@ -36,15 +36,15 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
         //
-        // Chainsaw subsystem.
+        // TreadDrive subsystem.
         //
         climbMode = new TrcBooleanState("climbMode", false);
         //
-        // Hanging Hook subsystem.
+        // HangingHook subsystem.
         //
         hookDeployed = new TrcBooleanState("hangingHook", false);
         //
-        // Cattle Guard subsystem.
+        // CattleGuard subsystem.
         //
         cattleGuardDeployed = new TrcBooleanState("cattleGuardDeployed", false);
 
@@ -53,6 +53,11 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     @Override
     public void startMode()
     {
+        //
+        // There is an issue with the gamepad objects that may not be valid
+        // before waitForStart() is called. So we call the setGamepad method
+        // here to update their references in case they have changed.
+        //
         driverGamepad.setGamepad(gamepad1);
         operatorGamepad.setGamepad(gamepad2);
     }   //startMode
@@ -84,15 +89,15 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                                 robot.elevator.isUpperLimitSwitchPressed()? "pressed": "released");
         robot.elevator.displayDebugInfo(5);
         //
-        // Chainsaw subsystem.
+        // TreadDrive subsystem.
         //
-        double chainsawPower = 0.0;
+        double treadPower = 0.0;
         if (climbMode.getState())
         {
-            chainsawPower = (leftPower + rightPower)/2.0;
+            treadPower = (leftPower + rightPower)/2.0;
         }
-        robot.chainsaw.setPower(chainsawPower);
-        dashboard.displayPrintf(7, "chainsawPower = %.3f", chainsawPower);
+        robot.treadDrive.setPower(treadPower);
+        dashboard.displayPrintf(7, "treadPower = %.3f", treadPower);
     }   //runPeriodic
 
     @Override
