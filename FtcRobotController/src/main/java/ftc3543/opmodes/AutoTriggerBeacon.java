@@ -112,11 +112,12 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     int blueValue = robot.colorSensor.blue();
                     int greenValue = robot.colorSensor.green();
                     boolean isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
+                    boolean isBlue = blueValue > 0 && redValue == 0 && greenValue == 0;
                     if (alliance == autoMode.ALLIANCE_RED && isRed)
                     {
                         robot.buttonPusher.pushLeftButton();
                     }
-                    else
+                    else if (alliance == autoMode.ALLIANCE_BLUE && isBlue)
                     {
                         robot.buttonPusher.pushRightButton();
                     }
