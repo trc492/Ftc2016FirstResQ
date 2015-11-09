@@ -30,10 +30,10 @@ public class ButtonPusher
         rightPusher.setPosition(RobotInfo.PUSHER_EXTEND_RIGHT);
     }   //pushRightButton
 
-    public void pushNoButton()
+    public void retract()
     {
         leftPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
         rightPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
-    }   //pushNoButton
+    }   //retract
 
 }   //class ButtonPusher

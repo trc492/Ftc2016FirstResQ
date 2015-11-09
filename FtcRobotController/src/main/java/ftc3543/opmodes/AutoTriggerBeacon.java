@@ -19,7 +19,6 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private TrcStateMachine sm;
     private TrcTimer timer;
     private TrcEvent event;
-    private boolean isRed = false;
 
     public AutoTriggerBeacon(int alliance, double delay, int option)
     {
@@ -112,7 +111,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     int redValue = robot.colorSensor.red();
                     int blueValue = robot.colorSensor.blue();
                     int greenValue = robot.colorSensor.green();
-                    isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
+                    boolean isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
                     if (alliance == autoMode.ALLIANCE_RED && isRed)
                     {
                         robot.buttonPusher.pushLeftButton();
@@ -131,7 +130,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Release the button pusher and retract the hanging hook.
                     //
-                    robot.buttonPusher.pushNoButton();
+                    robot.buttonPusher.retract();
                     robot.hangingHook.retract();
                     if (option == autoMode.BEACON_OPTION_DO_NOTHING)
                     {
@@ -145,7 +144,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         //
                         // Run to the opponent side and bump them if necessary.
                         //
-                        if (alliance == autoMode.ALLIANCE_RED && isRed)
+                        if (alliance == autoMode.ALLIANCE_RED)
                         {
                             robot.pidDrive.setTarget(-35.0, -45.0, false, event, 0.0);
                         }
@@ -161,7 +160,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         //
                         // Turn to face the floor goal.
                         //
-                        if (alliance == autoMode.ALLIANCE_RED && isRed)
+                        if (alliance == autoMode.ALLIANCE_RED)
                         {
                             robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
                         }
