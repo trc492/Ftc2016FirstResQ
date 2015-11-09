@@ -17,7 +17,6 @@ public class FtcHiTechnicGyro implements HalGyro
     private static final int NUM_CAL_SAMPLES = 100;
 
     private String instanceName;
-    private TrcKalmanFilter kalman = null;
     private HardwareMap hardwareMap;
     private GyroSensor gyro;
     private TrcGyroIntegrator integrator;
@@ -33,13 +32,9 @@ public class FtcHiTechnicGyro implements HalGyro
         }
 
         this.instanceName = instanceName;
-        if (useFilter)
-        {
-            kalman = new TrcKalmanFilter();
-        }
         this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
-        integrator = new TrcGyroIntegrator(instanceName, this);
+        integrator = new TrcGyroIntegrator(instanceName, this, useFilter);
         integrator.calibrate(NUM_CAL_SAMPLES);
     }   //FtcHiTechnicGyro
 
@@ -103,11 +98,6 @@ public class FtcHiTechnicGyro implements HalGyro
     {
         final String funcName = "getRotation";
         double rate = integrator.getRotation();
-
-        if (kalman != null)
-        {
-            rate = kalman.filter(rate);
-        }
 
         if (debugEnabled)
         {

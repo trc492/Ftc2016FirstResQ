@@ -12,6 +12,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
     private String instanceName;
     private HalGyro gyro;
+    private TrcKalmanFilter kalman = null;
     private double prevTime = 0.0;
     private double zeroOffset = 0.0;    //610.76;
     private double deadband = 0.0;      //1.0;
@@ -20,7 +21,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
     private boolean calibrating = false;
     private double sign = 1.0;
 
-    public TrcGyroIntegrator(String instanceName, HalGyro gyro)
+    public TrcGyroIntegrator(String instanceName, HalGyro gyro, boolean useFilter)
     {
         if (debugEnabled)
         {
@@ -32,6 +33,10 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
         this.instanceName = instanceName;
         this.gyro = gyro;
+        if (useFilter)
+        {
+            kalman = new TrcKalmanFilter();
+        }
         prevTime = HalUtil.getCurrentTime();
 
         TrcTaskMgr.getInstance().registerTask(
@@ -156,6 +161,10 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
         double currTime = HalUtil.getCurrentTime();
         rate = sign*TrcUtil.applyDeadband(gyro.getRawZ() - zeroOffset, deadband);
+        if (kalman != null)
+        {
+            rate = kalman.filter(rate);
+        }
         heading += rate*(currTime - prevTime);
 
         if (debugEnabled)
