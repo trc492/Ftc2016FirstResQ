@@ -1,6 +1,5 @@
 package trclib;
 
-import hallib.HalDigitalInput;
 import hallib.HalServo;
 import hallib.HalUtil;
 
@@ -25,8 +24,8 @@ public class TrcServo implements TrcTaskMgr.Task
     //
     // The following is for continuous servo.
     //
-    private HalDigitalInput lowerLimitSwitch = null;
-    private HalDigitalInput upperLimitSwitch = null;
+    private TrcDigitalInput lowerLimitSwitch = null;
+    private TrcDigitalInput upperLimitSwitch = null;
 
     public TrcServo(HalServo servo)
     {
@@ -50,7 +49,7 @@ public class TrcServo implements TrcTaskMgr.Task
     }   //TrcServo
 
     public TrcServo(
-            HalServo servo, HalDigitalInput lowerLimitSwitch, HalDigitalInput upperLimitSwitch)
+            HalServo servo, TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch)
     {
         if (servo1 == null)
         {

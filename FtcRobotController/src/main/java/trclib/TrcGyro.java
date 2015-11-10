@@ -1,6 +1,6 @@
-package hallib;
+package trclib;
 
-public interface HalGyro
+public interface TrcGyro
 {
     public void calibrate();
     public boolean isCalibrating();
@@ -10,4 +10,4 @@ public interface HalGyro
     public double getRawZ();
     public double getRotation();
     public double getHeading();
-}   //interface HalGyro
+}   //interface TrcGyro

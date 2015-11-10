@@ -1,7 +1,5 @@
 package trclib;
 
-import hallib.HalAnalogInput;
-
 public class TrcAnalogTrigger implements TrcTaskMgr.Task
 {
     private static final String moduleName = "TrcAnalogTrigger";
@@ -25,7 +23,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     }   //interface AnalogTriggerHandler
 
     private String instanceName;
-    private HalAnalogInput analogInput;
+    private TrcAnalogInput analogInput;
     private double lowThreshold;
     private double highThreshold;
     private AnalogTriggerHandler eventHandler;
@@ -36,7 +34,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
 
     public TrcAnalogTrigger(
             final String instanceName,
-            HalAnalogInput analogInput,
+            TrcAnalogInput analogInput,
             double lowThreshold,
             double highThreshold,
             AnalogTriggerHandler eventHandler,
@@ -70,7 +68,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
 
     public TrcAnalogTrigger(
             final String instanceName,
-            HalAnalogInput analogInput,
+            TrcAnalogInput analogInput,
             double threshold,
             AnalogTriggerHandler eventHandler,
             boolean useFilter)

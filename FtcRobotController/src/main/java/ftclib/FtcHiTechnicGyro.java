@@ -3,12 +3,11 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import hallib.HalGyro;
+import trclib.TrcGyro;
 import trclib.TrcDbgTrace;
 import trclib.TrcGyroIntegrator;
-import trclib.TrcKalmanFilter;
 
-public class FtcHiTechnicGyro implements HalGyro
+public class FtcHiTechnicGyro implements TrcGyro
 {
     private static final String moduleName = "FtcHiTechnicGyro";
     private static final boolean debugEnabled = false;
@@ -16,12 +15,12 @@ public class FtcHiTechnicGyro implements HalGyro
 
     private static final int NUM_CAL_SAMPLES = 100;
 
-    private String instanceName;
     private HardwareMap hardwareMap;
+    private String instanceName;
     private GyroSensor gyro;
     private TrcGyroIntegrator integrator;
 
-    public FtcHiTechnicGyro(String instanceName, boolean useFilter, HardwareMap hardwareMap)
+    public FtcHiTechnicGyro(HardwareMap hardwareMap, String instanceName, boolean useFilter)
     {
         if (debugEnabled)
         {
@@ -31,8 +30,8 @@ public class FtcHiTechnicGyro implements HalGyro
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
+        this.instanceName = instanceName;
         gyro = hardwareMap.gyroSensor.get(instanceName);
         integrator = new TrcGyroIntegrator(instanceName, this, useFilter);
         integrator.calibrate(NUM_CAL_SAMPLES);
@@ -40,7 +39,7 @@ public class FtcHiTechnicGyro implements HalGyro
 
     public FtcHiTechnicGyro(String instanceName, boolean useFilter)
     {
-        this(instanceName, useFilter, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, useFilter);
     }   //FtcHiTechnicGyro
 
     public FtcHiTechnicGyro(String instanceName)
@@ -54,7 +53,7 @@ public class FtcHiTechnicGyro implements HalGyro
     }   //toString
 
     //
-    // Implements HalGyro.
+    // Implements TrcGyro.
     //
 
     @Override

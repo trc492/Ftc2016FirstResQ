@@ -3,22 +3,22 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import hallib.HalGyro;
+import trclib.TrcGyro;
 import trclib.TrcDbgTrace;
 import trclib.TrcKalmanFilter;
 
-public class FtcGyro implements HalGyro
+public class FtcGyro implements TrcGyro
 {
     private static final String moduleName = "FtcGyro";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private HardwareMap hardwareMap;
     private String instanceName;
     private TrcKalmanFilter kalman = null;
-    private HardwareMap hardwareMap;
     private GyroSensor gyro;
 
-    public FtcGyro(String instanceName, boolean useFilter, HardwareMap hardwareMap)
+    public FtcGyro(HardwareMap hardwareMap, String instanceName, boolean useFilter)
     {
         if (debugEnabled)
         {
@@ -28,12 +28,12 @@ public class FtcGyro implements HalGyro
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
+        this.hardwareMap = hardwareMap;
         this.instanceName = instanceName;
         if (useFilter)
         {
             kalman = new TrcKalmanFilter();
         }
-        this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
 
         gyro.calibrate();
@@ -51,7 +51,7 @@ public class FtcGyro implements HalGyro
 
     public FtcGyro(String instanceName, boolean useFilter)
     {
-        this(instanceName, useFilter, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, useFilter);
     }   //FtcGyro
 
     public FtcGyro(String instanceName)
@@ -65,7 +65,7 @@ public class FtcGyro implements HalGyro
     }   //toString
 
     //
-    // Implements HalGyro.
+    // Implements TrcGyro.
     //
 
     @Override

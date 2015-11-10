@@ -3,20 +3,20 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import hallib.HalAnalogInput;
+import trclib.TrcAnalogInput;
 import trclib.TrcDbgTrace;
 
-public class FtcAnalogInput implements HalAnalogInput
+public class FtcAnalogInput implements TrcAnalogInput
 {
     private static final String moduleName = "FtcAnalogInput";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
     private HardwareMap hardwareMap;
+    private String instanceName;
     private AnalogInput analogInput;
 
-    public FtcAnalogInput(String instanceName, HardwareMap hardwareMap)
+    public FtcAnalogInput(HardwareMap hardwareMap, String instanceName)
     {
         if (debugEnabled)
         {
@@ -27,14 +27,14 @@ public class FtcAnalogInput implements HalAnalogInput
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
+        this.instanceName = instanceName;
         this.analogInput = hardwareMap.analogInput.get(instanceName);
     }   //FtcAnalogInput
 
     public FtcAnalogInput(String instanceName)
     {
-        this(instanceName, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcAnalogInput
 
     public String toString()
@@ -43,7 +43,7 @@ public class FtcAnalogInput implements HalAnalogInput
     }   //toString
 
     //
-    // Implements HalAnalogInput.
+    // Implements TrcAnalogInput.
     //
 
     @Override

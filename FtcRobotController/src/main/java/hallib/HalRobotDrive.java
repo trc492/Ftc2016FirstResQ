@@ -1,5 +1,6 @@
 package hallib;
 
+import trclib.TrcMotorController;
 import trclib.TrcDbgTrace;
 import trclib.TrcUtil;
 
@@ -39,16 +40,16 @@ public class HalRobotDrive
     private double sensitivity;
     private double maxOutput;
     private int numMotors;
-    private HalSpeedController frontLeftMotor;
-    private HalSpeedController frontRightMotor;
-    private HalSpeedController rearLeftMotor;
-    private HalSpeedController rearRightMotor;
+    private TrcMotorController frontLeftMotor;
+    private TrcMotorController frontRightMotor;
+    private TrcMotorController rearLeftMotor;
+    private TrcMotorController rearRightMotor;
 
     private void robotDriveInit(
-            HalSpeedController frontLeftMotor,
-            HalSpeedController rearLeftMotor,
-            HalSpeedController frontRightMotor,
-            HalSpeedController rearRightMotor)
+            TrcMotorController frontLeftMotor,
+            TrcMotorController rearLeftMotor,
+            TrcMotorController frontRightMotor,
+            TrcMotorController rearRightMotor)
     {
         if (debugEnabled)
         {
@@ -76,10 +77,10 @@ public class HalRobotDrive
     }   //robotDriveInit
 
     public HalRobotDrive(
-            HalSpeedController frontLeftMotor,
-            HalSpeedController rearLeftMotor,
-            HalSpeedController frontRightMotor,
-            HalSpeedController rearRightMotor)
+            TrcMotorController frontLeftMotor,
+            TrcMotorController rearLeftMotor,
+            TrcMotorController frontRightMotor,
+            TrcMotorController rearRightMotor)
     {
         if (frontLeftMotor == null || rearLeftMotor == null ||
             frontRightMotor == null || rearRightMotor == null)
@@ -92,7 +93,7 @@ public class HalRobotDrive
         robotDriveInit(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     }   //HalRobotDrive
 
-    public HalRobotDrive(HalSpeedController leftMotor, HalSpeedController rightMotor)
+    public HalRobotDrive(TrcMotorController leftMotor, TrcMotorController rightMotor)
     {
         if (leftMotor == null || rightMotor == null)
         {

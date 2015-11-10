@@ -1,7 +1,5 @@
 package trclib;
 
-import hallib.HalDigitalInput;
-
 public class TrcDigitalTrigger implements TrcTaskMgr.Task
 {
     private static final String moduleName = "TrcDigitalTrigger";
@@ -16,13 +14,13 @@ public class TrcDigitalTrigger implements TrcTaskMgr.Task
     }   //interface DigitalTriggerHandler
 
     private String instanceName;
-    private HalDigitalInput digitalInput;
+    private TrcDigitalInput digitalInput;
     private DigitalTriggerHandler eventHandler;
     private boolean prevState = false;
 
     public TrcDigitalTrigger(
             final String instanceName,
-            HalDigitalInput digitalInput,
+            TrcDigitalInput digitalInput,
             DigitalTriggerHandler eventHandler)
     {
         if (debugEnabled)

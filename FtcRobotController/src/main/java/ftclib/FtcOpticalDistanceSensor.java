@@ -3,20 +3,20 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
-import hallib.HalAnalogInput;
+import trclib.TrcAnalogInput;
 import trclib.TrcDbgTrace;
 
-public class FtcOpticalDistanceSensor implements HalAnalogInput
+public class FtcOpticalDistanceSensor implements TrcAnalogInput
 {
     private static final String moduleName = "FtcOpticalDistanceSensor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
     private HardwareMap hardwareMap;
+    private String instanceName;
     private OpticalDistanceSensor sensor;
 
-    public FtcOpticalDistanceSensor(String instanceName, HardwareMap hardwareMap)
+    public FtcOpticalDistanceSensor(HardwareMap hardwareMap, String instanceName)
     {
         if (debugEnabled)
         {
@@ -27,14 +27,14 @@ public class FtcOpticalDistanceSensor implements HalAnalogInput
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
+        this.instanceName = instanceName;
         sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
     }   //FtcOpticalDistanceSensor
 
     public FtcOpticalDistanceSensor(String instanceName)
     {
-        this(instanceName, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcOpticalDistanceSensor
 
     public String toString()
@@ -43,7 +43,7 @@ public class FtcOpticalDistanceSensor implements HalAnalogInput
     }   //toString
 
     //
-    // Implements HalAnalogInput.
+    // Implements TrcAnalogInput.
     //
 
     @Override

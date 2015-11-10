@@ -1,7 +1,5 @@
 package trclib;
 
-import hallib.HalGyro;
-import hallib.HalSpeedController;
 import hallib.HalRobotDrive;
 
 public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
@@ -10,12 +8,11 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private HalSpeedController leftFrontMotor;
-    private HalSpeedController leftRearMotor;
-    private HalSpeedController rightFrontMotor;
-    private HalSpeedController rightRearMotor;
-    private HalGyro gyro;
-    private TrcMotorPosition motorPosition;
+    private TrcMotorController leftFrontMotor;
+    private TrcMotorController leftRearMotor;
+    private TrcMotorController rightFrontMotor;
+    private TrcMotorController rightRearMotor;
+    private TrcGyro gyro;
 
     private boolean fourMotors;
     private double xPos;
@@ -30,21 +27,19 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private double turnSpeed;
 
     public TrcDriveBase(
-            HalSpeedController leftMotor,
-            HalSpeedController rightMotor,
-            TrcMotorPosition   motorPosition,
-            HalGyro gyro)
+            TrcMotorController leftMotor,
+            TrcMotorController rightMotor,
+            TrcGyro gyro)
     {
-        this(null, leftMotor, null, rightMotor, motorPosition, gyro);
+        this(null, leftMotor, null, rightMotor, gyro);
     }   //TrcDriveBase
 
     public TrcDriveBase(
-            HalSpeedController leftFrontMotor,
-            HalSpeedController leftRearMotor,
-            HalSpeedController rightFrontMotor,
-            HalSpeedController rightRearMotor,
-            TrcMotorPosition   motorPosition,
-            HalGyro gyro)
+            TrcMotorController leftFrontMotor,
+            TrcMotorController leftRearMotor,
+            TrcMotorController rightFrontMotor,
+            TrcMotorController rightRearMotor,
+            TrcGyro gyro)
     {
         super(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 
@@ -61,7 +56,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         this.leftRearMotor = leftRearMotor;
         this.rightFrontMotor = rightFrontMotor;
         this.rightRearMotor = rightRearMotor;
-        this.motorPosition = motorPosition;
         this.gyro = gyro;
         fourMotors = leftFrontMotor != null && rightFrontMotor != null;
         xScale = 1.0;
@@ -78,13 +72,10 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
                 moduleName,
                 this,
                 TrcTaskMgr.TaskType.STOP_TASK);
-        if (motorPosition != null || gyro != null)
-        {
-            taskMgr.registerTask(
-                    moduleName,
-                    this,
-                    TrcTaskMgr.TaskType.PREPERIODIC_TASK);
-        }
+        taskMgr.registerTask(
+                moduleName,
+                this,
+                TrcTaskMgr.TaskType.PREPERIODIC_TASK);
     }   //TrcDriveBase
 
     public void resetPosition()
@@ -96,27 +87,24 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (motorPosition != null)
+        if (leftFrontMotor != null)
         {
-            if (leftFrontMotor != null)
-            {
-                motorPosition.resetMotorPosition(leftFrontMotor);
-            }
+            leftFrontMotor.resetPosition();
+        }
 
-            if (leftRearMotor != null)
-            {
-                motorPosition.resetMotorPosition(leftRearMotor);
-            }
+        if (leftRearMotor != null)
+        {
+            leftRearMotor.resetPosition();
+        }
 
-            if (rightFrontMotor != null)
-            {
-                motorPosition.resetMotorPosition(rightFrontMotor);
-            }
+        if (rightFrontMotor != null)
+        {
+            rightFrontMotor.resetPosition();
+        }
 
-            if (rightRearMotor != null)
-            {
-                motorPosition.resetMotorPosition(rightRearMotor);
-            }
+        if (rightRearMotor != null)
+        {
+            rightRearMotor.resetPosition();
         }
 
         if (gyro != null)
@@ -137,94 +125,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //resetPosition
-
-    public void setPositionPolarities(
-            boolean leftReversed,
-            boolean rightReversed)
-    {
-        final String funcName = "setPositionPolarities";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(
-                    funcName, TrcDbgTrace.TraceLevel.API,
-                    "l=%s,r=%s",
-                    Boolean.toString(leftReversed),
-                    Boolean.toString(rightReversed));
-        }
-
-        if (motorPosition != null)
-        {
-            if (leftRearMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        leftRearMotor, leftReversed);
-            }
-
-            if (rightRearMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        rightRearMotor, rightReversed);
-            }
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //setPositionPolarities
-
-    public void setPositionPolarities(
-            boolean leftFrontReversed,
-            boolean leftRearReversed,
-            boolean rightFrontReversed,
-            boolean rightRearReversed)
-    {
-        final String funcName = "setPositionPolarities";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(
-                    funcName, TrcDbgTrace.TraceLevel.API,
-                    "lf=%s,lr=%s,rf=%s,rr=%s",
-                    Boolean.toString(leftFrontReversed),
-                    Boolean.toString(leftRearReversed),
-                    Boolean.toString(rightFrontReversed),
-                    Boolean.toString(rightRearReversed));
-        }
-
-        if (motorPosition != null)
-        {
-            if (leftFrontMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        leftFrontMotor, leftFrontReversed);
-            }
-
-            if (leftRearMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        leftRearMotor, leftRearReversed);
-            }
-
-            if (rightFrontMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        rightFrontMotor, rightFrontReversed);
-            }
-
-            if (rightRearMotor != null)
-            {
-                motorPosition.reversePositionSensor(
-                        rightRearMotor, rightRearReversed);
-            }
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //setPositionPolarities
 
     public void setPositionScales(
             double xScale,
@@ -356,9 +256,9 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     }   //getTurnSpeed
 
     /*
-    public void setBrakeModeEnabled(boolean enabled)
+    public void setBrakeMode(boolean enabled)
     {
-        final String funcName = "setBrakeModeEnabled";
+        final String funcName = "setBrakeMode";
 
         if (debugEnabled)
         {
@@ -419,7 +319,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
                         enabled? NeutralMode.Brake: NeutralMode.Coast);
             }
         }
-    }   //setBrakeModeEnabled
+    }   //setBrakeMode
     */
 
     public void stop()
@@ -497,62 +397,59 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
-        if (motorPosition != null)
+        //
+        // According to RobotDrive.mecanumDrive_Cartesian in WPILib:
+        //
+        // LF =  x + y + rot    RF = -x + y - rot
+        // LR = -x + y + rot    RR =  x + y - rot
+        //
+        // (LF + RR) - (RF + LR) = (2x + 2y) - (-2x + 2y)
+        // => (LF + RR) - (RF + LR) = 4x
+        // => x = ((LF + RR) - (RF + LR))/4
+        //
+        // LF + RF + LR + RR = 4y
+        // => y = (LF + RF + LR + RR)/4
+        //
+        // (LF + LR) - (RF + RR) = (2y + 2rot) - (2y - 2rot)
+        // => (LF + LR) - (RF + RR) = 4rot
+        // => rot = ((LF + LR) - (RF + RR))/4
+        //
+        double lfEnc = 0.0, lrEnc = 0.0, rfEnc = 0.0, rrEnc = 0.0;
+        double lfSpeed = 0.0, lrSpeed = 0.0, rfSpeed = 0.0, rrSpeed = 0.0;
+        if (leftFrontMotor != null)
         {
-            //
-            // According to RobotDrive.mecanumDrive_Cartesian in WPILib:
-            //
-            // LF =  x + y + rot    RF = -x + y - rot
-            // LR = -x + y + rot    RR =  x + y - rot
-            //
-            // (LF + RR) - (RF + LR) = (2x + 2y) - (-2x + 2y)
-            // => (LF + RR) - (RF + LR) = 4x
-            // => x = ((LF + RR) - (RF + LR))/4
-            //
-            // LF + RF + LR + RR = 4y
-            // => y = (LF + RF + LR + RR)/4
-            //
-            // (LF + LR) - (RF + RR) = (2y + 2rot) - (2y - 2rot)
-            // => (LF + LR) - (RF + RR) = 4rot
-            // => rot = ((LF + LR) - (RF + RR))/4
-            //
-            double lfEnc = 0.0, lrEnc = 0.0, rfEnc = 0.0, rrEnc = 0.0;
-            double lfSpeed = 0.0, lrSpeed = 0.0, rfSpeed = 0.0, rrSpeed = 0.0;
-            if (leftFrontMotor != null)
-            {
-                lfEnc = motorPosition.getMotorPosition(leftFrontMotor);
-                lfSpeed = motorPosition.getMotorSpeed(leftFrontMotor);
-            }
-            if (leftRearMotor != null)
-            {
-                lrEnc = motorPosition.getMotorPosition(leftRearMotor);
-                lrSpeed = motorPosition.getMotorSpeed(leftRearMotor);
-            }
-            if (rightFrontMotor != null)
-            {
-                rfEnc = motorPosition.getMotorPosition(rightFrontMotor);
-                rfSpeed = motorPosition.getMotorSpeed(rightFrontMotor);
-            }
-            if (rightRearMotor != null)
-            {
-                rrEnc = motorPosition.getMotorPosition(rightRearMotor);
-                rrSpeed = motorPosition.getMotorSpeed(rightRearMotor);
-            }
+            lfEnc = leftFrontMotor.getPosition();
+            lfSpeed = leftFrontMotor.getSpeed();
+        }
+        if (leftRearMotor != null)
+        {
+            lrEnc = leftRearMotor.getPosition();
+            lrSpeed = leftRearMotor.getSpeed();
+        }
+        if (rightFrontMotor != null)
+        {
+            rfEnc = rightFrontMotor.getPosition();
+            rfSpeed = rightFrontMotor.getSpeed();
+        }
+        if (rightRearMotor != null)
+        {
+            rrEnc = rightRearMotor.getPosition();
+            rrSpeed = rightRearMotor.getSpeed();
+        }
 
-            if (fourMotors)
-            {
-                xPos = ((lfEnc + rrEnc) - (rfEnc + lrEnc))*xScale/4.0;
-                yPos = (lfEnc + lrEnc + rfEnc + rrEnc)*yScale/4.0;
-                rotPos = ((lfEnc + lrEnc) - (rfEnc + rrEnc))*rotScale/4.0;
-                xSpeed = ((lfSpeed + rrSpeed) - (rfSpeed + lrSpeed))*xScale/4.0;
-                ySpeed = (lfSpeed + lrSpeed + rfSpeed + rrSpeed)*yScale/4.0;
-            }
-            else
-            {
-                yPos = (lrEnc + rrEnc)*yScale/2.0;
-                rotPos = (lrEnc - rrEnc)*rotScale/2.0;
-                ySpeed = (lrSpeed + rrSpeed)*yScale/2.0;
-            }
+        if (fourMotors)
+        {
+            xPos = ((lfEnc + rrEnc) - (rfEnc + lrEnc))*xScale/4.0;
+            yPos = (lfEnc + lrEnc + rfEnc + rrEnc)*yScale/4.0;
+            rotPos = ((lfEnc + lrEnc) - (rfEnc + rrEnc))*rotScale/4.0;
+            xSpeed = ((lfSpeed + rrSpeed) - (rfSpeed + lrSpeed))*xScale/4.0;
+            ySpeed = (lfSpeed + lrSpeed + rfSpeed + rrSpeed)*yScale/4.0;
+        }
+        else
+        {
+            yPos = (lrEnc + rrEnc)*yScale/2.0;
+            rotPos = (lrEnc - rrEnc)*rotScale/2.0;
+            ySpeed = (lrSpeed + rrSpeed)*yScale/2.0;
         }
 
         if (gyro != null)

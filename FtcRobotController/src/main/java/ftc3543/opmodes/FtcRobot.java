@@ -9,17 +9,16 @@ import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
 import ftclib.FtcTouch;
-import hallib.HalSpeedController;
+import trclib.TrcMotorController;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcDriveBase;
-import trclib.TrcMotorPosition;
+import trclib.TrcMotorPositionSensor;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
 
 public class FtcRobot implements TrcPidController.PidInput,
-                                 TrcMotorPosition,
                                  TrcAnalogTrigger.AnalogTriggerHandler,
                                  TrcDigitalTrigger.DigitalTriggerHandler
 {
@@ -98,7 +97,6 @@ public class FtcRobot implements TrcPidController.PidInput,
                 leftRearWheel,
                 rightFrontWheel,
                 rightRearWheel,
-                this,
                 gyro);
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
@@ -136,7 +134,6 @@ public class FtcRobot implements TrcPidController.PidInput,
         // Elevator subsystem.
         //
         elevator = new Elevator();
-        elevator.reverseEncoder(true);
         elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
         //
         // HangingHook subsystem.
@@ -181,44 +178,6 @@ public class FtcRobot implements TrcPidController.PidInput,
 
         return input;
     }   //getInput
-
-    //
-    // Implements TrcMotorPosition
-    //
-    @Override
-    public double getMotorPosition(HalSpeedController speedController)
-    {
-        return speedController.getCurrentPosition();
-    }   //getMotorPosition
-
-    @Override
-    public double getMotorSpeed(HalSpeedController speedController)
-    {
-        return 0.0;
-    }   //getMotorSpeed
-
-    @Override
-    public void resetMotorPosition(HalSpeedController speedController)
-    {
-        speedController.resetCurrentPosition();
-    }   //resetMotorPosition
-
-    @Override
-    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
-    {
-    }   //reversePositionSensor
-
-    @Override
-    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isForwardLimitSwitchActive
-
-    @Override
-    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
-    {
-        return false;
-    }   //isReverseLimitSwitchActive
 
     //
     // Implements TrcAnalogTrigger.AnalogTriggerHandler

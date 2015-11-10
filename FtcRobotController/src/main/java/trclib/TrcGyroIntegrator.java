@@ -1,7 +1,5 @@
 package trclib;
 
-import ftclib.FtcOpMode;
-import hallib.HalGyro;
 import hallib.HalUtil;
 
 public class TrcGyroIntegrator implements TrcTaskMgr.Task
@@ -11,7 +9,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
     private TrcDbgTrace dbgTrace = null;
 
     private String instanceName;
-    private HalGyro gyro;
+    private TrcGyro gyro;
     private TrcKalmanFilter kalman = null;
     private double prevTime = 0.0;
     private double zeroOffset = 0.0;    //610.76;
@@ -21,7 +19,7 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
     private boolean calibrating = false;
     private double sign = 1.0;
 
-    public TrcGyroIntegrator(String instanceName, HalGyro gyro, boolean useFilter)
+    public TrcGyroIntegrator(String instanceName, TrcGyro gyro, boolean useFilter)
     {
         if (debugEnabled)
         {
@@ -83,7 +81,8 @@ public class TrcGyroIntegrator implements TrcTaskMgr.Task
 
             try
             {
-                FtcOpMode.getInstance().waitOneFullHardwareCycle();
+//                FtcOpMode.getInstance().waitOneFullHardwareCycle();
+                Thread.sleep(10);
             }
             catch (InterruptedException e)
             {

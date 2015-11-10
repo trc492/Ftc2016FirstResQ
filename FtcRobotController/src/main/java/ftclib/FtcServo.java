@@ -19,15 +19,15 @@ public class FtcServo implements HalServo
     private static final double DEF_LOGICAL_MIN = 0.0;
     private static final double DEF_LOGICAL_MAX = 1.0;
 
-    private String instanceName;
     private HardwareMap hardwareMap;
+    private String instanceName;
     private Servo servo;
     private double physicalMin = DEF_PHYSICAL_MIN;
     private double physicalMax = DEF_PHYSICAL_MAX;
     private double logicalMin = DEF_LOGICAL_MIN;
     private double logicalMax = DEF_LOGICAL_MAX;
 
-    public FtcServo(String instanceName, HardwareMap hardwareMap)
+    public FtcServo(HardwareMap hardwareMap, String instanceName)
     {
         if (debugEnabled)
         {
@@ -38,14 +38,14 @@ public class FtcServo implements HalServo
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
+        this.instanceName = instanceName;
         servo = hardwareMap.servo.get(instanceName);
     }   //FtcServo
 
     public FtcServo(String instanceName)
     {
-        this(instanceName, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcServo
 
     public String toString()

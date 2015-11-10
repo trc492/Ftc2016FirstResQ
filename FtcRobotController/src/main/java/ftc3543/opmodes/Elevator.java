@@ -3,13 +3,14 @@ package ftc3543.opmodes;
 import ftclib.FtcDcMotor;
 import ftclib.FtcServo;
 import ftclib.FtcTouch;
-import hallib.HalSpeedController;
+import trclib.TrcMotorController;
 import trclib.TrcEvent;
-import trclib.TrcMotorPosition;
+import trclib.TrcMotorLimitSwitches;
+import trclib.TrcMotorPositionSensor;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
 
-public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
+public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitches
 {
     //
     // This component consists of an elevator motor, a lower
@@ -27,19 +28,17 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public Elevator()
     {
-        elevatorMotor = new FtcDcMotor("elevator");
+        elevatorMotor = new FtcDcMotor("elevator", this);
+        elevatorMotor.setPositionSensorInverted(true);
         pidController = new TrcPidController(
                 "elevator",
-                RobotInfo.ELEVATOR_KP,
-                RobotInfo.ELEVATOR_KI,
-                RobotInfo.ELEVATOR_KD,
-                RobotInfo.ELEVATOR_KF,
-                RobotInfo.ELEVATOR_TOLERANCE,
-                RobotInfo.ELEVATOR_SETTLING,
+                RobotInfo.ELEVATOR_KP, RobotInfo.ELEVATOR_KI,
+                RobotInfo.ELEVATOR_KD, RobotInfo.ELEVATOR_KF,
+                RobotInfo.ELEVATOR_TOLERANCE,RobotInfo.ELEVATOR_SETTLING,
                 this);
         pidController.setAbsoluteSetPoint(true);
-        pidMotor = new TrcPidMotor("elevator", elevatorMotor, pidController, this);
-        pidMotor.setTargetScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
+        pidMotor = new TrcPidMotor("elevator", elevatorMotor, pidController);
+        pidMotor.setPositionScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
         lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
         upperLimitSwitch = new FtcTouch("upperLimitSwitch");
         chainLock = new FtcServo("chainLock");
@@ -88,7 +87,7 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
     public double getHeight()
     {
-        return getMotorPosition(elevatorMotor)*RobotInfo.ELEVATOR_INCHES_PER_CLICK;
+        return elevatorMotor.getPosition()*RobotInfo.ELEVATOR_INCHES_PER_CLICK;
     }
 
     public boolean isLowerLimitSwitchPressed()
@@ -101,48 +100,10 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
         return upperLimitSwitch.isActive();
     }
 
-    public void reverseEncoder(boolean reverse)
-    {
-        reversePositionSensor(elevatorMotor, reverse);
-    }
-
     public void displayDebugInfo(int lineNum)
     {
         pidController.displayPidInfo(lineNum);
     }
-
-    //
-    // Implements TrcDriveBase.MotorPosition.
-    //
-    public double getMotorPosition(HalSpeedController speedController)
-    {
-        return encoderPolarity*speedController.getCurrentPosition();
-    }   //getMotorPosition
-
-    public double getMotorSpeed(HalSpeedController speedController)
-    {
-        return 0.0;
-    }   //getMotorSpeed
-
-    public void resetMotorPosition(HalSpeedController speedController)
-    {
-        speedController.resetCurrentPosition();
-    }   //resetMotorPosition
-
-    public void reversePositionSensor(HalSpeedController speedController, boolean flip)
-    {
-        encoderPolarity = flip? -1.0: 1.0;
-    }   //reversePositionSensor
-
-    public boolean isForwardLimitSwitchActive(HalSpeedController speedController)
-    {
-        return upperLimitSwitch.isActive();
-    }   //isForwardLimitSwitchActive
-
-    public boolean isReverseLimitSwitchActive(HalSpeedController speedController)
-    {
-        return lowerLimitSwitch.isActive();
-    }   //isReverseLimitSwitchActive
 
     //
     // Implements TrcPidController.PidInput.
@@ -158,5 +119,19 @@ public class Elevator implements TrcMotorPosition, TrcPidController.PidInput
 
         return value;
     }   //getInput
+
+    //
+    // Implements TrcMotorLimitSwitches.
+    //
+
+    public boolean isForwardLimitSwitchActive(TrcMotorController speedController)
+    {
+        return upperLimitSwitch.isActive();
+    }   //isForwardLimitSwitchActive
+
+    public boolean isReverseLimitSwitchActive(TrcMotorController speedController)
+    {
+        return lowerLimitSwitch.isActive();
+    }   //isReverseLimitSwitchActive
 
 }   //class Elevator

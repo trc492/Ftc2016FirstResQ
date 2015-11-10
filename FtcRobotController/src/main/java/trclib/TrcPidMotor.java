@@ -1,6 +1,5 @@
 package trclib;
 
-import hallib.HalSpeedController;
 import hallib.HalUtil;
 
 public class TrcPidMotor implements TrcTaskMgr.Task
@@ -16,12 +15,11 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     public static final int PIDMOTORF_INVERTED          = (1 << 4);
 
     private String instanceName;
-    private HalSpeedController motor1;
-    private HalSpeedController motor2;
+    private TrcMotorController motor1;
+    private TrcMotorController motor2;
     private byte syncGroup;
     private TrcPidController pidCtrl;
-    private TrcMotorPosition motorPosition;
-    private double targetScale;
+    private double positionScale;
 
     private int flags;
     private TrcEvent notifyEvent;
@@ -39,26 +37,18 @@ public class TrcPidMotor implements TrcTaskMgr.Task
 
     public TrcPidMotor(
             final String instanceName,
-            HalSpeedController motor,
-            TrcPidController pidCtrl,
-            TrcMotorPosition motorPosition)
+            TrcMotorController motor,
+            TrcPidController pidCtrl)
     {
-        this(
-                instanceName,
-                motor,
-                null,
-                (byte)0,
-                pidCtrl,
-                motorPosition);
+        this(instanceName, motor, null, (byte)0, pidCtrl);
     }   //TrcPidMotor
 
     public TrcPidMotor(
             final String instanceName,
-            HalSpeedController motor1,
-            HalSpeedController motor2,
+            TrcMotorController motor1,
+            TrcMotorController motor2,
             byte syncGroup,
-            TrcPidController pidCtrl,
-            TrcMotorPosition motorPosition)
+            TrcPidController pidCtrl)
     {
         if (debugEnabled)
         {
@@ -79,19 +69,12 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             throw new IllegalArgumentException("Must have a PID controller.");
         }
 
-        if (motorPosition == null)
-        {
-            throw new IllegalArgumentException(
-                    "Must provide the TrcMotorPosition interface.");
-        }
-
         this.instanceName = instanceName;
         this.motor1 = motor1;
         this.motor2 = motor2;
         this.syncGroup = syncGroup;
         this.pidCtrl = pidCtrl;
-        this.motorPosition = motorPosition;
-        this.targetScale = 1.0;
+        this.positionScale = 1.0;
 
         flags = 0;
         notifyEvent = null;
@@ -227,19 +210,19 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         this.resetTimeout = resetTimeout;
     }   //setStallProtection
 
-    public void setTargetScale(double targetScale)
+    public void setPositionScale(double positionScale)
     {
-        final String funcName = "setTargetScale";
+        final String funcName = "setPositionScale";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
-                    "targetScale=%f", targetScale);
+                    "scale=%f", positionScale);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        this.targetScale = targetScale;
+        this.positionScale = positionScale;
     }   //setTargetScale
 
     public void setPower(double power)
@@ -268,8 +251,8 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     power, lowerBound, upperBound, Boolean.toString(stopPid));
         }
 
-        if (power > 0.0 && !motorPosition.isForwardLimitSwitchActive(motor1) ||
-            power < 0.0 && !motorPosition.isReverseLimitSwitchActive(motor1))
+        if (power > 0.0 && !motor1.isForwardLimitSwitchActive() ||
+            power < 0.0 && !motor1.isReverseLimitSwitchActive())
         {
             if ((flags & PIDMOTORF_ENABLED) != 0 && stopPid)
             {
@@ -298,7 +281,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     if (resetTimeout == 0.0 ||
                         HalUtil.getCurrentTime() - prevTime > resetTimeout)
                     {
-                        prevPos = motorPosition.getMotorPosition(motor1);
+                        prevPos = motor1.getPosition();
                         prevTime = HalUtil.getCurrentTime();
                         flags &= ~PIDMOTORF_STALLED;
                     }
@@ -318,7 +301,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     // - power is above stallMinPower
                     // - motor has not moved for at least stallTimeout.
                     //
-                    double currPos = motorPosition.getMotorPosition(motor1);
+                    double currPos = motor1.getPosition();
                     if (Math.abs(power) < Math.abs(stallMinPower) ||
                         currPos != prevPos)
                     {
@@ -368,12 +351,12 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     power, minPos, maxPos);
         }
 
-        if (motorPosition.isReverseLimitSwitchActive(motor1) && power < 0.0 ||
-            motorPosition.isForwardLimitSwitchActive(motor1) && power > 0.0)
+        if (motor1.isReverseLimitSwitchActive() && power < 0.0 ||
+            motor1.isForwardLimitSwitchActive() && power > 0.0)
         {
             if (power < 0.0)
             {
-                motorPosition.resetMotorPosition(motor1);
+                motor1.resetPosition();
             }
             power = 0.0;
         }
@@ -389,7 +372,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                 if (holdTarget)
                 {
                     setTarget(
-                            motorPosition.getMotorPosition(motor1)*targetScale,
+                            motor1.getPosition()*positionScale,
                             true,
                             null,
                             0.0);
@@ -595,9 +578,9 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             // We are in zero calibration mode.
             //
             if (calPower < 0.0 &&
-                !motorPosition.isReverseLimitSwitchActive(motor1) ||
+                !motor1.isReverseLimitSwitchActive() ||
                 calPower > 0.0 &&
-                !motorPosition.isForwardLimitSwitchActive(motor1))
+                !motor1.isForwardLimitSwitchActive())
             {
                 setPower(calPower, minPower, maxPower, false);
             }
@@ -608,12 +591,12 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                 //
                 calPower = 0.0;
                 setMotorPower(0.0);
-                if (motorPosition.isReverseLimitSwitchActive(motor1))
+                if (motor1.isReverseLimitSwitchActive())
                 {
                     //
                     // Reset encoder only if lower limit switch is active.
                     //
-                    motorPosition.resetMotorPosition(motor1);
+                    motor1.resetPosition();
                 }
                 setEnabled(false);
             }

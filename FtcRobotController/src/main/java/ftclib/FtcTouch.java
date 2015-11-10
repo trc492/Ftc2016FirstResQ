@@ -3,20 +3,20 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import hallib.HalDigitalInput;
+import trclib.TrcDigitalInput;
 import trclib.TrcDbgTrace;
 
-public class FtcTouch implements HalDigitalInput
+public class FtcTouch implements TrcDigitalInput
 {
     private static final String moduleName = "FtcTouch";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
     private HardwareMap hardwareMap;
+    private String instanceName;
     private TouchSensor touchSensor;
 
-    public FtcTouch(String instanceName, HardwareMap hardwareMap)
+    public FtcTouch(HardwareMap hardwareMap, String instanceName)
     {
         if (debugEnabled)
         {
@@ -27,14 +27,14 @@ public class FtcTouch implements HalDigitalInput
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.instanceName = instanceName;
         this.hardwareMap = hardwareMap;
+        this.instanceName = instanceName;
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
     }   //FtcTouch
 
     public FtcTouch(String instanceName)
     {
-        this(instanceName, FtcOpMode.getInstance().hardwareMap);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcTouch
 
     public String toString()
@@ -43,7 +43,7 @@ public class FtcTouch implements HalDigitalInput
     }   //toString
 
     //
-    // Implements HalDigitalInput.
+    // Implements TrcDigitalInput.
     //
 
     @Override
