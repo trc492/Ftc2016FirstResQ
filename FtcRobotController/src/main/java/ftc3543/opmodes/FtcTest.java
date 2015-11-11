@@ -61,11 +61,14 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         // Choice menus.
         //
         doMenus();
+        robot.driveBase.resetPosition();
+        sm.start();
     }   //robotInit
 
     @Override
     public void startMode()
     {
+        dashboard.clearDisplay();
     }   //startMode
 
     @Override
@@ -163,15 +166,17 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         turnDegreesMenu.addChoice("180 degrees", 180.0);
         turnDegreesMenu.addChoice("360 degrees", 360.0);
 
-        testMenu.walkMenuTree();
+        FtcMenu.walkMenuTree(testMenu);
 
         testChoice = (int)testMenu.getSelectedChoiceValue();
         driveTime = driveTimeMenu.getSelectedChoiceValue();
         driveDistance = driveDistanceMenu.getSelectedChoiceValue();
         turnDegrees = turnDegreesMenu.getSelectedChoiceValue();
 
-        HalDashboard.getInstance().displayPrintf(15, "Test selected = %s",
-                                                 testMenu.getSelectedChoiceText());
+        dashboard.displayPrintf(0, "Test: %s", testMenu.getSelectedChoiceText());
+        dashboard.displayPrintf(1, "Drive Time: %.1f", driveTime);
+        dashboard.displayPrintf(2, "Drive Distance: %.1f", driveDistance);
+        dashboard.displayPrintf(3, "Turn Degrees: %.1f", turnDegrees);
     }   //doMenus
 
     private void doTestSensors()
@@ -184,29 +189,49 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         robot.driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(2, "leftPower = %.1f, rightPower = %.1f", leftPower, rightPower);
-        dashboard.displayPrintf(3, "Gyro = rate:%f, heading:%f",
+        dashboard.displayPrintf(2, "leftPower = %.2f, rightPower = %.2f", leftPower, rightPower);
+        dashboard.displayPrintf(3, "lfEnc=%.1f, rfEnc=%.1f, lrEnc=%.1f, rrEnc=%.1f",
+                                robot.leftFrontWheel.getPosition(),
+                                robot.rightFrontWheel.getPosition(),
+                                robot.leftRearWheel.getPosition(),
+                                robot.rightRearWheel.getPosition());
+        dashboard.displayPrintf(4, "Gyro = rate:%.2f, heading:%.2f",
                                 robot.gyro.getRotation(), robot.gyro.getHeading());
-        dashboard.displayPrintf(4, "Color = [R:%d,G:%d,B:%d]",
+        dashboard.displayPrintf(5, "HiTechnicGyro = rate:%.2f, heading:%.2f",
+                                robot.hitechnicGyro.getRotation(),
+                                robot.hitechnicGyro.getHeading());
+        dashboard.displayPrintf(6, "Color = [R:%d,G:%d,B:%d]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue());
-        dashboard.displayPrintf(5, "Color = [Hue:%x, Alpha:%d]",
+        dashboard.displayPrintf(7, "Color = [Hue:%x, Alpha:%d]",
                                 robot.colorSensor.argb(),
                                 robot.colorSensor.alpha());
-        dashboard.displayPrintf(6, "RawLightValue = %d",
+        dashboard.displayPrintf(8, "RawLightValue = %d",
                                 robot.lightSensor.getValue());
-        dashboard.displayPrintf(7, "Touch = %s",
+        dashboard.displayPrintf(9, "Touch = %s",
                                 robot.touchSensor.isActive()? "pressed": "released");
-        dashboard.displayPrintf(8, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
-        dashboard.displayPrintf(9, "lowerLimit=%d, upperLimit=%d",
+        dashboard.displayPrintf(10, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
+        dashboard.displayPrintf(11, "lowerLimit=%d, upperLimit=%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors
 
     private void doDriveTime(double time)
     {
+        double lfEnc = robot.leftFrontWheel.getPosition();
+        double rfEnc = robot.rightFrontWheel.getPosition();
+        double lrEnc = robot.leftRearWheel.getPosition();
+        double rrEnc = robot.rightRearWheel.getPosition();
+        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
         dashboard.displayPrintf(1, "Drive %.1f sec", time);
+        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
+        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
+        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
+        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+                                robot.driveBase.getXPosition(),
+                                robot.driveBase.getYPosition(),
+                                robot.driveBase.getHeading());
 
         if (sm.isReady())
         {
@@ -218,7 +243,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     //
                     // Drive the robot forward and set a timer for the given time.
                     //
-                    robot.driveBase.tankDrive(0.5, 0.5);
+                    robot.driveBase.tankDrive(0.2, 0.2);
                     timer.set(time, event);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
@@ -237,7 +262,20 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doDriveDistance(double distance)
     {
+        double lfEnc = robot.leftFrontWheel.getPosition();
+        double rfEnc = robot.rightFrontWheel.getPosition();
+        double lrEnc = robot.leftRearWheel.getPosition();
+        double rrEnc = robot.rightRearWheel.getPosition();
+        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
         dashboard.displayPrintf(1, "Drive %.1f ft", distance/12.0);
+        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
+        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
+        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
+        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+                                robot.driveBase.getXPosition(),
+                                robot.driveBase.getYPosition(),
+                                robot.driveBase.getHeading());
+        robot.pidCtrlDrive.displayPidInfo(6);
 
         if (sm.isReady())
         {
@@ -266,7 +304,20 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
     private void doTurnDegrees(double degrees)
     {
+        double lfEnc = robot.leftFrontWheel.getPosition();
+        double rfEnc = robot.rightFrontWheel.getPosition();
+        double lrEnc = robot.leftRearWheel.getPosition();
+        double rrEnc = robot.rightRearWheel.getPosition();
+        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
         dashboard.displayPrintf(1, "Turn %.1f degrees", degrees);
+        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
+        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
+        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
+        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+                                robot.driveBase.getXPosition(),
+                                robot.driveBase.getYPosition(),
+                                robot.driveBase.getHeading());
+        robot.pidCtrlTurn.displayPidInfo(6);
 
         if (sm.isReady())
         {

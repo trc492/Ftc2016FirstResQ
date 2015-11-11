@@ -3,12 +3,11 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import ftclib.FtcOpMode;
-import hallib.HalServo;
+import trclib.TrcServo;
 import trclib.TrcDbgTrace;
 import trclib.TrcUtil;
 
-public class FtcServo implements HalServo
+public class FtcServo implements TrcServo
 {
     private static final String moduleName = "FtcServo";
     private static final boolean debugEnabled = false;
@@ -54,7 +53,7 @@ public class FtcServo implements HalServo
     }   //toString
 
     //
-    // Implements HalServo.
+    // Implements TrcServo.
     //
 
     @Override

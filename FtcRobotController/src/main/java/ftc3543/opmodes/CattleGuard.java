@@ -1,7 +1,7 @@
 package ftc3543.opmodes;
 
 import ftclib.FtcServo;
-import trclib.TrcServo;
+import trclib.TrcEnhancedServo;
 
 public class CattleGuard
 {
@@ -13,14 +13,14 @@ public class CattleGuard
     //
     private FtcServo leftServo;
     private FtcServo rightServo;
-    private TrcServo cattleGuardServo;
+    private TrcEnhancedServo cattleGuardServo;
 
     public CattleGuard()
     {
         leftServo = new FtcServo("leftCattleGuard");
         rightServo = new FtcServo("rightCattleGuard");
         rightServo.setReverse(true);
-        cattleGuardServo = new TrcServo(leftServo, rightServo);
+        cattleGuardServo = new TrcEnhancedServo(leftServo, rightServo);
     }   //CattleGuard
 
     public void extend()

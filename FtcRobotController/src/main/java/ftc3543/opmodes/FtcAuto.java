@@ -185,7 +185,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         beaconOptionMenu.addChoice("Do defense", BEACON_OPTION_DEFENSE);
         beaconOptionMenu.addChoice("Park floor goal", BEACON_OPTION_PARK_FLOORGOAL);
 
-        allianceMenu.walkMenuTree();
+        FtcMenu.walkMenuTree(allianceMenu);
 
         alliance = (int)allianceMenu.getSelectedChoiceValue();
         delay = delayMenu.getSelectedChoiceValue();

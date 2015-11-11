@@ -13,6 +13,12 @@ public class FtcMenu
 
     private static final long LOOP_INTERVAL = 50;
 
+    private static final int MENUBUTTON_CANCEL = (1 << 0);
+    private static final int MENUBUTTON_OK = (1 << 1);
+    private static final int MENUBUTTON_UP = (1 << 2);
+    private static final int MENUBUTTON_DOWN = (1 << 3);
+    private static int prevMenuButtons = 0;
+
     private HalDashboard dashboard;
     private FtcMenu parent;
     private String menuTitle;
@@ -26,8 +32,11 @@ public class FtcMenu
     public interface MenuButtons
     {
         public boolean isMenuUp();
+
         public boolean isMenuDown();
+
         public boolean isMenuOk();
+
         public boolean isMenuCancel();
     }   //interface MenuButtons
 
@@ -80,22 +89,24 @@ public class FtcMenu
         addChoice(choiceText, choiceValue, null);
     }   //addChoice
 
-    public void walkMenuTree()
+    public static void walkMenuTree(FtcMenu rootMenu)
     {
-        FtcMenu menu = this;
+        FtcMenu menu = rootMenu;
 
         while (menu != null)
         {
             int choice = menu.getChoice();
             if (choice != -1)
             {
-                menu = childMenuTable.get(choice);
+                menu = menu.childMenuTable.get(choice);
             }
-            else if (menu != this)
+            else if (menu != rootMenu)
             {
                 menu = menu.getParent();
             }
         }
+
+        HalDashboard.getInstance().clearDisplay();
     }   //walkMenuTree
 
     public FtcMenu getParent()
@@ -124,52 +135,64 @@ public class FtcMenu
         return menuTitle;
     }   //getTitle
 
+    private int getMenuButtons()
+    {
+        int buttons = 0;
+
+        if (menuButtons.isMenuCancel()) buttons |= MENUBUTTON_CANCEL;
+        if (menuButtons.isMenuOk()) buttons |= MENUBUTTON_OK;
+        if (menuButtons.isMenuUp()) buttons |= MENUBUTTON_UP;
+        if (menuButtons.isMenuDown()) buttons |= MENUBUTTON_DOWN;
+
+        return buttons;
+    }   //getMenuButtons
+
     public int getChoice()
     {
         final String funcName = "getChoice";
         int choice = -1;
-        boolean upButtonPressed = false;
-        boolean downButtonPressed = false;
+        boolean done = false;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        while (true)
+        while (!done)
         {
-            if (menuButtons.isMenuCancel())
-            {
-                choice = -1;
-                break;
-            }
-            else if (menuButtons.isMenuOk())
-            {
-                choice = selectedChoice;
-                break;
-            }
+            int currMenuButtons = getMenuButtons();
+            int changedButtons = currMenuButtons ^ prevMenuButtons;
 
-            boolean isUp = menuButtons.isMenuUp();
-            boolean isDown = menuButtons.isMenuDown();
+            if (changedButtons != 0)
+            {
+                int buttonsPressed = currMenuButtons & changedButtons;
 
-            if (!upButtonPressed && isUp)
-            {
-                upButtonPressed = true;
-                prevChoice();
-            }
-            else if (upButtonPressed && !isUp)
-            {
-                upButtonPressed = false;
-            }
+                if ((buttonsPressed & MENUBUTTON_CANCEL) != 0)
+                {
+                    //
+                    // MenuCancel is pressed.
+                    //
+                    choice = -1;
+                    done = true;
+                }
+                else if ((buttonsPressed & MENUBUTTON_OK) != 0)
+                {
+                    //
+                    // MenuOk is pressed.
+                    //
+                    choice = selectedChoice;
+                    done = true;
+                }
+                else if ((buttonsPressed & MENUBUTTON_UP) != 0)
+                {
+                    prevChoice();
+                }
+                else if ((buttonsPressed & MENUBUTTON_DOWN)!= 0)
+                {
+                    nextChoice();
+                }
 
-            if (!downButtonPressed && isDown)
-            {
-                downButtonPressed = true;
-                nextChoice();
-            }
-            else if (downButtonPressed && !isDown)
-            {
-                downButtonPressed = false;
+                prevMenuButtons = currMenuButtons;
             }
 
             displayMenu();

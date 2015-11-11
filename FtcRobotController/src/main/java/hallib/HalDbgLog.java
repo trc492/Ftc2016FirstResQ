@@ -206,9 +206,14 @@ public class HalDbgLog
         }
     }   //msg
 
-    public static void trace(String msg)
+    public static void traceMsg(String msg)
     {
         Log.d(TAG, msg);
     }   //trace
+
+    public static void tracePrintf(String format, Object... args)
+    {
+        traceMsg(String.format(format, args));
+    }   //tracePrintf
 
 }   //class HalDbgLog

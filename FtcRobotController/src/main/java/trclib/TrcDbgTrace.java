@@ -91,7 +91,7 @@ public class TrcDbgTrace
         if (traceEnabled &&
             funcLevel.getValue() <= traceLevel.getValue())
         {
-            HalDbgLog.trace(
+            HalDbgLog.traceMsg(
                     tracePrefix(funcName, true, false) + String.format(format, args) + ")\n");
         }
     }   //traceEnter
@@ -103,7 +103,7 @@ public class TrcDbgTrace
         if (traceEnabled &&
             funcLevel.getValue() <= traceLevel.getValue())
         {
-            HalDbgLog.trace(tracePrefix(funcName, true, true));
+            HalDbgLog.traceMsg(tracePrefix(funcName, true, true));
         }
     }   //traceEnter
 
@@ -116,7 +116,7 @@ public class TrcDbgTrace
         if (traceEnabled &&
             funcLevel.getValue() <= traceLevel.getValue())
         {
-            HalDbgLog.trace(
+            HalDbgLog.traceMsg(
                     tracePrefix(funcName, false, false) + String.format(format, args) + "\n");
         }
     }   //traceExitMsg
@@ -128,7 +128,7 @@ public class TrcDbgTrace
         if (traceEnabled &&
             funcLevel.getValue() <= traceLevel.getValue())
         {
-            HalDbgLog.trace(tracePrefix(funcName, false, true));
+            HalDbgLog.traceMsg(tracePrefix(funcName, false, true));
         }
     }   //traceExit
 

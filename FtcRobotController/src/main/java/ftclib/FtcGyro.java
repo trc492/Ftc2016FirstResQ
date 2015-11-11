@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import trclib.TrcGyro;
 import trclib.TrcDbgTrace;
-import trclib.TrcKalmanFilter;
+import trclib.TrcWrapAroundSensor;
 
-public class FtcGyro implements TrcGyro
+public class FtcGyro implements TrcGyro, TrcWrapAroundSensor.WrapAroundValue
 {
     private static final String moduleName = "FtcGyro";
     private static final boolean debugEnabled = false;
@@ -15,10 +15,10 @@ public class FtcGyro implements TrcGyro
 
     private HardwareMap hardwareMap;
     private String instanceName;
-    private TrcKalmanFilter kalman = null;
     private GyroSensor gyro;
+    private TrcWrapAroundSensor wrapAroundGyro = null;
 
-    public FtcGyro(HardwareMap hardwareMap, String instanceName, boolean useFilter)
+    public FtcGyro(HardwareMap hardwareMap, String instanceName, boolean wrapAround)
     {
         if (debugEnabled)
         {
@@ -30,11 +30,11 @@ public class FtcGyro implements TrcGyro
 
         this.hardwareMap = hardwareMap;
         this.instanceName = instanceName;
-        if (useFilter)
-        {
-            kalman = new TrcKalmanFilter();
-        }
         gyro = hardwareMap.gyroSensor.get(instanceName);
+        if (wrapAround)
+        {
+            wrapAroundGyro = new TrcWrapAroundSensor(instanceName, this, 0.0, 360.0);
+        }
 
         gyro.calibrate();
         while (gyro.isCalibrating())
@@ -49,9 +49,9 @@ public class FtcGyro implements TrcGyro
         }
     }   //FtcGyro
 
-    public FtcGyro(String instanceName, boolean useFilter)
+    public FtcGyro(String instanceName, boolean wrapAround)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, useFilter);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, wrapAround);
     }   //FtcGyro
 
     public FtcGyro(String instanceName)
@@ -161,12 +161,7 @@ public class FtcGyro implements TrcGyro
     public double getRotation()
     {
         final String funcName = "getRotation";
-        double rate = gyro.getRotation();
-
-        if (kalman != null)
-        {
-            rate = kalman.filter(rate);
-        }
+        double rate = 0.0;
 
         if (debugEnabled)
         {
@@ -181,7 +176,16 @@ public class FtcGyro implements TrcGyro
     public double getHeading()
     {
         final String funcName = "getHeading";
-        double heading = gyro.getHeading();
+        double heading;
+
+        if (wrapAroundGyro != null)
+        {
+            heading = wrapAroundGyro.getCumulatedValue();
+        }
+        else
+        {
+            heading = gyro.getHeading();
+        }
 
         if (debugEnabled)
         {
@@ -191,5 +195,14 @@ public class FtcGyro implements TrcGyro
 
         return heading;
     }   //getHeading
+
+    //
+    // Implementing TrcWrapAroundSensor.WrapAroundValue
+    //
+
+    public double getWrapAroundValue()
+    {
+        return gyro.getHeading();
+    }   //getWrapAroundValue
 
 }   //class FtcGyro

@@ -5,15 +5,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import ftclib.FtcDcMotor;
+import ftclib.FtcGyro;
 import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
 import ftclib.FtcTouch;
-import trclib.TrcMotorController;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcDriveBase;
-import trclib.TrcMotorPositionSensor;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
@@ -25,7 +24,8 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // Sensors.
     //
-    public FtcHiTechnicGyro gyro;
+    public FtcGyro gyro;
+    public FtcHiTechnicGyro hitechnicGyro;
     public FtcOpticalDistanceSensor lightSensor;
     public FtcTouch touchSensor;
     public ColorSensor colorSensor;
@@ -78,7 +78,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // Initialize sensors.
         //
-        gyro = new FtcHiTechnicGyro("gyroSensor");
+        gyro = new FtcGyro("gyroSensor", true);
+        hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         touchSensor = new FtcTouch("touchSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
@@ -151,7 +152,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // ButtonPusher subsystem.
         //
-//        buttonPusher = new ButtonPusher();
+        buttonPusher = new ButtonPusher();
     }   //FtcRobot
 
     //

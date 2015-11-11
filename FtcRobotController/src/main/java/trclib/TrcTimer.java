@@ -4,7 +4,7 @@ import hallib.HalUtil;
 
 public class TrcTimer implements TrcTaskMgr.Task
 {
-    private static final String moduleName = "DbgTimer";
+    private static final String moduleName = "TrcTimer";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
@@ -30,7 +30,7 @@ public class TrcTimer implements TrcTaskMgr.Task
         this.enabled = false;
         this.expired = false;
         this.notifyEvent = null;
-    }   //DbgTimer
+    }   //TrcTimer
 
     public void set(double time, TrcEvent event)
     {
@@ -177,4 +177,4 @@ public class TrcTimer implements TrcTaskMgr.Task
     {
     }   //postContinuousTask
 
-}   //class DbgTimer
+}   //class TrcTimer
