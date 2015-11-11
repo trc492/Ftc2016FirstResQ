@@ -201,9 +201,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     public void DigitalTriggerEvent(TrcDigitalTrigger digitalTrigger, boolean active)
     {
-        if (digitalTrigger == touchTrigger && active && pidDrive.isEnabled())
+        if (digitalTrigger == touchTrigger && active && pidLineFollow.isEnabled())
         {
-            pidDrive.cancel();
+            pidLineFollow.cancel();
         }
     }   //DigitalTriggerEvent
 

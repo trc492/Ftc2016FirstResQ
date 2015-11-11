@@ -94,7 +94,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlLineFollow.setOutputRange(-0.3, 0.3);
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
-                    robot.pidDrive.setTarget(30.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                    robot.pidLineFollow.setTarget(
+                            30.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
