@@ -6,18 +6,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import trclib.TrcDbgTrace;
 import trclib.TrcGyro;
 
-public class FtcHiTechnicGyro extends TrcGyro
+public class FtcMRGyro extends TrcGyro
 {
-    private static final String moduleName = "FtcHiTechnicGyro";
+    private static final String moduleName = "FtcMRGyro";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
     private HardwareMap hardwareMap;
     private GyroSensor gyro;
 
-    public FtcHiTechnicGyro(HardwareMap hardwareMap, String instanceName, boolean useFilter)
+    public FtcMRGyro(HardwareMap hardwareMap, String instanceName, boolean useFilter)
     {
-        super(instanceName, GYROOPTION_INTEGRATE_Z | (useFilter? GYROOPTION_FILTER: 0));
+        super(instanceName, GYROOPTION_Z_WRAPAROUND | (useFilter? GYROOPTION_FILTER: 0));
 
         if (debugEnabled)
         {
@@ -29,17 +29,93 @@ public class FtcHiTechnicGyro extends TrcGyro
 
         this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
-    }   //FtcHiTechnicGyro
+    }   //FtcMRGyro
 
-    public FtcHiTechnicGyro(String instanceName, boolean useFilter)
+    public FtcMRGyro(String instanceName, boolean useFilter)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, useFilter);
-    }   //FtcHiTechnicGyro
+    }   //FtcMRGyro
 
-    public FtcHiTechnicGyro(String instanceName)
+    public FtcMRGyro(String instanceName)
     {
         this(instanceName, false);
-    }   //FtcHiTechnicGyro
+    }   //FtcMRGyro
+
+    //
+    // Overriding TrcGyro methods.
+    //
+
+    @Override
+    public void calibrate()
+    {
+        final String funcName = "calibrate";
+
+        gyro.calibrate();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //calibrate
+
+    @Override
+    public boolean isCalibrating()
+    {
+        final String funcName = "isCalibrating";
+        boolean calibrating = gyro.isCalibrating();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(calibrating));
+        }
+
+        return calibrating;
+    }   //isCalibrating
+
+    @Override
+    public void resetXIntegrator()
+    {
+        final String funcName = "resetXIntegrator";
+
+        gyro.notSupported();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetXIntegrator
+
+    @Override
+    public void resetYIntegrator()
+    {
+        final String funcName = "resetYIntegrator";
+
+        gyro.notSupported();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetYIntegrator
+
+    @Override
+    public void resetZIntegrator()
+    {
+        final String funcName = "resetZIntegrator";
+
+        gyro.resetZAxisIntegrator();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetZIntegrator
 
     //
     // Implements TrcGyro abstract methods.
@@ -49,7 +125,7 @@ public class FtcHiTechnicGyro extends TrcGyro
     public double getXRawRate()
     {
         final String funcName = "getXRawRate";
-        double value = 0.0;
+        double value = gyro.rawX();
 
         if (debugEnabled)
         {
@@ -64,7 +140,7 @@ public class FtcHiTechnicGyro extends TrcGyro
     public double getYRawRate()
     {
         final String funcName = "getYRawRate";
-        double value = 0.0;
+        double value = gyro.rawY();
 
         if (debugEnabled)
         {
@@ -79,7 +155,7 @@ public class FtcHiTechnicGyro extends TrcGyro
     public double getZRawRate()
     {
         final String funcName = "getZRawRate";
-        double value = gyro.getRotation();
+        double value = gyro.rawZ();
 
         if (debugEnabled)
         {
@@ -124,7 +200,7 @@ public class FtcHiTechnicGyro extends TrcGyro
     public double getZRawHeading()
     {
         final String funcName = "getZRawHeading";
-        double value = 0.0;
+        double value = gyro.getHeading();
 
         if (debugEnabled)
         {
@@ -135,4 +211,4 @@ public class FtcHiTechnicGyro extends TrcGyro
         return value;
     }   //getZRawHeading
 
-}   //class FtcHiTechnicGyro
+}   //class FtcMRGyro

@@ -1,26 +1,22 @@
 package trclib;
 
-public class TrcWrapAroundSensor implements TrcTaskMgr.Task
+public class TrcWrapAroundHandler implements TrcTaskMgr.Task
 {
-    public interface WrapAroundValue
-    {
-        public double getWrapAroundValue();
-    }   //WrapAroundValue
-
-    private static final String moduleName = "TrcWrapAroundSensor";
+    private static final String moduleName = "TrcWrapAroundHandler";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
     private String instanceName;
-    private WrapAroundValue wrapAroundValue;
+    private TrcFilteredSensor filteredSensor;
     private double lowValue;
     private double highValue;
-    private double revThreshold;
+    private double wrapThreshold;
     private double prevValue = 0.0;
     private int numRevolutions = 0;
 
-    public TrcWrapAroundSensor(
-            final String instanceName, WrapAroundValue wrapAroundValue,
+    public TrcWrapAroundHandler(
+            final String instanceName,
+            TrcFilteredSensor filteredSensor,
             double lowValue, double highValue)
     {
         if (debugEnabled)
@@ -32,28 +28,28 @@ public class TrcWrapAroundSensor implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        if (wrapAroundValue == null)
+        if (filteredSensor == null)
         {
-            throw new NullPointerException("wrapAroundValue must be provided");
+            throw new NullPointerException("filteredSensor must be provided");
         }
 
         this.instanceName = instanceName;
-        this.wrapAroundValue = wrapAroundValue;
+        this.filteredSensor = filteredSensor;
         this.lowValue = lowValue;
         this.highValue = highValue;
-        this.revThreshold = (highValue - lowValue)/2.0;
+        this.wrapThreshold = (highValue - lowValue)/2.0;
 
         TrcTaskMgr.getInstance().registerTask(
                 instanceName,
                 this,
                 TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
-    }   //TrcWrapAroundSensor
+    }   //TrcWrapAroundHandler
 
     public double getCumulatedValue()
     {
         final String funcName = "getCumulatedValue";
         double value = (highValue - lowValue)*numRevolutions +
-                       (wrapAroundValue.getWrapAroundValue() - lowValue);
+                       (filteredSensor.getFilteredValue() - lowValue);
 
         if (debugEnabled)
         {
@@ -62,12 +58,25 @@ public class TrcWrapAroundSensor implements TrcTaskMgr.Task
         }
 
         return value;
-    }
+    }   //getCumulatedValue
 
     public void reset()
     {
+        final String funcName = "reset";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         numRevolutions = 0;
-    }
+    }   //reset
+
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
 
     //
     // Implements TrcTaskMgr.Task
@@ -100,8 +109,8 @@ public class TrcWrapAroundSensor implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
-        double currValue = wrapAroundValue.getWrapAroundValue();
-        if (Math.abs(currValue - prevValue) > revThreshold)
+        double currValue = filteredSensor.getFilteredValue();
+        if (Math.abs(currValue - prevValue) > wrapThreshold)
         {
             if (currValue > prevValue)
             {
@@ -124,4 +133,4 @@ public class TrcWrapAroundSensor implements TrcTaskMgr.Task
     {
     }   //postContinuousTask
 
-}   //class TrcWrapAroundSensor
+}   //class TrcWrapAroundHandler

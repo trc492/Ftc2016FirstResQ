@@ -109,7 +109,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         if (gyro != null)
         {
-            gyro.reset();
+            gyro.resetZIntegrator();
         }
 
         xPos = 0.0;
@@ -454,8 +454,8 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         if (gyro != null)
         {
-            heading = gyro.getHeading();
-            turnSpeed = gyro.getRotation();
+            heading = gyro.getZHeading();
+            turnSpeed = gyro.getZRotation();
         }
 
         if (debugEnabled)

@@ -195,11 +195,17 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                                 robot.rightFrontWheel.getPosition(),
                                 robot.leftRearWheel.getPosition(),
                                 robot.rightRearWheel.getPosition());
-        dashboard.displayPrintf(4, "Gyro = rate:%.2f, heading:%.2f",
-                                robot.gyro.getRotation(), robot.gyro.getHeading());
-        dashboard.displayPrintf(5, "HiTechnicGyro = rate:%.2f, heading:%.2f",
-                                robot.hitechnicGyro.getRotation(),
-                                robot.hitechnicGyro.getHeading());
+        dashboard.displayPrintf(4, "Gyro = X:%.1f,%.1f Y:%.1f,%.1f Z:%.1f,%.1f",
+                                robot.gyro.getXRotation(), robot.gyro.getXHeading(),
+                                robot.gyro.getYRotation(), robot.gyro.getYHeading(),
+                                robot.gyro.getZRotation(), robot.gyro.getZHeading());
+        dashboard.displayPrintf(5, "HiTechnicGyro = X:%.1f,%.1f Y:%.1f,%.1f Z:%.1f,%.1f",
+                                robot.hitechnicGyro.getXRotation(),
+                                robot.hitechnicGyro.getXHeading(),
+                                robot.hitechnicGyro.getYRotation(),
+                                robot.hitechnicGyro.getYHeading(),
+                                robot.hitechnicGyro.getZRotation(),
+                                robot.hitechnicGyro.getZHeading());
         dashboard.displayPrintf(6, "Color = [R:%d,G:%d,B:%d]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),

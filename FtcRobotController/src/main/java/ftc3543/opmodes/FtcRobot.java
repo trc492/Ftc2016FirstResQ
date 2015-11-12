@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import ftclib.FtcDcMotor;
-import ftclib.FtcGyro;
+import ftclib.FtcMRGyro;
 import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
@@ -24,7 +24,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // Sensors.
     //
-    public FtcGyro gyro;
+    public FtcMRGyro gyro;
     public FtcHiTechnicGyro hitechnicGyro;
     public FtcOpticalDistanceSensor lightSensor;
     public FtcTouch touchSensor;
@@ -78,7 +78,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // Initialize sensors.
         //
-        gyro = new FtcGyro("gyroSensor", true);
+        gyro = new FtcMRGyro("gyroSensor");
         hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         touchSensor = new FtcTouch("touchSensor");
