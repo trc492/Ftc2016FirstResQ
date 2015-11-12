@@ -17,6 +17,11 @@ public class ClimberRelease
         armServo = new FtcServo(instanceName);
     }   //ClimberRelease
 
+    public void setInverted(boolean inverted)
+    {
+        armServo.setReverse(inverted);
+    }
+
     public void extend()
     {
         armServo.setPosition(RobotInfo.ARM_EXTEND_POSITION);

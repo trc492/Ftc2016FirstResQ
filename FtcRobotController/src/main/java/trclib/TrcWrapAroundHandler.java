@@ -38,12 +38,29 @@ public class TrcWrapAroundHandler implements TrcTaskMgr.Task
         this.lowValue = lowValue;
         this.highValue = highValue;
         this.wrapThreshold = (highValue - lowValue)/2.0;
-
-        TrcTaskMgr.getInstance().registerTask(
-                instanceName,
-                this,
-                TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
     }   //TrcWrapAroundHandler
+
+    public void setEnabled(boolean enabled)
+    {
+        final String funcName = "setEnabled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "enabled=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (enabled)
+        {
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+        }
+        else
+        {
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+        }
+    }   //setEnabled
 
     public double getCumulatedValue()
     {

@@ -238,8 +238,64 @@ public abstract class TrcGyro
                     new RawGyroZHeading(),
                     0.0, 360.0);
         }
+    }   //TrcGyro
 
-        if (xIntegrator != null || yIntegrator != null || zIntegrator != null)
+    public TrcGyro(String instanceName)
+    {
+        this(instanceName, 0);
+    }   //TrcGyro
+
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
+
+    public void setEnabled(boolean enabled)
+    {
+        final String funcName = "setEnabled";
+        boolean needCalibration = false;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "inverted=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (xIntegrator != null)
+        {
+            xIntegrator.setEnabled(enabled);
+            needCalibration = true;
+        }
+
+        if (yIntegrator != null)
+        {
+            yIntegrator.setEnabled(enabled);
+            needCalibration = true;
+        }
+
+        if (zIntegrator != null)
+        {
+            zIntegrator.setEnabled(enabled);
+            needCalibration = true;
+        }
+
+        if (xWrapAroundHandler != null)
+        {
+            xWrapAroundHandler.setEnabled(enabled);
+        }
+
+        if (yWrapAroundHandler != null)
+        {
+            yWrapAroundHandler.setEnabled(enabled);
+        }
+
+        if (zWrapAroundHandler != null)
+        {
+            zWrapAroundHandler.setEnabled(enabled);
+        }
+
+        if (needCalibration)
         {
             calibrate();
             while (isCalibrating())
@@ -253,17 +309,7 @@ public abstract class TrcGyro
                 }
             }
         }
-    }   //TrcGyro
-
-    public TrcGyro(String instanceName)
-    {
-        this(instanceName, 0);
-    }   //TrcGyro
-
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
+    }   //setEnabled
 
     public void setXInverted(boolean inverted)
     {

@@ -26,15 +26,35 @@ public class TrcIntegrator implements TrcTaskMgr.Task
         this.instanceName = instanceName;
         this.filteredSensor = filteredSensor;
         prevTime = HalUtil.getCurrentTime();
-
-        TrcTaskMgr.getInstance().registerTask(
-                instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
     }   //TrcIntegrator
 
     public String toString()
     {
         return instanceName;
     }   //toString
+
+    public void setEnabled(boolean enabled)
+    {
+        final String funcName = "setEnabled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "enabled=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (enabled)
+        {
+
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+        }
+        else
+        {
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+        }
+    }   //setEnabled
 
     public void reset()
     {

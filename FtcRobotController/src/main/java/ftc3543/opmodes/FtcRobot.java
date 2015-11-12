@@ -13,6 +13,7 @@ import ftclib.FtcTouch;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcDriveBase;
+import trclib.TrcGyro;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
@@ -24,8 +25,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // Sensors.
     //
-    public FtcMRGyro gyro;
+    public FtcMRGyro mrGyro;
     public FtcHiTechnicGyro hitechnicGyro;
+    public TrcGyro gyro;
     public FtcOpticalDistanceSensor lightSensor;
     public FtcTouch touchSensor;
     public ColorSensor colorSensor;
@@ -78,8 +80,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // Initialize sensors.
         //
-        gyro = new FtcMRGyro("gyroSensor");
+        mrGyro = new FtcMRGyro("gyroSensor");
         hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
+        gyro = hitechnicGyro;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         touchSensor = new FtcTouch("touchSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
@@ -145,6 +148,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         leftWing = new ClimberRelease("leftWing");
         rightWing = new ClimberRelease("rightWing");
+        rightWing.setInverted(true);
+        leftWing.retract();
+        rightWing.retract();
         //
         // CattleGuard subsystem.
         //

@@ -13,7 +13,7 @@ public class RobotInfo
     public static final double DRIVE_SETTLING                   = 0.2;
     public static final double DRIVE_INCHES_PER_CLICK           = (62.0/4464.5);
 
-    public static final double TURN_KP                          = 0.03;
+    public static final double TURN_KP                          = 0.05;
     public static final double TURN_KI                          = 0.0;
     public static final double TURN_KD                          = 0.0;
     public static final double TURN_KF                          = 0.0;
@@ -62,7 +62,7 @@ public class RobotInfo
     // ClimberRelease subsystem.
     //
     public static final double ARM_RETRACT_POSITION             = 0.0;
-    public static final double ARM_EXTEND_POSITION              = 1.0;
+    public static final double ARM_EXTEND_POSITION              = 0.6;
 
     //
     // HangingHook subsystem.

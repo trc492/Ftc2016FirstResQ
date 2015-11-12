@@ -29,6 +29,7 @@ public class FtcHiTechnicGyro extends TrcGyro
 
         this.hardwareMap = hardwareMap;
         gyro = hardwareMap.gyroSensor.get(instanceName);
+        setEnabled(true);
     }   //FtcHiTechnicGyro
 
     public FtcHiTechnicGyro(String instanceName, boolean useFilter)
