@@ -15,18 +15,18 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
     private int alliance;
     private double delay;
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
 
     public AutoParkFloorGoal(int alliance, double delay)
     {
         this.alliance = alliance;
         this.delay = delay;
+        event = new TrcEvent("ParkFloorGoalEvent");
+        timer = new TrcTimer("ParkFloorGoalTimer");
         sm = new TrcStateMachine("autoParkFloorGoal");
         sm.start();
-        timer = new TrcTimer("ParkFloorGoalTimer");
-        event = new TrcEvent("ParkFloorGoalEvent");
     }
 
     public void autoPeriodic()

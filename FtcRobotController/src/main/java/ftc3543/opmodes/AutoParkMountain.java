@@ -15,30 +15,24 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
 
     private int alliance;
     private double delay;
-    private int mountainZone;
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
 
-    public AutoParkMountain(int alliance, double delay, int mountainZone)
+    public AutoParkMountain(int alliance, double delay)
     {
         this.alliance = alliance;
         this.delay = delay;
-        this.mountainZone = mountainZone;
+        event = new TrcEvent("ParkMountainEvent");
+        timer = new TrcTimer("ParkMountainTimer");
         sm = new TrcStateMachine("autoParkMountain");
         sm.start();
-        timer = new TrcTimer("ParkMountainTimer");
-        event = new TrcEvent("ParkMountainEvent");
     }
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkMountain: %s alliance, delay=%.1f, zone=%s",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                delay,
-                                mountainZone == autoMode.MOUNTAIN_FLOOR? "Floor":
-                                mountainZone == autoMode.MOUNTAIN_LOW_ZONE? "Low":
-                                mountainZone == autoMode.MOUNTAIN_MID_ZONE? "Mid": "High");
+        dashboard.displayPrintf(1, "ParkMountain: %s alliance, delay=%.1f",
+                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue", delay);
 
         if (sm.isReady())
         {

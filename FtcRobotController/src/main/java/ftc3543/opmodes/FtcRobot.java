@@ -102,6 +102,8 @@ public class FtcRobot implements TrcPidController.PidInput,
                 rightFrontWheel,
                 rightRearWheel,
                 gyro);
+        driveBase.setPositionScales(1.0, RobotInfo.DRIVE_INCHES_PER_CLICK, 1.0);
+        driveBase.resetPosition();
         pidCtrlDrive = new TrcPidController(
                 "DrivePid",
                 RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI,
@@ -143,22 +145,24 @@ public class FtcRobot implements TrcPidController.PidInput,
         // HangingHook subsystem.
         //
         hangingHook = new HangingHook();
+        hangingHook.retract();
         //
         // ClimberRelease subsystem.
         //
-        leftWing = new ClimberRelease("leftWing");
-        rightWing = new ClimberRelease("rightWing");
-        rightWing.setInverted(true);
+        leftWing = new ClimberRelease("leftWing", false);
+        rightWing = new ClimberRelease("rightWing", true);
         leftWing.retract();
         rightWing.retract();
         //
         // CattleGuard subsystem.
         //
         cattleGuard = new CattleGuard();
+        cattleGuard.retract();
         //
         // ButtonPusher subsystem.
         //
         buttonPusher = new ButtonPusher();
+        buttonPusher.retract();
     }   //FtcRobot
 
     //
@@ -172,7 +176,7 @@ public class FtcRobot implements TrcPidController.PidInput,
 
         if (pidCtrl == pidCtrlDrive)
         {
-            input = driveBase.getYPosition()*RobotInfo.DRIVE_INCHES_PER_CLICK;
+            input = driveBase.getYPosition();
         }
         else if (pidCtrl == pidCtrlTurn)
         {

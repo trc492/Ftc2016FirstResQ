@@ -5,9 +5,10 @@ import ftclib.FtcServo;
 public class ButtonPusher
 {
     //
-    // This component consists of a servo controlled swing arm.
-    // It provides methods to set the swing arm position to either
-    // neutral, left or right.
+    // This component consists of two servos controlling the left and right
+    // button pusher.
+    // It provides methods to activate either the left pusher, the right pusher
+    // or not at all.
     //
     private FtcServo leftPusher;
     private FtcServo rightPusher;

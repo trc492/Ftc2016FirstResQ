@@ -55,14 +55,16 @@ public class RobotInfo
     //
     // CattleGuard subsystem.
     //
-    public static final double CATTLEGUARD_RETRACT_POSITION     = 0.0;
-    public static final double CATTLEGUARD_EXTEND_POSITION      = 1.0;
+    public static final double CATTLEGUARD_LEFT_EXTEND_POSITION = 0.0;
+    public static final double CATTLEGUARD_LEFT_RETRACT_POSITION= 1.0;
+    public static final double CATTLEGUARD_RIGHT_EXTEND_POSITION= 0.0;
+    public static final double CATTLEGUARD_RIGHT_RETRACT_POSITION= 1.0;
 
     //
     // ClimberRelease subsystem.
     //
-    public static final double ARM_RETRACT_POSITION             = 0.0;
-    public static final double ARM_EXTEND_POSITION              = 0.6;
+    public static final double WING_RETRACT_POSITION            = 0.0;
+    public static final double WING_EXTEND_POSITION             = 0.6;
 
     //
     // HangingHook subsystem.

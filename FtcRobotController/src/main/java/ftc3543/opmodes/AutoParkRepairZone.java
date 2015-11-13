@@ -15,18 +15,18 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
     private int alliance;
     private double delay;
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
 
     public AutoParkRepairZone(int alliance, double delay)
     {
         this.alliance = alliance;
         this.delay = delay;
+        event = new TrcEvent("ParkRepairZoneEvent");
+        timer = new TrcTimer("ParkRepairZoneTimer");
         sm = new TrcStateMachine("autoParkRepairZone");
         sm.start();
-        timer = new TrcTimer("ParkRepairZoneTimer");
-        event = new TrcEvent("ParkRepairZoneEvent");
     }
 
     public void autoPeriodic()

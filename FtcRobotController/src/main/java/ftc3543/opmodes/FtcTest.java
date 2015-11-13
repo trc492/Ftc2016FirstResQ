@@ -17,9 +17,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
     //
     // Miscellaneous.
     //
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
     //
     // Test menu.
     //
@@ -54,14 +54,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         //
         // Miscellaneous.
         //
-        sm = new TrcStateMachine("TestSM");
-        timer = new TrcTimer("TestTimer");
         event = new TrcEvent("TestEvent");
+        timer = new TrcTimer("TestTimer");
+        sm = new TrcStateMachine("TestSM");
         //
         // Choice menus.
         //
         doMenus();
-        robot.driveBase.resetPosition();
         sm.start();
     }   //robotInit
 

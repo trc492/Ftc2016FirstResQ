@@ -13,24 +13,23 @@ public class CattleGuard
     //
     private FtcServo leftServo;
     private FtcServo rightServo;
-    private TrcEnhancedServo cattleGuardServo;
 
     public CattleGuard()
     {
         leftServo = new FtcServo("leftCattleGuard");
         rightServo = new FtcServo("rightCattleGuard");
-        rightServo.setReverse(true);
-        cattleGuardServo = new TrcEnhancedServo(leftServo, rightServo);
     }   //CattleGuard
 
     public void extend()
     {
-        cattleGuardServo.setPosition(RobotInfo.CATTLEGUARD_EXTEND_POSITION);
+        leftServo.setPosition(RobotInfo.CATTLEGUARD_LEFT_EXTEND_POSITION);
+        rightServo.setPosition(RobotInfo.CATTLEGUARD_RIGHT_EXTEND_POSITION);
     }   //extend
 
     public void retract()
     {
-        cattleGuardServo.setPosition(RobotInfo.CATTLEGUARD_RETRACT_POSITION);
+        leftServo.setPosition(RobotInfo.CATTLEGUARD_LEFT_RETRACT_POSITION);
+        rightServo.setPosition(RobotInfo.CATTLEGUARD_RIGHT_RETRACT_POSITION);
     }   //retract
 
 }   //class CattleGuard

@@ -406,6 +406,20 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         }
     }   //setPidPower
 
+    public double getPosition()
+    {
+        final String funcName = "zeroCalibrate";
+        double value = motor1.getPosition()*positionScale;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+        }
+
+        return value;
+    }   //getPosition
+
     public void zeroCalibrate(double calPower)
     {
         final String funcName = "zeroCalibrate";

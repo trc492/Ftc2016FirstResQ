@@ -16,19 +16,19 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private int alliance;
     private double delay;
     private int option;
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
 
     public AutoTriggerBeacon(int alliance, double delay, int option)
     {
         this.alliance = alliance;
         this.delay = delay;
         this.option = option;
+        event = new TrcEvent("TriggerBeaconEvent");
+        timer = new TrcTimer("TriggerBeaconTimer");
         sm = new TrcStateMachine("autoTriggerBeacon");
         sm.start();
-        timer = new TrcTimer("TriggerBeaconTimer");
-        event = new TrcEvent("TriggerBeaconEvent");
     }
 
     public void autoPeriodic()

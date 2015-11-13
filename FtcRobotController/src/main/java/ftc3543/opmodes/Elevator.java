@@ -6,16 +6,15 @@ import ftclib.FtcTouch;
 import trclib.TrcMotorController;
 import trclib.TrcEvent;
 import trclib.TrcMotorLimitSwitches;
-import trclib.TrcMotorPositionSensor;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
 
 public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitches
 {
     //
-    // This component consists of an elevator motor, a lower
-    // limit switch, an upper limit switch and an encoder to
-    // keep track of the position of the elevator.
+    // This component consists of an elevator motor, a lower limit switch,
+    // an upper limit switch, an encoder to keep track of the position of
+    // the elevator and a servo to engage/disengage the chain lock.
     //
     private FtcDcMotor elevatorMotor;
     private TrcPidController pidController;
@@ -24,7 +23,6 @@ public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitche
     private FtcTouch upperLimitSwitch;
     private FtcServo chainLock;
     private boolean elevatorOverride = false;
-    private double encoderPolarity = 1.0;
 
     public Elevator()
     {
@@ -42,6 +40,7 @@ public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitche
         lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
         upperLimitSwitch = new FtcTouch("upperLimitSwitch");
         chainLock = new FtcServo("chainLock");
+        setChainLock(false);
     }
 
     public void zeroCalibrate(double calPower)
@@ -49,9 +48,9 @@ public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitche
 //        pidMotor.zeroCalibrate(calPower);
     }
 
-    public void setElevatorOverride(boolean enabled)
+    public void setElevatorOverride(boolean override)
     {
-        elevatorOverride = enabled;
+        elevatorOverride = override;
     }
 
     public void setChainLock(boolean locked)
@@ -87,7 +86,7 @@ public class Elevator implements TrcPidController.PidInput, TrcMotorLimitSwitche
 
     public double getHeight()
     {
-        return elevatorMotor.getPosition()*RobotInfo.ELEVATOR_INCHES_PER_CLICK;
+        return pidMotor.getPosition();
     }
 
     public boolean isLowerLimitSwitchPressed()

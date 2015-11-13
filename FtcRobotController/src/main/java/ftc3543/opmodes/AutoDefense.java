@@ -16,19 +16,19 @@ public class AutoDefense implements TrcRobot.AutoStrategy
     private int alliance;
     private double delay;
     private double distance;
-    private TrcStateMachine sm;
-    private TrcTimer timer;
     private TrcEvent event;
+    private TrcTimer timer;
+    private TrcStateMachine sm;
 
     public AutoDefense(int alliance, double delay, double distance)
     {
         this.alliance = alliance;
         this.delay = delay;
         this.distance = distance;
+        event = new TrcEvent("DefenseEvent");
+        timer = new TrcTimer("DefenseTimer");
         sm = new TrcStateMachine("autoDefense");
         sm.start();
-        timer = new TrcTimer("DefenseTimer");
-        event = new TrcEvent("DefenseEvent");
     }
 
     public void autoPeriodic()
