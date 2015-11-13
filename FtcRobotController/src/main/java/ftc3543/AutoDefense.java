@@ -1,4 +1,4 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
@@ -7,7 +7,7 @@ import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
+public class AutoDefense implements TrcRobot.AutoStrategy
 {
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
@@ -15,24 +15,27 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
     private int alliance;
     private double delay;
+    private double distance;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoParkFloorGoal(int alliance, double delay)
+    public AutoDefense(int alliance, double delay, double distance)
     {
         this.alliance = alliance;
         this.delay = delay;
-        event = new TrcEvent("ParkFloorGoalEvent");
-        timer = new TrcTimer("ParkFloorGoalTimer");
-        sm = new TrcStateMachine("autoParkFloorGoal");
+        this.distance = distance;
+        event = new TrcEvent("DefenseEvent");
+        timer = new TrcTimer("DefenseTimer");
+        sm = new TrcStateMachine("autoDefense");
         sm.start();
     }
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkFloorGoal: %s alliance, delay=%.1f",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue", delay);
+        dashboard.displayPrintf(1, "Defense: %s alliance, delay=%.1f, distance=%.1f",
+                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
+                                delay, distance/12.0);
 
         if (sm.isReady())
         {
@@ -58,34 +61,9 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     //
-                    // Move forward towards the floor goal.
+                    // Drive the set distance.
                     //
-                    robot.pidDrive.setTarget(70.0, 0.0, false, event, 10.0);
-                    sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
-                    break;
-
-                case TrcStateMachine.STATE_STARTED + 2:
-                    //
-                    // Turn to face the floor goal.
-                    //
-                    if (alliance == autoMode.ALLIANCE_RED)
-                    {
-                        robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
-                    }
-                    else
-                    {
-                        robot.pidDrive.setTarget(0.0, 45.0, false, event, 0.0);
-                    }
-                    sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
-                    break;
-
-                case TrcStateMachine.STATE_STARTED + 3:
-                    //
-                    // Move forward into the floor goal.
-                    //
-                    robot.pidDrive.setTarget(48.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -100,4 +78,4 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
         }
     }
 
-}   //class AutoParkFloorGoal
+}   //class AutoDefense

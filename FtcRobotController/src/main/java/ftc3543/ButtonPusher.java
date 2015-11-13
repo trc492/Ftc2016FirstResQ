@@ -1,4 +1,4 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 import ftclib.FtcServo;
 
@@ -6,7 +6,7 @@ public class ButtonPusher
 {
     //
     // This component consists of two servos controlling the left and right
-    // button pusher.
+    // button pushers.
     // It provides methods to activate either the left pusher, the right pusher
     // or not at all.
     //

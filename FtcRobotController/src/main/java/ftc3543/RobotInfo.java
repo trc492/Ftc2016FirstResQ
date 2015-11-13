@@ -1,4 +1,4 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 public class RobotInfo
 {

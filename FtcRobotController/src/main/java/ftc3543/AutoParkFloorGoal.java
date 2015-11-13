@@ -1,4 +1,4 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
@@ -7,7 +7,7 @@ import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class AutoParkRepairZone implements TrcRobot.AutoStrategy
+public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 {
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
@@ -19,19 +19,19 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoParkRepairZone(int alliance, double delay)
+    public AutoParkFloorGoal(int alliance, double delay)
     {
         this.alliance = alliance;
         this.delay = delay;
-        event = new TrcEvent("ParkRepairZoneEvent");
-        timer = new TrcTimer("ParkRepairZoneTimer");
-        sm = new TrcStateMachine("autoParkRepairZone");
+        event = new TrcEvent("ParkFloorGoalEvent");
+        timer = new TrcTimer("ParkFloorGoalTimer");
+        sm = new TrcStateMachine("autoParkFloorGoal");
         sm.start();
     }
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkRepairZone: %s alliance, delay=%.1f",
+        dashboard.displayPrintf(1, "ParkFloorGoal: %s alliance, delay=%.1f",
                                 alliance == autoMode.ALLIANCE_RED? "Red": "Blue", delay);
 
         if (sm.isReady())
@@ -58,16 +58,16 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     //
-                    // Move forward towards the repair zone.
+                    // Move forward towards the floor goal.
                     //
-                    robot.pidDrive.setTarget(100.0, 0.0, false, event, 10.0);
+                    robot.pidDrive.setTarget(70.0, 0.0, false, event, 10.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 2:
                     //
-                    // Turn to face the repair zone.
+                    // Turn to face the floor goal.
                     //
                     if (alliance == autoMode.ALLIANCE_RED)
                     {
@@ -83,9 +83,9 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 3:
                     //
-                    // Turn to face the repair zone.
+                    // Move forward into the floor goal.
                     //
-                    robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(48.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -100,4 +100,4 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
         }
     }
 
-}   //class AutoParkRepairZone
+}   //class AutoParkFloorGoal

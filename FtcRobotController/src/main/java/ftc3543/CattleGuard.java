@@ -1,7 +1,6 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 import ftclib.FtcServo;
-import trclib.TrcEnhancedServo;
 
 public class CattleGuard
 {

@@ -1,4 +1,4 @@
-package ftc3543.opmodes;
+package ftc3543;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
