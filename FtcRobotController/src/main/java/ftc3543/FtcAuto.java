@@ -184,7 +184,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         driveDistance = distanceMenu.getSelectedChoiceValue();
         beaconOption = (int)beaconOptionMenu.getSelectedChoiceValue();
 
-        dashboard.displayPrintf(15, "Strategy selected = %s", strategyMenu.getSelectedChoiceText());
+        dashboard.displayPrintf(0, "Auto Strategy: %s (%s)",
+                                strategyMenu.getSelectedChoiceText(),
+                                alliance == ALLIANCE_RED? "Red": "Blue");
+        dashboard.displayPrintf(1, "Delay = %.1f sec", delay);
     }   //doMenus
 
 }   //class FtcAuto
