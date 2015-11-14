@@ -126,29 +126,44 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         }
     }   //resetPosition
 
-    public void setPositionScales(
-            double xScale,
-            double yScale,
-            double rotScale)
+    public void setXPositionScale(double scale)
     {
-        final String funcName = "setPositionScales";
+        final String funcName = "setXPositionScale";
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(
-                    funcName, TrcDbgTrace.TraceLevel.API,
-                    "x=%f,y=%f,rot=%f", xScale, yScale, rotScale);
-        }
-
-        this.xScale = xScale;
-        this.yScale = yScale;
-        this.rotScale = rotScale;
-
-        if (debugEnabled)
-        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-    }   //setPositionScales
+
+        this.xScale = scale;
+    }   //setXPositionScale
+
+    public void setYPositionScale(double scale)
+    {
+        final String funcName = "setYPositionScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.yScale = scale;
+    }   //setYPositionScale
+
+    public void setRotationScale(double scale)
+    {
+        final String funcName = "setRotationScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.rotScale = scale;
+    }   //setRotationScale
 
     public double getXPosition()
     {

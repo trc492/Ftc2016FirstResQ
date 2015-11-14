@@ -102,21 +102,21 @@ public class FtcRobot implements TrcPidController.PidInput,
                 rightFrontWheel,
                 rightRearWheel,
                 gyro);
-        driveBase.setPositionScales(1.0, RobotInfo.DRIVE_INCHES_PER_CLICK, 1.0);
+        driveBase.setYPositionScale(RobotInfo.DRIVE_INCHES_PER_CLICK);
         driveBase.resetPosition();
         pidCtrlDrive = new TrcPidController(
-                "DrivePid",
+                "drivePid",
                 RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI,
                 RobotInfo.DRIVE_KD, RobotInfo.DRIVE_KF,
                 RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
                 this);
         pidCtrlTurn = new TrcPidController(
-                "TurnPid",
+                "turnPid",
                 RobotInfo.TURN_KP, RobotInfo.TURN_KI,
                 RobotInfo.TURN_KD, RobotInfo.TURN_KF,
                 RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
                 this);
-        pidDrive = new TrcPidDrive("PidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
+        pidDrive = new TrcPidDrive("pidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
         //
         // PID Line following.
         //
@@ -124,14 +124,14 @@ public class FtcRobot implements TrcPidController.PidInput,
         lineTrigger = new TrcAnalogTrigger(
                 "lineTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this, false);
         pidCtrlLineFollow = new TrcPidController(
-                "LineFollowPid",
+                "lineFollowPid",
                 RobotInfo.LINEFOLLOW_KP, RobotInfo.LINEFOLLOW_KI,
                 RobotInfo.LINEFOLLOW_KD, RobotInfo.LINEFOLLOW_KF,
                 RobotInfo.LINEFOLLOW_TOLERANCE, RobotInfo.LINEFOLLOW_SETTLING,
                 this);
         pidCtrlLineFollow.setAbsoluteSetPoint(true);
         pidLineFollow = new TrcPidDrive(
-                "LineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
+                "lineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
         //
         // TreadDrive subsystem.
         //
