@@ -364,21 +364,30 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     // Drive forward until we found the line.
                     //
                     robot.lineTrigger.setEnabled(true);
-                    robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
+                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
+
+                    robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
+                    robot.pidCtrlLineFollow.setInverted(true);
+                    robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 2:
                     //
                     // Follow the line until the touch switch is activated.
                     //
                     robot.lineTrigger.setEnabled(false);
                     robot.touchTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
-                    robot.pidCtrlLineFollow.setOutputRange(-0.3, 0.3);
                     robot.pidLineFollow.setTarget(
-                            25.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                            60.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
