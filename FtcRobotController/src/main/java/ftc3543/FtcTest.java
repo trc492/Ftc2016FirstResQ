@@ -124,16 +124,16 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
     }   //isMenuDown
 
     @Override
-    public boolean isMenuOk()
+    public boolean isMenuEnter()
     {
         return gamepad1.a;
-    }   //isMenuOk
+    }   //isMenuEnter
 
     @Override
-    public boolean isMenuCancel()
+    public boolean isMenuBack()
     {
-        return gamepad1.b;
-    }   //isMenuCancel
+        return gamepad1.dpad_left;
+    }   //isMenuBack
 
     private void doMenus()
     {

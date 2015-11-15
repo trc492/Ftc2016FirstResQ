@@ -13,8 +13,8 @@ public class FtcMenu
 
     private static final long LOOP_INTERVAL = 50;
 
-    private static final int MENUBUTTON_CANCEL = (1 << 0);
-    private static final int MENUBUTTON_OK = (1 << 1);
+    private static final int MENUBUTTON_BACK = (1 << 0);
+    private static final int MENUBUTTON_ENTER = (1 << 1);
     private static final int MENUBUTTON_UP = (1 << 2);
     private static final int MENUBUTTON_DOWN = (1 << 3);
     private static int prevMenuButtons = 0;
@@ -35,9 +35,9 @@ public class FtcMenu
 
         public boolean isMenuDown();
 
-        public boolean isMenuOk();
+        public boolean isMenuEnter();
 
-        public boolean isMenuCancel();
+        public boolean isMenuBack();
     }   //interface MenuButtons
 
     public FtcMenu(FtcMenu parent, String menuTitle, MenuButtons menuButtons)
@@ -139,8 +139,8 @@ public class FtcMenu
     {
         int buttons = 0;
 
-        if (menuButtons.isMenuCancel()) buttons |= MENUBUTTON_CANCEL;
-        if (menuButtons.isMenuOk()) buttons |= MENUBUTTON_OK;
+        if (menuButtons.isMenuBack()) buttons |= MENUBUTTON_BACK;
+        if (menuButtons.isMenuEnter()) buttons |= MENUBUTTON_ENTER;
         if (menuButtons.isMenuUp()) buttons |= MENUBUTTON_UP;
         if (menuButtons.isMenuDown()) buttons |= MENUBUTTON_DOWN;
 
@@ -167,7 +167,7 @@ public class FtcMenu
             {
                 int buttonsPressed = currMenuButtons & changedButtons;
 
-                if ((buttonsPressed & MENUBUTTON_CANCEL) != 0)
+                if ((buttonsPressed & MENUBUTTON_BACK) != 0)
                 {
                     //
                     // MenuCancel is pressed.
@@ -175,7 +175,7 @@ public class FtcMenu
                     choice = -1;
                     done = true;
                 }
-                else if ((buttonsPressed & MENUBUTTON_OK) != 0)
+                else if ((buttonsPressed & MENUBUTTON_ENTER) != 0)
                 {
                     //
                     // MenuOk is pressed.
