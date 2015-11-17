@@ -11,9 +11,12 @@ public class TrcIntegrator implements TrcTaskMgr.Task
     private String instanceName;
     private TrcFilteredSensor filteredSensor;
     private double prevTime = 0.0;
+    private double intermediateOutput = 0.0;
     private double output = 0.0;
+    private boolean doDoubleIntegration = false;
 
-    public TrcIntegrator(String instanceName, TrcFilteredSensor filteredSensor)
+    public TrcIntegrator(
+            String instanceName, TrcFilteredSensor filteredSensor, boolean doDoubleIntegration)
     {
         if (debugEnabled)
         {
@@ -25,7 +28,13 @@ public class TrcIntegrator implements TrcTaskMgr.Task
 
         this.instanceName = instanceName;
         this.filteredSensor = filteredSensor;
+        this.doDoubleIntegration = doDoubleIntegration;
         prevTime = HalUtil.getCurrentTime();
+    }   //TrcIntegrator
+
+    public TrcIntegrator(String instanceName, TrcFilteredSensor filteredSensor)
+    {
+        this(instanceName, filteredSensor, false);
     }   //TrcIntegrator
 
     public String toString()
@@ -61,6 +70,7 @@ public class TrcIntegrator implements TrcTaskMgr.Task
         final String funcName = "reset";
 
         sampleData();
+        intermediateOutput = 0.0;
         output = 0.0;
 
         if (debugEnabled)
@@ -83,20 +93,42 @@ public class TrcIntegrator implements TrcTaskMgr.Task
         return output;
     }   //getOutput
 
+    public double getIntermediateOutput()
+    {
+        final String funcName = "getIntermediateOutput";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", intermediateOutput);
+        }
+
+        return intermediateOutput;
+    }   //getIntermediateOutput
+
     private void sampleData()
     {
         final String funcName = "sampleData";
 
         double currTime = HalUtil.getCurrentTime();
+        double deltaTime = currTime - prevTime;
         double input = filteredSensor.getFilteredValue();
-        output += input*(currTime - prevTime);
+        intermediateOutput += input*deltaTime;
+        if (doDoubleIntegration)
+        {
+            output += intermediateOutput*deltaTime;
+        }
+        else
+        {
+            output = intermediateOutput;
+        }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (input=%f,output=%f,deltaTime=%f)",
-                               input, output, currTime - prevTime);
+                               "! (input=%f,intermediateOutput=%f,output=%f,deltaTime=%f)",
+                               input, intermediateOutput, output, currTime - prevTime);
         }
 
         prevTime = currTime;

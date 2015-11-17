@@ -11,7 +11,7 @@ public class RobotInfo
     public static final double DRIVE_KF                         = 0.0;
     public static final double DRIVE_TOLERANCE                  = 2.0;
     public static final double DRIVE_SETTLING                   = 0.2;
-    public static final double DRIVE_INCHES_PER_CLICK           = (62.0/4464.5);
+    public static final double DRIVE_INCHES_PER_CLICK           = (67.0/4941.0);
 
     public static final double TURN_KP                          = 0.05;
     public static final double TURN_KI                          = 0.0;
@@ -20,8 +20,8 @@ public class RobotInfo
     public static final double TURN_TOLERANCE                   = 2.0;
     public static final double TURN_SETTLING                    = 0.2;
 
-    public static final double LINE_THRESHOLD                   = ((24.0 + 75.0)/2.0);
-    public static final double LINEFOLLOW_KP                    = 0.1;
+    public static final double LINE_THRESHOLD                   = ((18.0 + 100.0)/2.0);
+    public static final double LINEFOLLOW_KP                    = 0.05;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;
     public static final double LINEFOLLOW_KF                    = 0.0;
@@ -62,8 +62,10 @@ public class RobotInfo
     //
     // ClimberRelease subsystem.
     //
-    public static final double WING_RETRACT_POSITION            = 0.0;
-    public static final double WING_EXTEND_POSITION             = 0.6;
+    public static final double WING_LEFT_RETRACT_POSITION       = 0.1;
+    public static final double WING_LEFT_EXTEND_POSITION        = 0.75;
+    public static final double WING_RIGHT_RETRACT_POSITION      = 0.0;
+    public static final double WING_RIGHT_EXTEND_POSITION       = 0.65;
 
     //
     // HangingHook subsystem.

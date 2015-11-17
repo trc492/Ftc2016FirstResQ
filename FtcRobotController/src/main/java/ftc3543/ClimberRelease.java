@@ -16,14 +16,9 @@ public class ClimberRelease
         servo.setReverse(inverted);
     }   //ClimberRelease
 
-    public void extend()
+    public void setPosition(double position)
     {
-        servo.setPosition(RobotInfo.WING_EXTEND_POSITION);
-    }   //extend
-
-    public void retract()
-    {
-        servo.setPosition(RobotInfo.WING_RETRACT_POSITION);
-    }   //retract
+        servo.setPosition(position);
+    }   //setPosition
 
 }   //class ClimberRelease
