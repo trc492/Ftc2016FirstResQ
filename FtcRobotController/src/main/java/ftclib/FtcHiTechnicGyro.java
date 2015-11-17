@@ -3,6 +3,7 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import trclib.TrcAxisData;
 import trclib.TrcDbgTrace;
 import trclib.TrcGyro;
 
@@ -47,93 +48,35 @@ public class FtcHiTechnicGyro extends TrcGyro
     //
 
     @Override
-    public double getXRawRate()
+    public TrcAxisData getRawRates()
     {
-        final String funcName = "getXRawRate";
-        double value = 0.0;
+        final String funcName = "getRawRates";
+        TrcAxisData rawRates = new TrcAxisData(0.0, 0.0, gyro.getRotation());
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "x=%f,y=%f,z=%f", rawRates.x, rawRates.y, rawRates.z);
         }
 
-        return value;
-    }   //getXRawRate
+        return rawRates;
+    }   //getRawRates
 
     @Override
-    public double getYRawRate()
+    public TrcAxisData getRawHeadings()
     {
-        final String funcName = "getYRawRate";
-        double value = 0.0;
+        final String funcName = "getRawHeadings";
+        TrcAxisData rawHeadings = new TrcAxisData(0.0, 0.0, 0.0);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "x=%f,y=%f,z=%f", rawHeadings.x, rawHeadings.y, rawHeadings.z);
         }
 
-        return value;
-    }   //getYRawRate
-
-    @Override
-    public double getZRawRate()
-    {
-        final String funcName = "getZRawRate";
-        double value = gyro.getRotation();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getZRawRate
-
-    @Override
-    public double getXRawHeading()
-    {
-        final String funcName = "getXRawHeading";
-        double value = 0.0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getXRawHeading
-
-    @Override
-    public double getYRawHeading()
-    {
-        final String funcName = "getYRawHeading";
-        double value = 0.0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getYRawHeading
-
-    @Override
-    public double getZRawHeading()
-    {
-        final String funcName = "getZRawHeading";
-        double value = 0.0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getZRawHeading
+        return rawHeadings;
+    }   //getRawHeadings
 
 }   //class FtcHiTechnicGyro

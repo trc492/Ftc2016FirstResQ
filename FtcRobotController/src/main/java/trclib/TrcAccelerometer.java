@@ -4,21 +4,7 @@ import hallib.HalUtil;
 
 public abstract class TrcAccelerometer
 {
-    public class Acceleration
-    {
-        public double x;
-        public double y;
-        public double z;
-
-        public Acceleration(double x, double y, double z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-    }   //class Acceleration
-
-    public abstract Acceleration getRawAcceleration();
+    public abstract TrcAxisData getRawAccelerations();
 
     private class RawAccelX implements TrcFilteredSensor
     {
@@ -149,9 +135,9 @@ public abstract class TrcAccelerometer
     private double zZeroOffset = 0.0;
     private double zDeadband = 0.0;
     private boolean calibrating = false;
-    private Acceleration accelData = null;
-    private double dataStaleTime = 0.005;
+    private TrcAxisData accelData = null;
     private double dataTimestamp = 0.0;
+    private double dataStaleTime = 0.005;
 
     public TrcAccelerometer(String instanceName, int options)
     {
@@ -216,7 +202,7 @@ public abstract class TrcAccelerometer
 
         if (currTime - dataTimestamp > dataStaleTime)
         {
-            accelData = getRawAcceleration();
+            accelData = getRawAccelerations();
             dataTimestamp = currTime;
         }
 
@@ -303,7 +289,7 @@ public abstract class TrcAccelerometer
     public void calibrate()
     {
         final String funcName = "calibrate";
-        Acceleration data;
+        TrcAxisData data;
 
         xZeroOffset = 0.0;
         xDeadband = 0.0;
@@ -311,7 +297,7 @@ public abstract class TrcAccelerometer
         yDeadband = 0.0;
         zZeroOffset = 0.0;
         zDeadband = 0.0;
-        data = getRawAcceleration();
+        data = getRawAccelerations();
         double xMinValue = data.x;
         double xMaxValue = xMinValue;
         double xSum = 0.0;
@@ -325,40 +311,36 @@ public abstract class TrcAccelerometer
         calibrating = true;
         for (int i = 0; i < NUM_CAL_SAMPLES; i++)
         {
-            data = getRawAcceleration();
-            double xRate = data.x;
-            double yRate = data.y;
-            double zRate = data.z;
+            data = getRawAccelerations();
+            xSum += data.x;
+            ySum += data.y;
+            zSum += data.z;
 
-            xSum += xRate;
-            ySum += yRate;
-            zSum += zRate;
-
-            if (xRate < xMinValue)
+            if (data.x < xMinValue)
             {
-                xMinValue = xRate;
+                xMinValue = data.x;
             }
-            else if (xRate > xMaxValue)
+            else if (data.x > xMaxValue)
             {
-                xMaxValue = xRate;
+                xMaxValue = data.x;
             }
 
-            if (yRate < yMinValue)
+            if (data.y < yMinValue)
             {
-                yMinValue = yRate;
+                yMinValue = data.y;
             }
-            else if (yRate > yMaxValue)
+            else if (data.y > yMaxValue)
             {
-                yMaxValue = yRate;
+                yMaxValue = data.y;
             }
 
-            if (zRate < zMinValue)
+            if (data.z < zMinValue)
             {
-                zMinValue = zRate;
+                zMinValue = data.z;
             }
-            else if (zRate > zMaxValue)
+            else if (data.z > zMaxValue)
             {
-                zMaxValue = zRate;
+                zMaxValue = data.z;
             }
 
             try

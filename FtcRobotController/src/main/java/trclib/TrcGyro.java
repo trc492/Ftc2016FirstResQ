@@ -1,13 +1,11 @@
 package trclib;
 
+import hallib.HalUtil;
+
 public abstract class TrcGyro
 {
-    public abstract double getXRawRate();
-    public abstract double getYRawRate();
-    public abstract double getZRawRate();
-    public abstract double getXRawHeading();
-    public abstract double getYRawHeading();
-    public abstract double getZRawHeading();
+    public abstract TrcAxisData getRawRates();
+    public abstract TrcAxisData getRawHeadings();
 
     private class RawGyroXRate implements TrcFilteredSensor
     {
@@ -29,12 +27,14 @@ public abstract class TrcGyro
 
         public double getRawValue()
         {
-            return sign*getXRawRate();
+            getRateData();
+            return sign*rateData.x;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return sign*filterData(kalman, getXRawRate(), xZeroOffset, xDeadband);
+            getRateData();
+            return sign*filterData(kalman, rateData.x, xZeroOffset, xDeadband);
         }   //getFilteredValue
 
     }   //class RawGyroXRate
@@ -59,12 +59,14 @@ public abstract class TrcGyro
 
         public double getRawValue()
         {
-            return sign*getYRawRate();
+            getRateData();
+            return sign*rateData.y;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return sign*filterData(kalman, getYRawRate(), yZeroOffset, yDeadband);
+            getRateData();
+            return sign*filterData(kalman, rateData.y, yZeroOffset, yDeadband);
         }   //getFilteredValue
 
     }   //class RawGyroYRate
@@ -89,12 +91,14 @@ public abstract class TrcGyro
 
         public double getRawValue()
         {
-            return sign*getZRawRate();
+            getRateData();
+            return sign*rateData.z;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return sign*filterData(kalman, getZRawRate(), zZeroOffset, zDeadband);
+            getRateData();
+            return sign*filterData(kalman, rateData.z, zZeroOffset, zDeadband);
         }   //getFilteredValue
 
     }   //class RawGyroZRate
@@ -114,12 +118,14 @@ public abstract class TrcGyro
     {
         public double getRawValue()
         {
-            return getXRawHeading();
+            getHeadingData();
+            return headingData.x;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return getXRawHeading();
+            getHeadingData();
+            return headingData.x;
         }   //getFilteredValue
 
     }   //class RawGyroXHeading
@@ -128,12 +134,14 @@ public abstract class TrcGyro
     {
         public double getRawValue()
         {
-            return getYRawHeading();
+            getHeadingData();
+            return headingData.y;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return getYRawHeading();
+            getHeadingData();
+            return headingData.y;
         }   //getFilteredValue
 
     }   //class RawGyroYHeading
@@ -142,12 +150,14 @@ public abstract class TrcGyro
     {
         public double getRawValue()
         {
-            return getZRawHeading();
+            getHeadingData();
+            return headingData.z;
         }   //getRawValue
 
         public double getFilteredValue()
         {
-            return getZRawHeading();
+            getHeadingData();
+            return headingData.z;
         }   //getFilteredValue
 
     }   //class RawGyroZHeading
@@ -183,6 +193,11 @@ public abstract class TrcGyro
     private double zZeroOffset = 0.0;
     private double zDeadband = 0.0;
     private boolean calibrating = false;
+    private TrcAxisData rateData = null;
+    private double rateDataTimestamp = 0.0;
+    private TrcAxisData headingData = null;
+    private double headingDataTimestamp = 0.0;
+    private double dataStaleTime = 0.005;
 
     public TrcGyro(String instanceName, int options)
     {
@@ -249,6 +264,56 @@ public abstract class TrcGyro
     {
         return instanceName;
     }   //toString
+
+    public void setDataStaleTime(double dataStaleTime)
+    {
+        final String funcName = "setDataStaleTime";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "staleTime=%f", dataStaleTime);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.dataStaleTime = dataStaleTime;
+    }   //setDataStaleTime
+
+    private void getRateData()
+    {
+        final String funcName = "getRateData";
+        double currTime = HalUtil.getCurrentTime();
+
+        if (currTime - rateDataTimestamp > dataStaleTime)
+        {
+            rateData = getRawRates();
+            rateDataTimestamp = currTime;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
+        }
+    }   //getRateData
+
+    private void getHeadingData()
+    {
+        final String funcName = "getHeadomgData";
+        double currTime = HalUtil.getCurrentTime();
+
+        if (currTime - headingDataTimestamp > dataStaleTime)
+        {
+            headingData = getRawHeadings();
+            headingDataTimestamp = currTime;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
+        }
+    }   //getHeadingData
 
     public void setEnabled(boolean enabled)
     {
@@ -363,52 +428,50 @@ public abstract class TrcGyro
         yDeadband = 0.0;
         zZeroOffset = 0.0;
         zDeadband = 0.0;
-        double xMinValue = getXRawRate();
+        getRateData();
+        double xMinValue = rateData.x;
         double xMaxValue = xMinValue;
         double xSum = 0.0;
-        double yMinValue = getYRawRate();
+        double yMinValue = rateData.y;
         double yMaxValue = yMinValue;
         double ySum = 0.0;
-        double zMinValue = getZRawRate();
+        double zMinValue = rateData.z;
         double zMaxValue = zMinValue;
         double zSum = 0.0;
 
         calibrating = true;
         for (int i = 0; i < NUM_CAL_SAMPLES; i++)
         {
-            double xRate = getXRawRate();
-            double yRate = getYRawRate();
-            double zRate = getZRawRate();
+            getRateData();
+            xSum += rateData.x;
+            ySum += rateData.y;
+            zSum += rateData.z;
 
-            xSum += xRate;
-            ySum += yRate;
-            zSum += zRate;
-
-            if (xRate < xMinValue)
+            if (rateData.x < xMinValue)
             {
-                xMinValue = xRate;
+                xMinValue = rateData.x;
             }
-            else if (xRate > xMaxValue)
+            else if (rateData.x > xMaxValue)
             {
-                xMaxValue = xRate;
+                xMaxValue = rateData.x;
             }
 
-            if (yRate < yMinValue)
+            if (rateData.y < yMinValue)
             {
-                yMinValue = yRate;
+                yMinValue = rateData.y;
             }
-            else if (yRate > yMaxValue)
+            else if (rateData.y > yMaxValue)
             {
-                yMaxValue = yRate;
+                yMaxValue = rateData.y;
             }
 
-            if (zRate < zMinValue)
+            if (rateData.z < zMinValue)
             {
-                zMinValue = zRate;
+                zMinValue = rateData.z;
             }
-            else if (zRate > zMaxValue)
+            else if (rateData.z > zMaxValue)
             {
-                zMaxValue = zRate;
+                zMaxValue = rateData.z;
             }
 
             try

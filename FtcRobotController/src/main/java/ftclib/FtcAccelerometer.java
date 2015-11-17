@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.AccelerationSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import trclib.TrcAccelerometer;
+import trclib.TrcAxisData;
 import trclib.TrcDbgTrace;
 
 public class FtcAccelerometer extends TrcAccelerometer
@@ -51,11 +52,11 @@ public class FtcAccelerometer extends TrcAccelerometer
     //
 
     @Override
-    public Acceleration getRawAcceleration()
+    public TrcAxisData getRawAccelerations()
     {
-        final String funcName = "getRawAcceleration";
+        final String funcName = "getRawAccelerations";
         AccelerationSensor.Acceleration sensorData = accelSensor.getAcceleration();
-        Acceleration accelData = new Acceleration(sensorData.x, sensorData.y, sensorData.z);
+        TrcAxisData accelData = new TrcAxisData(sensorData.x, sensorData.y, sensorData.z);
 
         if (debugEnabled)
         {
@@ -65,6 +66,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         }
 
         return accelData;
-    }   //getRawAcceleration
+    }   //getRawAccelerations
 
 }   //class FtcAccelerometer
