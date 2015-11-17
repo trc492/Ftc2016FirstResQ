@@ -129,7 +129,7 @@ public class FtcMRGyro extends TrcGyro
     {
         final String funcName = "getRawRates";
         TrcSensorAxisData rawRates = new TrcSensorAxisData(
-                0.0, 0.0, gyro.getRotation(), HalUtil.getCurrentTime());
+                gyro.rawX(), gyro.rawY(), gyro.rawZ(), HalUtil.getCurrentTime());
 
         if (debugEnabled)
         {

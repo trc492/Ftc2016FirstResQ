@@ -204,7 +204,8 @@ public abstract class TrcAccelerometer
     {
         final String funcName = "updateAccelerationData";
 
-        if (HalUtil.getCurrentTime() - accelData.timestamp > dataStaleTime)
+        if (accelData == null ||
+            HalUtil.getCurrentTime() - accelData.timestamp > dataStaleTime)
         {
             accelData = getRawAccelerations();
         }

@@ -287,7 +287,8 @@ public abstract class TrcGyro
     {
         final String funcName = "updateRateData";
 
-        if (HalUtil.getCurrentTime() - rateData.timestamp > dataStaleTime)
+        if (rateData == null ||
+            HalUtil.getCurrentTime() - rateData.timestamp > dataStaleTime)
         {
             rateData = getRawRates();
         }
@@ -303,7 +304,8 @@ public abstract class TrcGyro
     {
         final String funcName = "updateHeadingData";
 
-        if (HalUtil.getCurrentTime() - headingData.timestamp > dataStaleTime)
+        if (headingData == null ||
+            HalUtil.getCurrentTime() - headingData.timestamp > dataStaleTime)
         {
             headingData = getRawHeadings();
         }
