@@ -2,6 +2,6 @@ package trclib;
 
 public interface TrcFilteredSensor
 {
-    public double getRawValue();
-    public double getFilteredValue();
+    public TrcSensorData getRawValue();
+    public TrcSensorData getFilteredValue();
 }   //interface TrcFilteredSensor

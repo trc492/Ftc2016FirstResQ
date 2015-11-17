@@ -4,7 +4,7 @@ import hallib.HalUtil;
 
 public abstract class TrcAccelerometer
 {
-    public abstract TrcAxisData getRawAccelerations();
+    public abstract TrcSensorAxisData getRawAccelerations();
 
     private class RawAccelX implements TrcFilteredSensor
     {
@@ -24,16 +24,18 @@ public abstract class TrcAccelerometer
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getAccelerationData();
-            return sign*accelData.x;
+            updateAccelerationData();
+            double value = sign*accelData.x;
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getAccelerationData();
-            return sign*filterData(kalman, accelData.x, xZeroOffset, xDeadband);
+            updateAccelerationData();
+            double value = sign*filterData(kalman, accelData.x, xZeroOffset, xDeadband);
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getFilteredValue
     }   //class RawAccelX
 
@@ -55,16 +57,18 @@ public abstract class TrcAccelerometer
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getAccelerationData();
-            return sign*accelData.y;
+            updateAccelerationData();
+            double value = sign*accelData.y;
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getAccelerationData();
-            return sign*filterData(kalman, accelData.y, yZeroOffset, yDeadband);
+            updateAccelerationData();
+            double value = sign*filterData(kalman, accelData.y, yZeroOffset, yDeadband);
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getFilteredValue
     }   //class RawAccelY
 
@@ -86,16 +90,18 @@ public abstract class TrcAccelerometer
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getAccelerationData();
-            return sign*accelData.z;
+            updateAccelerationData();
+            double value = sign*accelData.z;
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getAccelerationData();
-            return sign*filterData(kalman, accelData.z, zZeroOffset, zDeadband);
+            updateAccelerationData();
+            double value = sign*filterData(kalman, accelData.z, zZeroOffset, zDeadband);
+            return new TrcSensorData(value, accelData.timestamp);
         }   //getFilteredValue
     }   //class RawAccelZ
 
@@ -135,8 +141,7 @@ public abstract class TrcAccelerometer
     private double zZeroOffset = 0.0;
     private double zDeadband = 0.0;
     private boolean calibrating = false;
-    private TrcAxisData accelData = null;
-    private double dataTimestamp = 0.0;
+    private TrcSensorAxisData accelData = null;
     private double dataStaleTime = 0.005;
 
     public TrcAccelerometer(String instanceName, int options)
@@ -195,15 +200,13 @@ public abstract class TrcAccelerometer
         this.dataStaleTime = dataStaleTime;
     }   //setDataStaleTime
 
-    private void getAccelerationData()
+    private void updateAccelerationData()
     {
-        final String funcName = "getAccelerationData";
-        double currTime = HalUtil.getCurrentTime();
+        final String funcName = "updateAccelerationData";
 
-        if (currTime - dataTimestamp > dataStaleTime)
+        if (HalUtil.getCurrentTime() - accelData.timestamp > dataStaleTime)
         {
             accelData = getRawAccelerations();
-            dataTimestamp = currTime;
         }
 
         if (debugEnabled)
@@ -211,7 +214,7 @@ public abstract class TrcAccelerometer
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
-    }   //getAccelerationData
+    }   //updateAccelerationData
 
     public void setEnabled(boolean enabled)
     {
@@ -289,7 +292,7 @@ public abstract class TrcAccelerometer
     public void calibrate()
     {
         final String funcName = "calibrate";
-        TrcAxisData data;
+        TrcSensorAxisData data;
 
         xZeroOffset = 0.0;
         xDeadband = 0.0;
@@ -436,7 +439,7 @@ public abstract class TrcAccelerometer
     public double getXAcceleration()
     {
         final String funcName = "getXAcceleration";
-        double value = rawAccelX.getFilteredValue();
+        double value = rawAccelX.getFilteredValue().data;
 
         if (debugEnabled)
         {
@@ -450,7 +453,7 @@ public abstract class TrcAccelerometer
     public double getYAcceleration()
     {
         final String funcName = "getYAcceleration";
-        double value = rawAccelY.getFilteredValue();
+        double value = rawAccelY.getFilteredValue().data;
 
         if (debugEnabled)
         {
@@ -464,7 +467,7 @@ public abstract class TrcAccelerometer
     public double getZAcceleration()
     {
         final String funcName = "getZAcceleration";
-        double value = rawAccelZ.getFilteredValue();
+        double value = rawAccelZ.getFilteredValue().data;
 
         if (debugEnabled)
         {

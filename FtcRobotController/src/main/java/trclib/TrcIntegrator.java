@@ -110,10 +110,9 @@ public class TrcIntegrator implements TrcTaskMgr.Task
     {
         final String funcName = "sampleData";
 
-        double currTime = HalUtil.getCurrentTime();
-        double deltaTime = currTime - prevTime;
-        double input = filteredSensor.getFilteredValue();
-        intermediateOutput += input*deltaTime;
+        TrcSensorData input = filteredSensor.getFilteredValue();
+        double deltaTime = input.timestamp - prevTime;
+        intermediateOutput += input.data*deltaTime;
         if (doDoubleIntegration)
         {
             output += intermediateOutput*deltaTime;
@@ -128,10 +127,10 @@ public class TrcIntegrator implements TrcTaskMgr.Task
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
                                "! (input=%f,intermediateOutput=%f,output=%f,deltaTime=%f)",
-                               input, intermediateOutput, output, currTime - prevTime);
+                               input, intermediateOutput, output, input.timestamp - prevTime);
         }
 
-        prevTime = currTime;
+        prevTime = input.timestamp;
     }   //sampleData
 
     //

@@ -3,8 +3,9 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.AccelerationSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import hallib.HalUtil;
 import trclib.TrcAccelerometer;
-import trclib.TrcAxisData;
+import trclib.TrcSensorAxisData;
 import trclib.TrcDbgTrace;
 
 public class FtcAccelerometer extends TrcAccelerometer
@@ -52,11 +53,12 @@ public class FtcAccelerometer extends TrcAccelerometer
     //
 
     @Override
-    public TrcAxisData getRawAccelerations()
+    public TrcSensorAxisData getRawAccelerations()
     {
         final String funcName = "getRawAccelerations";
         AccelerationSensor.Acceleration sensorData = accelSensor.getAcceleration();
-        TrcAxisData accelData = new TrcAxisData(sensorData.x, sensorData.y, sensorData.z);
+        TrcSensorAxisData accelData = new TrcSensorAxisData(
+                sensorData.x, sensorData.y, sensorData.z, HalUtil.getCurrentTime());
 
         if (debugEnabled)
         {

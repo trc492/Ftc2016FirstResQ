@@ -66,7 +66,7 @@ public class TrcWrapAroundHandler implements TrcTaskMgr.Task
     {
         final String funcName = "getCumulatedValue";
         double value = (highValue - lowValue)*numRevolutions +
-                       (filteredSensor.getFilteredValue() - lowValue);
+                       (filteredSensor.getFilteredValue().data - lowValue);
 
         if (debugEnabled)
         {
@@ -126,7 +126,7 @@ public class TrcWrapAroundHandler implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
-        double currValue = filteredSensor.getFilteredValue();
+        double currValue = filteredSensor.getFilteredValue().data;
         if (Math.abs(currValue - prevValue) > wrapThreshold)
         {
             if (currValue > prevValue)

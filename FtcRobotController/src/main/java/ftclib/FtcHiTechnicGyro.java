@@ -3,7 +3,8 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcAxisData;
+import hallib.HalUtil;
+import trclib.TrcSensorAxisData;
 import trclib.TrcDbgTrace;
 import trclib.TrcGyro;
 
@@ -48,10 +49,11 @@ public class FtcHiTechnicGyro extends TrcGyro
     //
 
     @Override
-    public TrcAxisData getRawRates()
+    public TrcSensorAxisData getRawRates()
     {
         final String funcName = "getRawRates";
-        TrcAxisData rawRates = new TrcAxisData(0.0, 0.0, gyro.getRotation());
+        TrcSensorAxisData rawRates = new TrcSensorAxisData(
+                0.0, 0.0, gyro.getRotation(), HalUtil.getCurrentTime());
 
         if (debugEnabled)
         {
@@ -64,10 +66,10 @@ public class FtcHiTechnicGyro extends TrcGyro
     }   //getRawRates
 
     @Override
-    public TrcAxisData getRawHeadings()
+    public TrcSensorAxisData getRawHeadings()
     {
         final String funcName = "getRawHeadings";
-        TrcAxisData rawHeadings = new TrcAxisData(0.0, 0.0, 0.0);
+        TrcSensorAxisData rawHeadings = new TrcSensorAxisData(0.0, 0.0, 0.0, 0.0);
 
         if (debugEnabled)
         {

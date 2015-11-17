@@ -4,8 +4,8 @@ import hallib.HalUtil;
 
 public abstract class TrcGyro
 {
-    public abstract TrcAxisData getRawRates();
-    public abstract TrcAxisData getRawHeadings();
+    public abstract TrcSensorAxisData getRawRates();
+    public abstract TrcSensorAxisData getRawHeadings();
 
     private class RawGyroXRate implements TrcFilteredSensor
     {
@@ -25,16 +25,18 @@ public abstract class TrcGyro
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getRateData();
-            return sign*rateData.x;
+            updateRateData();
+            double value = sign*rateData.x;
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getRateData();
-            return sign*filterData(kalman, rateData.x, xZeroOffset, xDeadband);
+            updateRateData();
+            double value = sign*filterData(kalman, rateData.x, xZeroOffset, xDeadband);
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroXRate
@@ -57,16 +59,18 @@ public abstract class TrcGyro
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getRateData();
-            return sign*rateData.y;
+            updateRateData();
+            double value = sign*rateData.y;
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getRateData();
-            return sign*filterData(kalman, rateData.y, yZeroOffset, yDeadband);
+            updateRateData();
+            double value = sign*filterData(kalman, rateData.y, yZeroOffset, yDeadband);
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroYRate
@@ -89,16 +93,18 @@ public abstract class TrcGyro
             sign = inverted? -1.0: 1.0;
         }   //setInverted
 
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getRateData();
-            return sign*rateData.z;
+            updateRateData();
+            double value = sign*rateData.z;
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getRateData();
-            return sign*filterData(kalman, rateData.z, zZeroOffset, zDeadband);
+            updateRateData();
+            double value = sign*filterData(kalman, rateData.z, zZeroOffset, zDeadband);
+            return new TrcSensorData(value, rateData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroZRate
@@ -116,48 +122,48 @@ public abstract class TrcGyro
 
     private class RawGyroXHeading implements TrcFilteredSensor
     {
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getHeadingData();
-            return headingData.x;
+            updateHeadingData();
+            return new TrcSensorData(headingData.x, headingData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getHeadingData();
-            return headingData.x;
+            updateHeadingData();
+            return new TrcSensorData(headingData.x, headingData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroXHeading
 
     private class RawGyroYHeading implements TrcFilteredSensor
     {
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getHeadingData();
-            return headingData.y;
+            updateHeadingData();
+            return new TrcSensorData(headingData.y, headingData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getHeadingData();
-            return headingData.y;
+            updateHeadingData();
+            return new TrcSensorData(headingData.y, headingData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroYHeading
 
     private class RawGyroZHeading implements TrcFilteredSensor
     {
-        public double getRawValue()
+        public TrcSensorData getRawValue()
         {
-            getHeadingData();
-            return headingData.z;
+            updateHeadingData();
+            return new TrcSensorData(headingData.z, headingData.timestamp);
         }   //getRawValue
 
-        public double getFilteredValue()
+        public TrcSensorData getFilteredValue()
         {
-            getHeadingData();
-            return headingData.z;
+            updateHeadingData();
+            return new TrcSensorData(headingData.z, headingData.timestamp);
         }   //getFilteredValue
 
     }   //class RawGyroZHeading
@@ -193,10 +199,8 @@ public abstract class TrcGyro
     private double zZeroOffset = 0.0;
     private double zDeadband = 0.0;
     private boolean calibrating = false;
-    private TrcAxisData rateData = null;
-    private double rateDataTimestamp = 0.0;
-    private TrcAxisData headingData = null;
-    private double headingDataTimestamp = 0.0;
+    private TrcSensorAxisData rateData = null;
+    private TrcSensorAxisData headingData = null;
     private double dataStaleTime = 0.005;
 
     public TrcGyro(String instanceName, int options)
@@ -279,15 +283,13 @@ public abstract class TrcGyro
         this.dataStaleTime = dataStaleTime;
     }   //setDataStaleTime
 
-    private void getRateData()
+    private void updateRateData()
     {
-        final String funcName = "getRateData";
-        double currTime = HalUtil.getCurrentTime();
+        final String funcName = "updateRateData";
 
-        if (currTime - rateDataTimestamp > dataStaleTime)
+        if (HalUtil.getCurrentTime() - rateData.timestamp > dataStaleTime)
         {
             rateData = getRawRates();
-            rateDataTimestamp = currTime;
         }
 
         if (debugEnabled)
@@ -295,17 +297,15 @@ public abstract class TrcGyro
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
-    }   //getRateData
+    }   //updateRateData
 
-    private void getHeadingData()
+    private void updateHeadingData()
     {
-        final String funcName = "getHeadomgData";
-        double currTime = HalUtil.getCurrentTime();
+        final String funcName = "updateHeadingData";
 
-        if (currTime - headingDataTimestamp > dataStaleTime)
+        if (HalUtil.getCurrentTime() - headingData.timestamp > dataStaleTime)
         {
             headingData = getRawHeadings();
-            headingDataTimestamp = currTime;
         }
 
         if (debugEnabled)
@@ -313,7 +313,7 @@ public abstract class TrcGyro
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
-    }   //getHeadingData
+    }   //updateHeadingData
 
     public void setEnabled(boolean enabled)
     {
@@ -428,7 +428,7 @@ public abstract class TrcGyro
         yDeadband = 0.0;
         zZeroOffset = 0.0;
         zDeadband = 0.0;
-        getRateData();
+        rateData = getRawRates();
         double xMinValue = rateData.x;
         double xMaxValue = xMinValue;
         double xSum = 0.0;
@@ -438,40 +438,41 @@ public abstract class TrcGyro
         double zMinValue = rateData.z;
         double zMaxValue = zMinValue;
         double zSum = 0.0;
+        TrcSensorAxisData data;
 
         calibrating = true;
         for (int i = 0; i < NUM_CAL_SAMPLES; i++)
         {
-            getRateData();
-            xSum += rateData.x;
-            ySum += rateData.y;
-            zSum += rateData.z;
+            data = getRawRates();
+            xSum += data.x;
+            ySum += data.y;
+            zSum += data.z;
 
-            if (rateData.x < xMinValue)
+            if (data.x < xMinValue)
             {
-                xMinValue = rateData.x;
+                xMinValue = data.x;
             }
-            else if (rateData.x > xMaxValue)
+            else if (data.x > xMaxValue)
             {
-                xMaxValue = rateData.x;
-            }
-
-            if (rateData.y < yMinValue)
-            {
-                yMinValue = rateData.y;
-            }
-            else if (rateData.y > yMaxValue)
-            {
-                yMaxValue = rateData.y;
+                xMaxValue = data.x;
             }
 
-            if (rateData.z < zMinValue)
+            if (data.y < yMinValue)
             {
-                zMinValue = rateData.z;
+                yMinValue = data.y;
             }
-            else if (rateData.z > zMaxValue)
+            else if (data.y > yMaxValue)
             {
-                zMaxValue = rateData.z;
+                yMaxValue = data.y;
+            }
+
+            if (data.z < zMinValue)
+            {
+                zMinValue = data.z;
+            }
+            else if (data.z > zMaxValue)
+            {
+                zMaxValue = data.z;
             }
 
             try
@@ -567,7 +568,7 @@ public abstract class TrcGyro
     public double getXRotation()
     {
         final String funcName = "getXRotation";
-        double value = rawGyroXRate.getFilteredValue();
+        double value = rawGyroXRate.getFilteredValue().data;
 
         if (debugEnabled)
         {
@@ -581,7 +582,7 @@ public abstract class TrcGyro
     public double getYRotation()
     {
         final String funcName = "getYRotation";
-        double value = rawGyroYRate.getFilteredValue();
+        double value = rawGyroYRate.getFilteredValue().data;
 
         if (debugEnabled)
         {
@@ -595,7 +596,7 @@ public abstract class TrcGyro
     public double getZRotation()
     {
         final String funcName = "getZRotation";
-        double value = rawGyroZRate.getFilteredValue();
+        double value = rawGyroZRate.getFilteredValue().data;
 
         if (debugEnabled)
         {
