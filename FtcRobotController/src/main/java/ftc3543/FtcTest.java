@@ -375,7 +375,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     robot.pidCtrlLineFollow.setInverted(true);
-                    robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;

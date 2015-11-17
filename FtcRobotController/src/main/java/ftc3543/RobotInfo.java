@@ -21,7 +21,7 @@ public class RobotInfo
     public static final double TURN_SETTLING                    = 0.2;
 
     public static final double LINE_THRESHOLD                   = ((18.0 + 100.0)/2.0);
-    public static final double LINEFOLLOW_KP                    = 0.05;
+    public static final double LINEFOLLOW_KP                    = 0.02;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;
     public static final double LINEFOLLOW_KF                    = 0.0;
