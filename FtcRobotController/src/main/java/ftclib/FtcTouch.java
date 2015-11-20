@@ -6,18 +6,18 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import trclib.TrcDigitalInput;
 import trclib.TrcDbgTrace;
 
-public class FtcTouch implements TrcDigitalInput
+public class FtcTouch extends TrcDigitalInput
 {
     private static final String moduleName = "FtcTouch";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private HardwareMap hardwareMap;
-    private String instanceName;
     private TouchSensor touchSensor;
 
     public FtcTouch(HardwareMap hardwareMap, String instanceName)
     {
+        super(instanceName);
+
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(
@@ -27,8 +27,6 @@ public class FtcTouch implements TrcDigitalInput
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.hardwareMap = hardwareMap;
-        this.instanceName = instanceName;
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
     }   //FtcTouch
 
@@ -37,13 +35,8 @@ public class FtcTouch implements TrcDigitalInput
         this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcTouch
 
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
-
     //
-    // Implements TrcDigitalInput.
+    // Implements TrcDigitalInput abstract methods.
     //
 
     @Override

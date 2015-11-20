@@ -29,10 +29,14 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
     private static final int TEST_TURN_DEGREES      = 3;
     private static final int TEST_LINE_FOLLOWING    = 4;
 
+    private static final int ALLIANCE_RED           = 0;
+    private static final int ALLIANCE_BLUE          = 1;
+
     private int testChoice = TEST_SENSORS;
     private double driveTime = 0.0;
     private double driveDistance = 0.0;
     private double turnDegrees = 0.0;
+    private int alliance = ALLIANCE_RED;
 
     //
     // Implements FtcOpMode abstract methods.
@@ -97,7 +101,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                 break;
 
             case TEST_LINE_FOLLOWING:
-                doLineFollowing();
+                doLineFollowing(alliance);
                 break;
         }
     }   //runPeriodic
@@ -141,12 +145,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         FtcMenu driveTimeMenu = new FtcMenu(testMenu, "Drive time:", this);
         FtcMenu driveDistanceMenu = new FtcMenu(testMenu, "Drive distance:", this);
         FtcMenu turnDegreesMenu = new FtcMenu(testMenu, "Turn degrees:", this);
+        FtcMenu allianceMenu = new FtcMenu(testMenu, "Alliance:", this);
 
         testMenu.addChoice("Test sensors", TEST_SENSORS);
         testMenu.addChoice("Timed Drive", TEST_DRIVE_TIME, driveTimeMenu);
         testMenu.addChoice("Drive x ft", TEST_DRIVE_DISTANCE, driveDistanceMenu);
         testMenu.addChoice("Turn x deg", TEST_TURN_DEGREES, turnDegreesMenu);
-        testMenu.addChoice("Line following", TEST_LINE_FOLLOWING);
+        testMenu.addChoice("Line following", TEST_LINE_FOLLOWING, allianceMenu);
 
         driveTimeMenu.addChoice("1 sec", 1.0);
         driveTimeMenu.addChoice("2 sec", 2.0);
@@ -165,12 +170,16 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         turnDegreesMenu.addChoice("180 degrees", 180.0);
         turnDegreesMenu.addChoice("360 degrees", 360.0);
 
+        allianceMenu.addChoice("Red", ALLIANCE_RED);
+        allianceMenu.addChoice("Blue", ALLIANCE_BLUE);
+
         FtcMenu.walkMenuTree(testMenu);
 
         testChoice = (int)testMenu.getSelectedChoiceValue();
         driveTime = driveTimeMenu.getSelectedChoiceValue();
         driveDistance = driveDistanceMenu.getSelectedChoiceValue();
         turnDegrees = turnDegreesMenu.getSelectedChoiceValue();
+        alliance = (int)allianceMenu.getSelectedChoiceValue();
 
         dashboard.displayPrintf(0, "Test: %s", testMenu.getSelectedChoiceText());
         dashboard.displayPrintf(1, "Drive Time: %.1f", driveTime);
@@ -349,7 +358,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         }
     }   //doTurnDegrees
 
-    private void doLineFollowing()
+    private void doLineFollowing(int alliance)
     {
         dashboard.displayPrintf(1, "Line following");
 
@@ -374,8 +383,16 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
-                    robot.pidCtrlLineFollow.setInverted(true);
-                    robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                    if (alliance == ALLIANCE_RED)
+                    {
+                        robot.pidCtrlLineFollow.setInverted(true);
+                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                    }
+                    else
+                    {
+                        robot.pidCtrlLineFollow.setInverted(false);
+                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                    }
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
