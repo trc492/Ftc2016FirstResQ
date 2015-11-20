@@ -320,7 +320,6 @@ public abstract class TrcGyro
     public void setEnabled(boolean enabled)
     {
         final String funcName = "setEnabled";
-        boolean needCalibration = false;
 
         if (debugEnabled)
         {
@@ -329,22 +328,31 @@ public abstract class TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
+        calibrate();
+        while (isCalibrating())
+        {
+            try
+            {
+                Thread.sleep(50);
+            }
+            catch (InterruptedException e)
+            {
+            }
+        }
+
         if (xIntegrator != null)
         {
             xIntegrator.setEnabled(enabled);
-            needCalibration = true;
         }
 
         if (yIntegrator != null)
         {
             yIntegrator.setEnabled(enabled);
-            needCalibration = true;
         }
 
         if (zIntegrator != null)
         {
             zIntegrator.setEnabled(enabled);
-            needCalibration = true;
         }
 
         if (xWrapAroundHandler != null)
@@ -360,21 +368,6 @@ public abstract class TrcGyro
         if (zWrapAroundHandler != null)
         {
             zWrapAroundHandler.setEnabled(enabled);
-        }
-
-        if (needCalibration)
-        {
-            calibrate();
-            while (isCalibrating())
-            {
-                try
-                {
-                    Thread.sleep(50);
-                }
-                catch (InterruptedException e)
-                {
-                }
-            }
         }
     }   //setEnabled
 

@@ -12,7 +12,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     private FtcRobot robot;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
-    private TrcBooleanState climbMode;
     private TrcBooleanState hookDeployed;
     private TrcBooleanState cattleGuardDeployed;
 
@@ -35,10 +34,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
-        //
-        // TreadDrive subsystem.
-        //
-        climbMode = new TrcBooleanState("climbMode", false);
         //
         // HangingHook subsystem.
         //
@@ -89,15 +84,11 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                                 robot.elevator.isUpperLimitSwitchPressed()? "pressed": "released");
         robot.elevator.displayDebugInfo(5);
         //
-        // TreadDrive subsystem.
+        // TrackHook subsystem.
         //
-        double treadPower = 0.0;
-        if (climbMode.getState())
-        {
-            treadPower = (leftPower + rightPower)/2.0;
-        }
-        robot.treadDrive.setPower(treadPower);
-        dashboard.displayPrintf(7, "treadPower = %.3f", treadPower);
+        double trackHookPower = operatorGamepad.getLeftStickY(true);
+        robot.trackHook.setPower(trackHookPower);
+        dashboard.displayPrintf(7, "trackHookPower = %.3f", trackHookPower);
     }   //runPeriodic
 
     @Override
@@ -122,13 +113,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
-                    break;
-
-                case FtcGamepad.GAMEPAD_X:
-                    if (pressed)
-                    {
-                        climbMode.toggleState();
-                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:

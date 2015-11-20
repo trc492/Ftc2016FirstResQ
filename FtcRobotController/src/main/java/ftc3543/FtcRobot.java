@@ -48,9 +48,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     public TrcPidController pidCtrlLineFollow;
     public TrcPidDrive pidLineFollow;
     //
-    // TreadDrive subsystem.
+    // TrackHook subsystem.
     //
-    public TreadDrive treadDrive;
+    public TrackHook trackHook;
     //
     // Elevator subsystem.
     //
@@ -133,9 +133,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         pidLineFollow = new TrcPidDrive(
                 "lineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
         //
-        // TreadDrive subsystem.
+        // TrackHook subsystem.
         //
-        treadDrive = new TreadDrive();
+        trackHook = new TrackHook();
         //
         // Elevator subsystem.
         //

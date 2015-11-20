@@ -87,7 +87,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     // to climb up the mountain
                     //
                     robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
-                    robot.treadDrive.setPower(1.0);
+//                    robot.trackHook.setPower(1.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -96,7 +96,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     //
                     // We are done, stop the tread drive.
                     //
-                    robot.treadDrive.setPower(0.0);
+                    robot.trackHook.setPower(0.0);
                     sm.stop();
                     break;
             }
