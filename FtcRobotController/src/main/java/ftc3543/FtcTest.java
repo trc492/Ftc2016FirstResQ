@@ -9,11 +9,13 @@ import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
+public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
+                                                  FtcGamepad.ButtonHandler
 {
     private HalDashboard dashboard;
     private FtcRobot robot;
     private FtcGamepad driverGamepad;
+    private FtcGamepad operatorGamepad;
     //
     // Miscellaneous.
     //
@@ -53,8 +55,10 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         //
         // Initialize input subsystems.
         //
-        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, null);
+        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, this);
         driverGamepad.setYInverted(true);
+        operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
+        operatorGamepad.setYInverted(true);
         //
         // Miscellaneous.
         //
@@ -71,6 +75,8 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
     @Override
     public void startMode()
     {
+        driverGamepad.setGamepad(gamepad1);
+        operatorGamepad.setGamepad(gamepad2);
         dashboard.clearDisplay();
     }   //startMode
 
@@ -194,9 +200,17 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         // Drive the robot around to sample different locations of the field.
         //
         dashboard.displayPrintf(1, "Testing sensors:");
+
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         robot.driveBase.tankDrive(leftPower, rightPower);
+
+        double elevatorPower = operatorGamepad.getRightStickY(true);
+        robot.elevator.setPower(elevatorPower);
+
+        double slidePower = operatorGamepad.getLeftStickY(true);
+        robot.slideHook.setPower(slidePower);
+
         dashboard.displayPrintf(2, "leftPower = %.2f, rightPower = %.2f", leftPower, rightPower);
         dashboard.displayPrintf(3, "lfEnc=%.1f, rfEnc=%.1f, lrEnc=%.1f, rrEnc=%.1f",
                                 robot.leftFrontWheel.getPosition(),
@@ -226,9 +240,12 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
         dashboard.displayPrintf(9, "Touch = %s",
                                 robot.touchSensor.isActive()? "pressed": "released");
         dashboard.displayPrintf(10, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
-        dashboard.displayPrintf(11, "lowerLimit=%d, upperLimit=%d",
+        dashboard.displayPrintf(11, "ElevatorLimit: lower=%d, upperLimit=%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
+        dashboard.displayPrintf(12, "SlideLimit: lower=%d, upperLimit=%d",
+                                robot.slideHook.isLowerLimitSwitchPressed()? 1: 0,
+                                robot.slideHook.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors
 
     private void doDriveTime(double time)
@@ -421,5 +438,133 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons
             }
         }
     }   //doLineFollowing
+
+    //
+    // Implements FtcGamepad.ButtonHandler interface.
+    //
+
+    @Override
+    public void gamepadButtonEvent(FtcGamepad gamepad, final int btnMask, final boolean pressed)
+    {
+        dashboard.displayPrintf(15, "%s: %04x->%s",
+                                gamepad.toString(), btnMask, pressed? "Pressed": "Released");
+        if (gamepad == driverGamepad)
+        {
+            switch (btnMask)
+            {
+                case FtcGamepad.GAMEPAD_A:
+                    break;
+
+                case FtcGamepad.GAMEPAD_B:
+                    break;
+
+                case FtcGamepad.GAMEPAD_Y:
+                    break;
+
+                case FtcGamepad.GAMEPAD_LBUMPER:
+                    break;
+
+                case FtcGamepad.GAMEPAD_RBUMPER:
+                    break;
+            }
+        }
+        else if (gamepad == operatorGamepad)
+        {
+            switch (btnMask)
+            {
+                case FtcGamepad.GAMEPAD_A:
+                    break;
+
+                case FtcGamepad.GAMEPAD_B:
+                    if (pressed)
+                    {
+                        robot.buttonPusher.pushRightButton();
+                    }
+                    else
+                    {
+                        robot.buttonPusher.retract();
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_X:
+                    if (pressed)
+                    {
+                        robot.buttonPusher.pushLeftButton();
+                    }
+                    else
+                    {
+                        robot.buttonPusher.retract();
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_Y:
+                    break;
+
+                case FtcGamepad.GAMEPAD_LBUMPER:
+                    if (pressed)
+                    {
+                        robot.leftWing.setPosition(RobotInfo.WING_LEFT_EXTEND_POSITION);
+                    }
+                    else
+                    {
+                        robot.leftWing.setPosition(RobotInfo.WING_LEFT_RETRACT_POSITION);
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_RBUMPER:
+                    if (pressed)
+                    {
+                        robot.rightWing.setPosition(RobotInfo.WING_RIGHT_EXTEND_POSITION);
+                    }
+                    else
+                    {
+                        robot.rightWing.setPosition(RobotInfo.WING_RIGHT_RETRACT_POSITION);
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_START:
+                    if (pressed)
+                    {
+                        robot.elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_BACK:
+                    if (pressed)
+                    {
+                        robot.slideHook.zeroCalibrate(RobotInfo.SLIDEHOOK_CAL_POWER);
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_DPAD_UP:
+                    if (pressed)
+                    {
+                        robot.hangingHook.extend();
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_DPAD_DOWN:
+                    if (pressed)
+                    {
+                        robot.hangingHook.retract();
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_DPAD_LEFT:
+                    if (pressed)
+                    {
+                        robot.elevator.setChainLock(false);
+                    }
+                    break;
+
+                case FtcGamepad.GAMEPAD_DPAD_RIGHT:
+                    if (pressed)
+                    {
+                        robot.elevator.setChainLock(true);
+                    }
+                    break;
+            }
+        }
+    }   //gamepadButtonEvent
 
 }   //class FtcTest

@@ -60,47 +60,56 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     //
-                    // Drive forward until we reach the line.
+                    // Go forward fast.
                     //
-                    robot.lineTrigger.setEnabled(true);
-                    robot.pidDrive.setTarget(120.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(60.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 2:
                     //
-                    // Turn slowly to find the edge of the line.
+                    // Drive forward slowly until we reach the line.
                     //
-                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
-                    if (alliance == autoMode.ALLIANCE_RED)
-                    {
-                        robot.pidDrive.setTarget(0.0, -60.0, false, event, 0.0);
-                    }
-                    else
-                    {
-                        robot.pidDrive.setTarget(0.0, 60.0, false, event, 0.0);
-                    }
+                    robot.lineTrigger.setEnabled(true);
+                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 3:
                     //
-                    // Follow the line until the touch sensor is hit.
+                    // Turn slowly to find the edge of the line.
                     //
-                    robot.lineTrigger.setEnabled(false);
-                    robot.touchTrigger.setEnabled(true);
-                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlLineFollow.setOutputRange(-0.3, 0.3);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
-                    robot.pidLineFollow.setTarget(
-                            30.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
+                    if (alliance == autoMode.ALLIANCE_RED)
+                    {
+                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                    }
+                    else
+                    {
+                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                    }
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 4:
+                    //
+                    // Follow the line until the touch sensor is hit.
+                    //
+                    robot.lineTrigger.setEnabled(false);
+                    robot.touchTrigger.setEnabled(true);
+                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
+                    robot.pidLineFollow.setTarget(
+                            24.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 5:
                     //
                     // Determine which button to press and press it.
                     // Simultaneously dump the climbers into the bin and
@@ -108,6 +117,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.touchTrigger.setEnabled(false);
                     robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);;
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);;
                     int redValue = robot.colorSensor.red();
                     int blueValue = robot.colorSensor.blue();
@@ -116,19 +126,19 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     boolean isBlue = blueValue > 0 && redValue == 0 && greenValue == 0;
                     if (alliance == autoMode.ALLIANCE_RED && isRed)
                     {
-                        robot.buttonPusher.pushLeftButton();
+                        robot.buttonPusher.pushRightButton();
                     }
                     else if (alliance == autoMode.ALLIANCE_BLUE && isBlue)
                     {
-                        robot.buttonPusher.pushRightButton();
+                        robot.buttonPusher.pushLeftButton();
                     }
                     robot.hangingHook.extend();
-                    timer.set(2.0, event);
+                    timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 5:
+                case TrcStateMachine.STATE_STARTED + 6:
                     //
                     // Release the button pusher and retract the hanging hook.
                     //
@@ -175,7 +185,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 6:
+                case TrcStateMachine.STATE_STARTED + 7:
                     //
                     // Go into the floor goal.
                     //
@@ -188,6 +198,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // We are done.
                     //
+                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

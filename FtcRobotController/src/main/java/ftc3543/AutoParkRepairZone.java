@@ -58,34 +58,51 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 1:
                     //
-                    // Move forward towards the repair zone.
+                    // Go forward fast.
                     //
-                    robot.pidDrive.setTarget(100.0, 0.0, false, event, 10.0);
+                    robot.pidDrive.setTarget(60.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 2:
                     //
-                    // Turn to face the repair zone.
+                    // Drive forward slowly until we reach the line.
                     //
-                    if (alliance == autoMode.ALLIANCE_RED)
-                    {
-                        robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
-                    }
-                    else
-                    {
-                        robot.pidDrive.setTarget(0.0, 45.0, false, event, 0.0);
-                    }
+                    robot.lineTrigger.setEnabled(true);
+                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 3:
                     //
-                    // Turn to face the repair zone.
+                    // Turn slowly to find the edge of the line.
                     //
-                    robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
+                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
+                    if (alliance == autoMode.ALLIANCE_RED)
+                    {
+                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                    }
+                    else
+                    {
+                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                    }
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
+                case TrcStateMachine.STATE_STARTED + 4:
+                    //
+                    // Follow the line until the touch sensor is hit.
+                    //
+                    robot.lineTrigger.setEnabled(false);
+                    robot.touchTrigger.setEnabled(true);
+                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
+                    robot.pidLineFollow.setTarget(
+                            12.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -94,6 +111,9 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     //
                     // We are done.
                     //
+                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

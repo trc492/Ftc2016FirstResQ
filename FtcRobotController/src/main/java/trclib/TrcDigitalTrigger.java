@@ -6,22 +6,22 @@ public class TrcDigitalTrigger implements TrcTaskMgr.Task
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    public interface DigitalTriggerHandler
+    public interface TriggerHandler
     {
         public void DigitalTriggerEvent(
                 TrcDigitalTrigger digitalTrigger,
                 boolean active);
-    }   //interface DigitalTriggerHandler
+    }   //interface TriggerHandler
 
     private String instanceName;
     private TrcDigitalInput digitalInput;
-    private DigitalTriggerHandler eventHandler;
+    private TriggerHandler eventHandler;
     private boolean prevState = false;
 
     public TrcDigitalTrigger(
             final String instanceName,
             TrcDigitalInput digitalInput,
-            DigitalTriggerHandler eventHandler)
+            TriggerHandler eventHandler)
     {
         if (debugEnabled)
         {

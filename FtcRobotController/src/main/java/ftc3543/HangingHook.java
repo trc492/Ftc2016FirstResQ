@@ -13,6 +13,7 @@ public class HangingHook
     public HangingHook()
     {
         hookServo = new FtcServo("hangingHook");
+        hookServo.setReverse(true);
     }   //HangingHook
 
     public void extend()

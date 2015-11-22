@@ -60,7 +60,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     //
                     // Move forward towards the floor goal.
                     //
-                    robot.pidDrive.setTarget(70.0, 0.0, false, event, 10.0);
+                    robot.pidDrive.setTarget(60.0, 0.0, false, event, 10.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -71,11 +71,11 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     //
                     if (alliance == autoMode.ALLIANCE_RED)
                     {
-                        robot.pidDrive.setTarget(0.0, -45.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, -60.0, false, event, 0.0);
                     }
                     else
                     {
-                        robot.pidDrive.setTarget(0.0, 45.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, 60.0, false, event, 0.0);
                     }
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
@@ -83,9 +83,9 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
                 case TrcStateMachine.STATE_STARTED + 3:
                     //
-                    // Move forward into the floor goal.
+                    // Go into the floor goal.
                     //
-                    robot.pidDrive.setTarget(48.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;

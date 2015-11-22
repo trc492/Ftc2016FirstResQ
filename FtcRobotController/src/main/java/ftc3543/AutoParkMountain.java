@@ -96,7 +96,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     //
                     // We are done, stop the tread drive.
                     //
-                    robot.trackHook.setPower(0.0);
+                    robot.slideHook.setPower(0.0);
                     sm.stop();
                     break;
             }

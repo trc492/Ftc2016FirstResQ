@@ -19,8 +19,8 @@ import trclib.TrcPidDrive;
 import trclib.TrcRobot;
 
 public class FtcRobot implements TrcPidController.PidInput,
-                                 TrcAnalogTrigger.AnalogTriggerHandler,
-                                 TrcDigitalTrigger.DigitalTriggerHandler
+                                 TrcAnalogTrigger.TriggerHandler,
+                                 TrcDigitalTrigger.TriggerHandler
 {
     //
     // Sensors.
@@ -48,9 +48,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     public TrcPidController pidCtrlLineFollow;
     public TrcPidDrive pidLineFollow;
     //
-    // TrackHook subsystem.
+    // SlideHook subsystem.
     //
-    public TrackHook trackHook;
+    public SlideHook slideHook;
     //
     // Elevator subsystem.
     //
@@ -133,9 +133,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         pidLineFollow = new TrcPidDrive(
                 "lineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
         //
-        // TrackHook subsystem.
+        // SlideHook subsystem.
         //
-        trackHook = new TrackHook();
+        slideHook = new SlideHook();
         //
         // Elevator subsystem.
         //
@@ -191,7 +191,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     }   //getInput
 
     //
-    // Implements TrcAnalogTrigger.AnalogTriggerHandler
+    // Implements TrcAnalogTrigger.TriggerHandler
     //
     public void AnalogTriggerEvent(
             TrcAnalogTrigger analogTrigger,
@@ -207,7 +207,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     }   //AnalogTriggerEvent
 
     //
-    // Implements TrcDigitalTrigger.DigitalTriggerHandler
+    // Implements TrcDigitalTrigger.TriggerHandler
     //
     public void DigitalTriggerEvent(TrcDigitalTrigger digitalTrigger, boolean active)
     {

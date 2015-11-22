@@ -1,50 +1,42 @@
 package ftc3543;
 
 import ftclib.FtcDcMotor;
-import ftclib.FtcServo;
 import ftclib.FtcTouch;
 import trclib.TrcDigitalTrigger;
-import trclib.TrcMotorController;
 import trclib.TrcEvent;
+import trclib.TrcMotorController;
 import trclib.TrcMotorLimitSwitches;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
 
-public class Elevator implements TrcPidController.PidInput,
-                                 TrcMotorLimitSwitches,
-                                 TrcDigitalTrigger.TriggerHandler
+public class SlideHook implements TrcPidController.PidInput,
+                                  TrcMotorLimitSwitches,
+                                  TrcDigitalTrigger.TriggerHandler
 {
-    //
-    // This component consists of an elevator motor, a lower limit switch,
-    // an upper limit switch, an encoder to keep track of the position of
-    // the elevator and a servo to engage/disengage the chain lock.
-    //
     private FtcDcMotor motor;
     private TrcPidController pidController;
     private TrcPidMotor pidMotor;
     private FtcTouch lowerLimitSwitch;
     private FtcTouch upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
-    private FtcServo chainLock;
 
-    public Elevator()
+    public SlideHook()
     {
-        motor = new FtcDcMotor("elevator", this);
+        motor = new FtcDcMotor("slideHook", this);
+        motor.setInverted(true);
         pidController = new TrcPidController(
-                "elevator",
-                RobotInfo.ELEVATOR_KP, RobotInfo.ELEVATOR_KI,
-                RobotInfo.ELEVATOR_KD, RobotInfo.ELEVATOR_KF,
-                RobotInfo.ELEVATOR_TOLERANCE,RobotInfo.ELEVATOR_SETTLING,
+                "slideHook",
+                RobotInfo.SLIDEHOOK_KP, RobotInfo.SLIDEHOOK_KI,
+                RobotInfo.SLIDEHOOK_KD, RobotInfo.SLIDEHOOK_KF,
+                RobotInfo.SLIDEHOOK_TOLERANCE,RobotInfo.SLIDEHOOK_SETTLING,
                 this);
         pidController.setAbsoluteSetPoint(true);
-        pidMotor = new TrcPidMotor("elevator", motor, pidController);
-        pidMotor.setPositionScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
-        lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
-        upperLimitSwitch = new FtcTouch("upperLimitSwitch");
-        lowerLimitTrigger = new TrcDigitalTrigger("elevatorLowerLimit", lowerLimitSwitch, this);
+        pidMotor = new TrcPidMotor("slideHook", motor, pidController);
+        pidMotor.setPositionScale(RobotInfo.SLIDEHOOK_INCHES_PER_CLICK);
+        lowerLimitSwitch = new FtcTouch("slideLowerLimit");
+        upperLimitSwitch = new FtcTouch("slideUpperLimit");
+        lowerLimitTrigger = new TrcDigitalTrigger("slideLowerTrigger", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
-        chainLock = new FtcServo("chainLock");
-        setChainLock(false);
     }
 
     public void zeroCalibrate(double calPower)
@@ -52,28 +44,22 @@ public class Elevator implements TrcPidController.PidInput,
         pidMotor.zeroCalibrate(calPower);
     }
 
-    public void setChainLock(boolean locked)
-    {
-        chainLock.setPosition(
-                locked? RobotInfo.CHAINLOCK_LOCK_POSITION: RobotInfo.CHAINLOCK_UNLOCK_POSITION);
-    }
-
     public void setPower(double power)
     {
         pidMotor.setPower(power);
     }
 
-    public void setHeight(double height)
+    public void setLength(double length)
     {
-        pidMotor.setTarget(height, true);
+        pidMotor.setTarget(length, true);
     }
 
-    public void setHeight(double height, TrcEvent event, double timeout)
+    public void setLength(double length, TrcEvent event, double timeout)
     {
-        pidMotor.setTarget(height, event, timeout);
+        pidMotor.setTarget(length, event, timeout);
     }
 
-    public double getHeight()
+    public double getLength()
     {
         return pidMotor.getPosition();
     }
@@ -102,7 +88,7 @@ public class Elevator implements TrcPidController.PidInput,
 
         if (pidCtrl == pidController)
         {
-            value = getHeight();
+            value = getLength();
         }
 
         return value;
@@ -134,4 +120,4 @@ public class Elevator implements TrcPidController.PidInput,
         }
     }   //DigitalTriggerEvent
 
-}   //class Elevator
+}   //class SlideHook
