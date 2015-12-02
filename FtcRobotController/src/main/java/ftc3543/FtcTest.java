@@ -86,28 +86,28 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     //
 
     @Override
-    public boolean isMenuUp()
+    public boolean isMenuUpButton()
     {
         return gamepad1.dpad_up;
-    }   //isMenuUp
+    }   //isMenuUpButton
 
     @Override
-    public boolean isMenuDown()
+    public boolean isMenuDownButton()
     {
         return gamepad1.dpad_down;
-    }   //isMenuDown
+    }   //isMenuDownButton
 
     @Override
-    public boolean isMenuEnter()
+    public boolean isMenuEnterButton()
     {
         return gamepad1.a;
-    }   //isMenuEnter
+    }   //isMenuEnterButton
 
     @Override
-    public boolean isMenuBack()
+    public boolean isMenuBackButton()
     {
         return gamepad1.dpad_left;
-    }   //isMenuBack
+    }   //isMenuBackButton
 
     private void doMenus()
     {
