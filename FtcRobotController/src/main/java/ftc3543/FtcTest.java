@@ -1,21 +1,12 @@
 package ftc3543;
 
-import ftclib.FtcGamepad;
 import ftclib.FtcMenu;
-import ftclib.FtcOpMode;
-import hallib.HalDashboard;
 import trclib.TrcEvent;
-import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
-                                                  FtcGamepad.ButtonHandler
+public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 {
-    private HalDashboard dashboard;
-    private FtcRobot robot;
-    private FtcGamepad driverGamepad;
-    private FtcGamepad operatorGamepad;
     //
     // Miscellaneous.
     //
@@ -47,18 +38,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
     @Override
     public void robotInit()
     {
-        //
-        // Initializing global objects.
-        //
-        dashboard = HalDashboard.getInstance();
-        robot = new FtcRobot(TrcRobot.RunMode.TEST_MODE);
-        //
-        // Initialize input subsystems.
-        //
-        driverGamepad = new FtcGamepad("DriverGamepad", gamepad1, this);
-        driverGamepad.setYInverted(true);
-        operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
-        operatorGamepad.setYInverted(true);
+        super.robotInit();
         //
         // Miscellaneous.
         //
@@ -73,21 +53,10 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
     }   //robotInit
 
     @Override
-    public void startMode()
-    {
-        driverGamepad.setGamepad(gamepad1);
-        operatorGamepad.setGamepad(gamepad2);
-        dashboard.clearDisplay();
-    }   //startMode
-
-    @Override
-    public void stopMode()
-    {
-    }   //stopMode
-
-    @Override
     public void runPeriodic()
     {
+        super.runPeriodic();
+
         switch (testChoice)
         {
             case TEST_SENSORS:
@@ -111,11 +80,6 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
                 break;
         }
     }   //runPeriodic
-
-    @Override
-    public void runContinuous()
-    {
-    }   //runContinuous
 
     //
     // Implements MenuButtons
@@ -191,6 +155,7 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
         dashboard.displayPrintf(1, "Drive Time: %.1f", driveTime);
         dashboard.displayPrintf(2, "Drive Distance: %.1f", driveDistance);
         dashboard.displayPrintf(3, "Turn Degrees: %.1f", turnDegrees);
+        dashboard.displayPrintf(4, "Alliance: %s", alliance == ALLIANCE_RED? "Red": "Blue");
     }   //doMenus
 
     private void doTestSensors()
@@ -199,53 +164,30 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
         // Read all sensors and display on the dashboard.
         // Drive the robot around to sample different locations of the field.
         //
-        dashboard.displayPrintf(1, "Testing sensors:");
-
-        double leftPower  = driverGamepad.getLeftStickY(true);
-        double rightPower = driverGamepad.getRightStickY(true);
-        robot.driveBase.tankDrive(leftPower, rightPower);
-
-        double elevatorPower = operatorGamepad.getRightStickY(true);
-        robot.elevator.setPower(elevatorPower);
-
-        double slidePower = operatorGamepad.getLeftStickY(true);
-        robot.slideHook.setPower(slidePower);
-
-        dashboard.displayPrintf(2, "leftPower = %.2f, rightPower = %.2f", leftPower, rightPower);
-        dashboard.displayPrintf(3, "lfEnc=%.1f, rfEnc=%.1f, lrEnc=%.1f, rrEnc=%.1f",
+        dashboard.displayPrintf(8, "Testing sensors:");
+        dashboard.displayPrintf(9, "lfEnc=%.0f,rfEnc=%.0f,lrEnc=%.0f,rrEnc=%.0f",
                                 robot.leftFrontWheel.getPosition(),
                                 robot.rightFrontWheel.getPosition(),
                                 robot.leftRearWheel.getPosition(),
                                 robot.rightRearWheel.getPosition());
-        dashboard.displayPrintf(4, "MRGyro = X:%.1f,%.1f Y:%.1f,%.1f Z:%.1f,%.1f",
-                                robot.mrGyro.getXRotation(), robot.gyro.getXHeading(),
-                                robot.mrGyro.getYRotation(), robot.gyro.getYHeading(),
-                                robot.mrGyro.getZRotation(), robot.gyro.getZHeading());
-        dashboard.displayPrintf(5, "HiTechnicGyro = X:%.1f,%.1f Y:%.1f,%.1f Z:%.1f,%.1f",
-                                robot.hitechnicGyro.getXRotation(),
-                                robot.hitechnicGyro.getXHeading(),
-                                robot.hitechnicGyro.getYRotation(),
-                                robot.hitechnicGyro.getYHeading(),
-                                robot.hitechnicGyro.getZRotation(),
-                                robot.hitechnicGyro.getZHeading());
-        dashboard.displayPrintf(6, "Color = [R:%d,G:%d,B:%d]",
+        dashboard.displayPrintf(10, "Gyro: Rate=%.1f,Heading=%.1f",
+                                robot.gyro.getZRotationRate().value,
+                                robot.gyro.getZHeading().value);
+        dashboard.displayPrintf(11, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
-                                robot.colorSensor.blue());
-        dashboard.displayPrintf(7, "Color = [Hue:%x, Alpha:%d]",
-                                robot.colorSensor.argb(),
-                                robot.colorSensor.alpha());
-        dashboard.displayPrintf(8, "RawLightValue = %d",
-                                robot.lightSensor.getValue());
-        dashboard.displayPrintf(9, "Touch = %s",
-                                robot.touchSensor.isActive()? "pressed": "released");
-        dashboard.displayPrintf(10, "Sonar = %f", robot.sonarSensor.getUltrasonicLevel());
-        dashboard.displayPrintf(11, "ElevatorLimit: lower=%d, upperLimit=%d",
+                                robot.colorSensor.blue(),
+                                robot.colorSensor.alpha(),
+                                robot.colorSensor.argb());
+        dashboard.displayPrintf(12, "Light=%.0f,Sonar=%.1f,Touch=%d",
+                                robot.lightSensor.getData().value,
+                                robot.sonarSensor.getUltrasonicLevel(),
+                                robot.touchSensor.isActive()? 1: 0);
+        dashboard.displayPrintf(13, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
-                                robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
-        dashboard.displayPrintf(12, "SlideLimit: lower=%d, upperLimit=%d",
-                                robot.slideHook.isLowerLimitSwitchPressed()? 1: 0,
-                                robot.slideHook.isUpperLimitSwitchPressed()? 1: 0);
+                                robot.elevator.isUpperLimitSwitchPressed()? 1: 0,
+                                robot.slider.isLowerLimitSwitchPressed()? 1: 0,
+                                robot.slider.isUpperLimitSwitchPressed()? 1: 0);
     }   //doTestSensors
 
     private void doDriveTime(double time)
@@ -254,12 +196,11 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
         double rfEnc = robot.rightFrontWheel.getPosition();
         double lrEnc = robot.leftRearWheel.getPosition();
         double rrEnc = robot.rightRearWheel.getPosition();
-        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
-        dashboard.displayPrintf(1, "Drive %.1f sec", time);
-        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
-        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
-        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
-        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+        dashboard.displayPrintf(8, "Drive %.1f sec", time);
+        dashboard.displayPrintf(9, "lfEnc=%.0f,rfEnc=%.0f", lfEnc, rfEnc);
+        dashboard.displayPrintf(10, "lrEnc=%.0f,rrEnc=%.0f", lrEnc, rrEnc);
+        dashboard.displayPrintf(11, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
+        dashboard.displayPrintf(12, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
@@ -293,20 +234,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
 
     private void doDriveDistance(double distance)
     {
-        double lfEnc = robot.leftFrontWheel.getPosition();
-        double rfEnc = robot.rightFrontWheel.getPosition();
-        double lrEnc = robot.leftRearWheel.getPosition();
-        double rrEnc = robot.rightRearWheel.getPosition();
-        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
-        dashboard.displayPrintf(1, "Drive %.1f ft", distance/12.0);
-        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
-        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
-        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
-        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+        dashboard.displayPrintf(8, "Drive %.1f ft", distance/12.0);
+        dashboard.displayPrintf(9, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlDrive.displayPidInfo(6);
+        robot.pidCtrlDrive.displayPidInfo(10);
+        robot.pidCtrlTurn.displayPidInfo(12);
 
         if (sm.isReady())
         {
@@ -335,20 +269,13 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
 
     private void doTurnDegrees(double degrees)
     {
-        double lfEnc = robot.leftFrontWheel.getPosition();
-        double rfEnc = robot.rightFrontWheel.getPosition();
-        double lrEnc = robot.leftRearWheel.getPosition();
-        double rrEnc = robot.rightRearWheel.getPosition();
-        double avg = (lfEnc + rfEnc + lrEnc + rrEnc)/4.0;
-        dashboard.displayPrintf(1, "Turn %.1f degrees", degrees);
-        dashboard.displayPrintf(2, "lfEnc=%.0f, rfEnc=%.0f", lfEnc, rfEnc);
-        dashboard.displayPrintf(3, "lrEnc=%.0f, rrEnc=%.0f", lrEnc, rrEnc);
-        dashboard.displayPrintf(4, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
-        dashboard.displayPrintf(5, "xPos=%f, yPos=%f, heading=%f",
+        dashboard.displayPrintf(8, "Turn %.1f degrees", degrees);
+        dashboard.displayPrintf(9, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlTurn.displayPidInfo(6);
+        robot.pidCtrlDrive.displayPidInfo(10);
+        robot.pidCtrlTurn.displayPidInfo(12);
 
         if (sm.isReady())
         {
@@ -377,7 +304,19 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
 
     private void doLineFollowing(int alliance)
     {
-        dashboard.displayPrintf(1, "Line following");
+        dashboard.displayPrintf(8, "Line following: %s", alliance == ALLIANCE_RED? "Red": "Blue");
+        dashboard.displayPrintf(9, "Light=%.0f,Sonar=%.1f,Touch=%d",
+                                robot.lightSensor.getData().value,
+                                robot.sonarSensor.getUltrasonicLevel(),
+                                robot.touchSensor.isActive()? 1: 0);
+        dashboard.displayPrintf(10, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
+                                robot.colorSensor.red(),
+                                robot.colorSensor.green(),
+                                robot.colorSensor.blue(),
+                                robot.colorSensor.alpha(),
+                                robot.colorSensor.argb());
+        robot.pidCtrlDrive.displayPidInfo(11);
+        robot.pidCtrlLineFollow.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -400,6 +339,9 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
                     break;
 
                 case TrcStateMachine.STATE_STARTED + 1:
+                    //
+                    // Turn slowly to find the line again.
+                    //
                     if (alliance == ALLIANCE_RED)
                     {
                         robot.pidCtrlLineFollow.setInverted(true);
@@ -438,133 +380,5 @@ public class FtcTest extends FtcOpMode implements FtcMenu.MenuButtons,
             }
         }
     }   //doLineFollowing
-
-    //
-    // Implements FtcGamepad.ButtonHandler interface.
-    //
-
-    @Override
-    public void gamepadButtonEvent(FtcGamepad gamepad, final int btnMask, final boolean pressed)
-    {
-        dashboard.displayPrintf(15, "%s: %04x->%s",
-                                gamepad.toString(), btnMask, pressed? "Pressed": "Released");
-        if (gamepad == driverGamepad)
-        {
-            switch (btnMask)
-            {
-                case FtcGamepad.GAMEPAD_A:
-                    break;
-
-                case FtcGamepad.GAMEPAD_B:
-                    break;
-
-                case FtcGamepad.GAMEPAD_Y:
-                    break;
-
-                case FtcGamepad.GAMEPAD_LBUMPER:
-                    break;
-
-                case FtcGamepad.GAMEPAD_RBUMPER:
-                    break;
-            }
-        }
-        else if (gamepad == operatorGamepad)
-        {
-            switch (btnMask)
-            {
-                case FtcGamepad.GAMEPAD_A:
-                    break;
-
-                case FtcGamepad.GAMEPAD_B:
-                    if (pressed)
-                    {
-                        robot.buttonPusher.pushRightButton();
-                    }
-                    else
-                    {
-                        robot.buttonPusher.retract();
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_X:
-                    if (pressed)
-                    {
-                        robot.buttonPusher.pushLeftButton();
-                    }
-                    else
-                    {
-                        robot.buttonPusher.retract();
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_Y:
-                    break;
-
-                case FtcGamepad.GAMEPAD_LBUMPER:
-                    if (pressed)
-                    {
-                        robot.leftWing.setPosition(RobotInfo.WING_LEFT_EXTEND_POSITION);
-                    }
-                    else
-                    {
-                        robot.leftWing.setPosition(RobotInfo.WING_LEFT_RETRACT_POSITION);
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_RBUMPER:
-                    if (pressed)
-                    {
-                        robot.rightWing.setPosition(RobotInfo.WING_RIGHT_EXTEND_POSITION);
-                    }
-                    else
-                    {
-                        robot.rightWing.setPosition(RobotInfo.WING_RIGHT_RETRACT_POSITION);
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_START:
-                    if (pressed)
-                    {
-                        robot.elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_BACK:
-                    if (pressed)
-                    {
-                        robot.slideHook.zeroCalibrate(RobotInfo.SLIDEHOOK_CAL_POWER);
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_DPAD_UP:
-                    if (pressed)
-                    {
-                        robot.hangingHook.extend();
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_DPAD_DOWN:
-                    if (pressed)
-                    {
-                        robot.hangingHook.retract();
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_DPAD_LEFT:
-                    if (pressed)
-                    {
-                        robot.elevator.setChainLock(false);
-                    }
-                    break;
-
-                case FtcGamepad.GAMEPAD_DPAD_RIGHT:
-                    if (pressed)
-                    {
-                        robot.elevator.setChainLock(true);
-                    }
-                    break;
-            }
-        }
-    }   //gamepadButtonEvent
 
 }   //class FtcTest

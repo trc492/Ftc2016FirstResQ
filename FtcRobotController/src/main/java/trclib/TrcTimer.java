@@ -2,18 +2,29 @@ package trclib;
 
 import hallib.HalUtil;
 
+/**
+ * This class implements a timer that will generate an event
+ * when the time has expired. This is useful for doing delays
+ * in autonomous.
+ */
 public class TrcTimer implements TrcTaskMgr.Task
 {
     private static final String moduleName = "TrcTimer";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
+    private final String instanceName;
     private double expiredTime;
     private boolean enabled;
     private boolean expired;
+    private boolean canceled;
     private TrcEvent notifyEvent;
 
+    /**
+     * Constructor: Creates an instance of the timer with the given name.
+     *
+     * @param instanceName specifies the name to identify this instance of the timer.
+     */
     public TrcTimer(final String instanceName)
     {
         if (debugEnabled)
@@ -29,9 +40,27 @@ public class TrcTimer implements TrcTaskMgr.Task
         this.expiredTime = 0.0;
         this.enabled = false;
         this.expired = false;
+        this.canceled = false;
         this.notifyEvent = null;
     }   //TrcTimer
 
+    /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
+
+    /**
+     * This methods sets the expire time relative to the current time.
+     * When the time expires, it will signal the given event.
+     *
+     * @param time specifies the expire time in seconds relative to the current time.
+     * @param event specifies the event to signal when time has expired.
+     */
     public void set(double time, TrcEvent event)
     {
         final String funcName = "set";
@@ -45,6 +74,7 @@ public class TrcTimer implements TrcTaskMgr.Task
         }
 
         expired = false;
+        canceled = false;
         expiredTime = HalUtil.getCurrentTime() + time;
         if (event != null)
         {
@@ -59,6 +89,48 @@ public class TrcTimer implements TrcTaskMgr.Task
         }
     }   //set
 
+    /**
+     * This method checks if the timer has expired.
+     *
+     * @return true if the timer has expired, false otherwise.
+     */
+    public boolean isExpired()
+    {
+        final String funcName = "isExpired";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(expired));
+        }
+
+        return expired;
+    }   //isExpired
+
+    /**
+     * This method checks if the timer was canceled.
+     *
+     * @return true if the timer was canceled, false otherwise.
+     */
+    public boolean isCanceled()
+    {
+        final String funcName = "isCanceled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(canceled));
+        }
+
+        return canceled;
+    }   //isCanceled
+
+    /**
+     * This method cancels the timer if it's set but has not expired.
+     * If the timer is canceled, the event is signaled.
+     */
     public void cancel()
     {
         final String funcName = "cancel";
@@ -68,11 +140,11 @@ public class TrcTimer implements TrcTaskMgr.Task
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        setEnabled(false);
-        if (enabled && !expired)
+        if (enabled)
         {
+            setEnabled(false);
             expiredTime = 0.0;
-            enabled = false;
+            expired = false;
             notifyEvent.cancel();
             notifyEvent = null;
         }
@@ -83,6 +155,11 @@ public class TrcTimer implements TrcTaskMgr.Task
         }
     }   //cancel
 
+    /**
+     * This private method enables/disables the task that checks for timer expiration.
+     *
+     * @param enabled specifies if the timer task is enabled.
+     */
     private void setEnabled(boolean enabled)
     {
         final String funcName = "setEnabled";
@@ -94,21 +171,16 @@ public class TrcTimer implements TrcTaskMgr.Task
                     "enabled=%s", Boolean.toString(enabled));
         }
 
-        this.enabled = enabled;
-        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            taskMgr.registerTask(
-                    instanceName,
-                    this,
-                    TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
         else
         {
-            taskMgr.unregisterTask(
-                    this,
-                    TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
+        this.enabled = enabled;
 
         if (debugEnabled)
         {
@@ -135,6 +207,13 @@ public class TrcTimer implements TrcTaskMgr.Task
     {
     }   //postPeriodicTask
 
+    /**
+     * This method runs periodically at the fastest rate and checks if the timer
+     * has expired. After the timer expired, the task is disabled and if there is
+     * an event object, it will be signaled.
+     *
+     * @param runMode specifies the current robot run mode.
+     */
     public void preContinuousTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "preContinuousTask";

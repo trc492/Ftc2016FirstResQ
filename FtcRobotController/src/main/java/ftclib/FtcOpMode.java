@@ -124,35 +124,18 @@ public abstract class FtcOpMode extends LinearOpMode
         taskMgr.executeTaskType(
                 TrcTaskMgr.TaskType.START_TASK,
                 runMode);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceInfo(funcName, "Running startMode ...");
+        }
         startMode();
 
         long nextPeriodTime = HalUtil.getCurrentTimeMillis();
         while (opModeIsActive())
         {
             dashboard.displayPrintf(0, "%s: %.3f", runModeName, HalUtil.getCurrentTime() - startTime);
-            if (HalUtil.getCurrentTimeMillis() >= nextPeriodTime)
-            {
-                nextPeriodTime += LOOP_PERIOD;
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Runing PrePeriodic Tasks ...");
-                }
-                taskMgr.executeTaskType(
-                        TrcTaskMgr.TaskType.PREPERIODIC_TASK,
-                        runMode);
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Runing runPeriodic ...");
-                }
-                runPeriodic();
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Runing PostPeriodic Tasks ...");
-                }
-                taskMgr.executeTaskType(
-                        TrcTaskMgr.TaskType.POSTPERIODIC_TASK,
-                        runMode);
-            }
+
             if (debugEnabled)
             {
                 dbgTrace.traceInfo(funcName, "Runing PreContinuous Tasks ...");
@@ -160,11 +143,13 @@ public abstract class FtcOpMode extends LinearOpMode
             taskMgr.executeTaskType(
                     TrcTaskMgr.TaskType.PRECONTINUOUS_TASK,
                     runMode);
+
             if (debugEnabled)
             {
                 dbgTrace.traceInfo(funcName, "Runing runContinuous ...");
             }
             runContinuous();
+
             if (debugEnabled)
             {
                 dbgTrace.traceInfo(funcName, "Runing PostContinuous Tasks ...");
@@ -173,15 +158,47 @@ public abstract class FtcOpMode extends LinearOpMode
                     TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK,
                     runMode);
 
+            if (HalUtil.getCurrentTimeMillis() >= nextPeriodTime)
+            {
+                nextPeriodTime += LOOP_PERIOD;
+
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Runing PrePeriodic Tasks ...");
+                }
+                taskMgr.executeTaskType(
+                        TrcTaskMgr.TaskType.PREPERIODIC_TASK,
+                        runMode);
+
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Runing runPeriodic ...");
+                }
+                runPeriodic();
+
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Runing PostPeriodic Tasks ...");
+                }
+                taskMgr.executeTaskType(
+                        TrcTaskMgr.TaskType.POSTPERIODIC_TASK,
+                        runMode);
+            }
+
             dashboard.refreshDisplay();
             waitForNextHardwareCycle();
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceInfo(funcName, "Running Stop Mode Tasks ...");
+            dbgTrace.traceInfo(funcName, "Running stopMode ...");
         }
         stopMode();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceInfo(funcName, "Running Stop Mode Tasks ...");
+        }
         taskMgr.executeTaskType(
                 TrcTaskMgr.TaskType.STOP_TASK,
                 runMode);

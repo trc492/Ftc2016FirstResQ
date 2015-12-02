@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import trclib.TrcServo;
 import trclib.TrcDbgTrace;
-import trclib.TrcUtil;
 
 public class FtcServo extends TrcServo
 {
@@ -41,34 +40,34 @@ public class FtcServo extends TrcServo
     //
 
     @Override
-    public void setReverse(boolean reverse)
+    public void setInverted(boolean inverted)
     {
-        final String funcName = "setReverse";
+        final String funcName = "setInverted";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "reverse=%s", Boolean.toString(reverse));
+                                "inverted=%s", Boolean.toString(inverted));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        servo.setDirection(reverse? Servo.Direction.REVERSE: Servo.Direction.FORWARD);
-    }   //setReverse
+        servo.setDirection(inverted? Servo.Direction.REVERSE: Servo.Direction.FORWARD);
+    }   //setInverted
 
     @Override
-    public boolean getReverse()
+    public boolean getInverted()
     {
-        final String funcName = "getReverse";
-        boolean isReversed = servo.getDirection() == Servo.Direction.REVERSE;;
+        final String funcName = "getInverted";
+        boolean isInverted = servo.getDirection() == Servo.Direction.REVERSE;;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", isReversed);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", isInverted);
         }
 
-        return isReversed;
-    }   //getReverse
+        return isInverted;
+    }   //getInverted
 
     @Override
     public void setPosition(double position)

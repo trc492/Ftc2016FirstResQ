@@ -1,10 +1,47 @@
 package trclib;
 
+/**
+ * This class implements a platform independent servo motor. Typically,
+ * this class is to be extended by a platform dependent servo class.
+ * Whoever extends this class must provide a set of abstract methods.
+ * This makes sure the rest of the TrcLib classes can access the servo
+ * without any knowledge of platform dependent implementations.
+ */
 public abstract class TrcServo
 {
-    public abstract void setReverse(boolean reverse);
-    public abstract boolean getReverse();
+    /**
+     * This abstract method inverts the servo motor direction.
+     *
+     * @param inverted specifies the servo direction is inverted if true.
+     */
+    public abstract void setInverted(boolean inverted);
+
+    /**
+     * This abstract method checks if the servo motor direction is inverted.
+     *
+     * @return true if the servo direction is inverted, false otherwise.
+     */
+    public abstract boolean getInverted();
+
+    /**
+     * This method sets the servo position. On a 180-degree servo, 0.0 is at 0-degree
+     * and 1.0 is at 180-degree. If servo direction is inverted, then 0.0 is at
+     * 180-degree and 1.0 is at 0-degree. On a continuous servo, 0.0 is rotating
+     * full speed in reverse, 0.5 is to stop the motor and 1.0 is rotating the
+     * motor full speed forward. Again, motor direction can be inverted if
+     * setInverted is called.
+     *
+     * @param position specifies the motor position value.
+     */
     public abstract void setPosition(double position);
+
+    /**
+     * This method returns the position value set by the last setPosition call.
+     * Note that servo motors do not provide real time position feedback. So
+     * getPosition doesn't actually return the current position.
+     *
+     * @return motor position value set by the last setPosition call.
+     */
     public abstract double getPosition();
 
     private static final double DEF_PHYSICAL_MIN    = 0.0;
@@ -16,13 +53,18 @@ public abstract class TrcServo
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
+    private final String instanceName;
     private double physicalMin = DEF_PHYSICAL_MIN;
     private double physicalMax = DEF_PHYSICAL_MAX;
     private double logicalMin = DEF_LOGICAL_MIN;
     private double logicalMax = DEF_LOGICAL_MAX;
 
-    public TrcServo(String instanceName)
+    /**
+     * Constructor: Creates an instance of the servo with the given name.
+     *
+     * @param instanceName specifies the instance name of the servo.
+     */
+    public TrcServo(final String instanceName)
     {
         if (debugEnabled)
         {
@@ -36,11 +78,24 @@ public abstract class TrcServo
         this.instanceName = instanceName;
     }   //TrcServo
 
+    /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
     public String toString()
     {
         return instanceName;
     }   //toString
 
+    /**
+     * This method sets the physical range of the servo motor. This is typically
+     * used to set a 180-degree servo to have a range of 0.0 to 180.0 instead of
+     * the logical range of 0.0 to 1.0.
+     *
+     * @param physicalMin specifies the minimum value of the physical range.
+     * @param physicalMax specifies the maximum value of the physical range.
+     */
     public void setPhysicalRange(double physicalMin, double physicalMax)
     {
         final String funcName = "setPhysicalRange";
@@ -61,6 +116,14 @@ public abstract class TrcServo
         this.physicalMax = physicalMax;
     }   //setPhysicalRange
 
+    /**
+     * This method sets the logical range of the servo motor. This is typically
+     * used to limit the logical range of the servo to less than the 0.0 to 1.0
+     * range. For example, one may limit the logical range to 0.2 to 0.8.
+     *
+     * @param logicalMin specifies the minimum value of the logical range.
+     * @param logicalMax specifies the maximum value of the logical range.
+     */
     public void setLogicalRange(double logicalMin, double logicalMax)
     {
         final String funcName = "setLogicalRange";
@@ -81,6 +144,15 @@ public abstract class TrcServo
         this.logicalMax = logicalMax;
     }   //setLogicalRange
 
+    /**
+     * This method is called to convert a physical position to a logical position.
+     * It will make sure the physical position is within the physical range and
+     * scale it to the logical range.
+     * Note: this method is only callable by classes extending this class.
+     *
+     * @param physicalPosition specifies the physical position to be converted
+     * @return converted logical position.
+     */
     protected double toLogicalPosition(double physicalPosition)
     {
         final String funcName = "toLogicalPosition";
@@ -98,6 +170,15 @@ public abstract class TrcServo
         return logicalPosition;
     }   //toLogicalPosition
 
+    /**
+     * This method is called to convert a logical position to a physical position.
+     * It will make sure the logical position is within the logical range and scale
+     * it to the physical range.
+     * Note: this method is only callable by classes extending this class.
+     *
+     * @param logicalPosition specifies the logical position to be converted.
+     * @return converted physical position.
+     */
     protected double toPhysicalPosition(double logicalPosition)
     {
         final String funcName = "toPhysicalPosition";

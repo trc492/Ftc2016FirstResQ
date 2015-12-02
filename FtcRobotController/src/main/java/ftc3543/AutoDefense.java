@@ -33,7 +33,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "Defense: %s alliance, delay=%.1f, distance=%.1f",
+        dashboard.displayPrintf(1, "Defense: %s alliance, delay=%.0f, distance=%.0f",
                                 alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
                                 delay, distance/12.0);
 

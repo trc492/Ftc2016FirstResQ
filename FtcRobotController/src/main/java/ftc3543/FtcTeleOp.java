@@ -8,11 +8,11 @@ import trclib.TrcRobot;
 
 public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
 {
-    private HalDashboard dashboard;
-    private FtcRobot robot;
+    public HalDashboard dashboard;
+    public FtcRobot robot;
+
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
-    private TrcBooleanState cattleGuardDeployed;
 
     //
     // Implements FtcOpMode abstract methods.
@@ -33,11 +33,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
-        //
-        // CattleGuard subsystem.
-        //
-        cattleGuardDeployed = new TrcBooleanState("cattleGuardDeployed", false);
-
     }   //robotInit
 
     @Override
@@ -50,6 +45,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         //
         driverGamepad.setGamepad(gamepad1);
         operatorGamepad.setGamepad(gamepad2);
+        dashboard.clearDisplay();
     }   //startMode
 
     @Override
@@ -66,30 +62,29 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
         robot.driveBase.tankDrive(leftPower, rightPower);
-        dashboard.displayPrintf(1, "leftPower = %.3f", leftPower);
-        dashboard.displayPrintf(2, "rightPower = %.3f", rightPower);
+        dashboard.displayPrintf(1, "leftPower=%.2f,rightPower=%.2f", leftPower, rightPower);
+        dashboard.displayPrintf(2, "yPos=%.2f,heading=%.2f",
+                                robot.driveBase.getYPosition(), robot.driveBase.getHeading());
         //
         // Elevator subsystem.
         //
         double elevatorPower = operatorGamepad.getRightStickY(true);
         robot.elevator.setPower(elevatorPower);
-        dashboard.displayPrintf(3, "elevatorPower = %.3f, height=%.1f",
+        dashboard.displayPrintf(3, "elevatorPower=%.2f,height=%.2f",
                                 elevatorPower, robot.elevator.getHeight());
-        dashboard.displayPrintf(4, "lowerLimit = %s, upperLimit = %s",
-                                robot.elevator.isLowerLimitSwitchPressed()? "pressed": "released",
-                                robot.elevator.isUpperLimitSwitchPressed()? "pressed": "released");
-        robot.elevator.displayDebugInfo(5);
+        dashboard.displayPrintf(4, "lowerLimit=%d,upperLimit=%d",
+                                robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
+                                robot.elevator.isUpperLimitSwitchPressed()? 1: 0);
         //
-        // SlideHook subsystem.
+        // Slider subsystem.
         //
         double slidePower = operatorGamepad.getLeftStickY(true);
-        robot.slideHook.setPower(slidePower);
-        dashboard.displayPrintf(7, "slidePower = %.3f, length=%.1f",
-                                slidePower, robot.slideHook.getLength());
-        dashboard.displayPrintf(8, "lowerLimit = %s, upperLimit = %s",
-                                robot.slideHook.isLowerLimitSwitchPressed()? "pressed": "released",
-                                robot.slideHook.isUpperLimitSwitchPressed()? "pressed": "released");
-        robot.slideHook.displayDebugInfo(9);
+        robot.slider.setPower(slidePower);
+        dashboard.displayPrintf(5, "slidePower=%.2f,length=%.2f",
+                                slidePower, robot.slider.getLength());
+        dashboard.displayPrintf(6, "lowerLimit=%d,upperLimit=%d",
+                                robot.slider.isLowerLimitSwitchPressed()? 1: 0,
+                                robot.slider.isUpperLimitSwitchPressed()? 1: 0);
     }   //runPeriodic
 
     @Override
@@ -104,7 +99,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     @Override
     public void gamepadButtonEvent(FtcGamepad gamepad, final int btnMask, final boolean pressed)
     {
-        dashboard.displayPrintf(15, "%s: %04x->%s",
+        dashboard.displayPrintf(7, "%s: %04x->%s",
                 gamepad.toString(), btnMask, pressed? "Pressed": "Released");
         if (gamepad == driverGamepad)
         {
@@ -114,6 +109,9 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
+                    break;
+
+                case FtcGamepad.GAMEPAD_X:
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:
@@ -131,18 +129,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
-                    if (pressed)
-                    {
-                        cattleGuardDeployed.toggleState();
-                        if (cattleGuardDeployed.getState())
-                        {
-                            robot.cattleGuard.extend();
-                        }
-                        else
-                        {
-                            robot.cattleGuard.retract();
-                        }
-                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
@@ -202,7 +188,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                 case FtcGamepad.GAMEPAD_BACK:
                     if (pressed)
                     {
-                        robot.slideHook.zeroCalibrate(RobotInfo.SLIDEHOOK_CAL_POWER);
+                        robot.slider.zeroCalibrate(RobotInfo.SLIDER_CAL_POWER);
                     }
                     break;
 
@@ -223,14 +209,14 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                 case FtcGamepad.GAMEPAD_DPAD_LEFT:
                     if (pressed)
                     {
-                        robot.elevator.setChainLock(false);
+                        robot.elevator.setBrakeOn(false);
                     }
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_RIGHT:
                     if (pressed)
                     {
-                        robot.elevator.setChainLock(true);
+                        robot.elevator.setBrakeOn(true);
                     }
                     break;
             }

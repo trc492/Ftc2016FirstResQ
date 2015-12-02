@@ -1,6 +1,6 @@
 package trclib;
 
-public class TrcKalmanFilter
+public class TrcKalmanFilter extends TrcFilter
 {
     private static final String moduleName = "TrcKalmanFilter";
     private static final boolean debugEnabled = false;
@@ -12,13 +12,10 @@ public class TrcKalmanFilter
     private double prevXEst;
     private boolean initialized;
 
-    public TrcKalmanFilter()
+    public TrcKalmanFilter(String instanceName, double kQ, double kR)
     {
-        this(0.022, 0.617);
-    }   //TrcKalmanFilter
+        super(instanceName);
 
-    public TrcKalmanFilter(double kQ, double kR)
-    {
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(
@@ -35,7 +32,17 @@ public class TrcKalmanFilter
         initialized = false;
     }   //TrcKalmanFilter
 
-    public double filter(double data)
+    public TrcKalmanFilter(String instanceName)
+    {
+        this(instanceName, 0.022, 0.617);
+    }   //TrcKalmanFilter
+
+    //
+    // Implements TrcFilter abstract methods.
+    //
+
+    @Override
+    public double filterData(double data)
     {
         final String funcName = "filter";
 
@@ -64,6 +71,6 @@ public class TrcKalmanFilter
         }
 
         return prevXEst;
-    }   //filter
+    }   //filterData
 
 }   //class TrcKalmanFilter

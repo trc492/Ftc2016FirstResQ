@@ -4,39 +4,36 @@ import ftclib.FtcDcMotor;
 import ftclib.FtcTouch;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcEvent;
-import trclib.TrcMotorController;
-import trclib.TrcMotorLimitSwitches;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
 
-public class SlideHook implements TrcPidController.PidInput,
-                                  TrcMotorLimitSwitches,
-                                  TrcDigitalTrigger.TriggerHandler
+public class Slider implements TrcPidController.PidInput,
+                               TrcDigitalTrigger.TriggerHandler
 {
-    private FtcDcMotor motor;
-    private TrcPidController pidController;
-    private TrcPidMotor pidMotor;
     private FtcTouch lowerLimitSwitch;
     private FtcTouch upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
+    private FtcDcMotor motor;
+    private TrcPidController pidCtrl;
+    private TrcPidMotor pidMotor;
 
-    public SlideHook()
+    public Slider()
     {
-        motor = new FtcDcMotor("slideHook", this);
-        motor.setInverted(true);
-        pidController = new TrcPidController(
-                "slideHook",
-                RobotInfo.SLIDEHOOK_KP, RobotInfo.SLIDEHOOK_KI,
-                RobotInfo.SLIDEHOOK_KD, RobotInfo.SLIDEHOOK_KF,
-                RobotInfo.SLIDEHOOK_TOLERANCE,RobotInfo.SLIDEHOOK_SETTLING,
-                this);
-        pidController.setAbsoluteSetPoint(true);
-        pidMotor = new TrcPidMotor("slideHook", motor, pidController);
-        pidMotor.setPositionScale(RobotInfo.SLIDEHOOK_INCHES_PER_CLICK);
         lowerLimitSwitch = new FtcTouch("slideLowerLimit");
         upperLimitSwitch = new FtcTouch("slideUpperLimit");
         lowerLimitTrigger = new TrcDigitalTrigger("slideLowerTrigger", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
+        motor = new FtcDcMotor("slider", lowerLimitSwitch, upperLimitSwitch);
+        motor.setInverted(true);
+        pidCtrl = new TrcPidController(
+                "slider",
+                RobotInfo.SLIDER_KP, RobotInfo.SLIDER_KI,
+                RobotInfo.SLIDER_KD, RobotInfo.SLIDER_KF,
+                RobotInfo.SLIDER_TOLERANCE,RobotInfo.SLIDER_SETTLING,
+                this);
+        pidCtrl.setAbsoluteSetPoint(true);
+        pidMotor = new TrcPidMotor("slider", motor, pidCtrl);
+        pidMotor.setPositionScale(RobotInfo.SLIDER_INCHES_PER_CLICK);
     }
 
     public void zeroCalibrate(double calPower)
@@ -76,7 +73,7 @@ public class SlideHook implements TrcPidController.PidInput,
 
     public void displayDebugInfo(int lineNum)
     {
-        pidController.displayPidInfo(lineNum);
+        pidCtrl.displayPidInfo(lineNum);
     }
 
     //
@@ -86,27 +83,13 @@ public class SlideHook implements TrcPidController.PidInput,
     {
         double value = 0.0;
 
-        if (pidCtrl == pidController)
+        if (pidCtrl == this.pidCtrl)
         {
             value = getLength();
         }
 
         return value;
     }   //getInput
-
-    //
-    // Implements TrcMotorLimitSwitches.
-    //
-
-    public boolean isForwardLimitSwitchActive(TrcMotorController speedController)
-    {
-        return upperLimitSwitch.isActive();
-    }   //isForwardLimitSwitchActive
-
-    public boolean isReverseLimitSwitchActive(TrcMotorController speedController)
-    {
-        return lowerLimitSwitch.isActive();
-    }   //isReverseLimitSwitchActive
 
     //
     // Implements TrcDigitalTrigger.TriggerHandler
@@ -120,4 +103,4 @@ public class SlideHook implements TrcPidController.PidInput,
         }
     }   //DigitalTriggerEvent
 
-}   //class SlideHook
+}   //class Slider

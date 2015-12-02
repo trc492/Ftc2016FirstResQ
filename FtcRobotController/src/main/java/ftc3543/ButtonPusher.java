@@ -17,7 +17,7 @@ public class ButtonPusher
     {
         leftPusher = new FtcServo("leftPusher");
         rightPusher = new FtcServo("rightPusher");
-        rightPusher.setReverse(true);
+        rightPusher.setInverted(true);
     }   //ButtonPusher
 
     public void pushLeftButton()

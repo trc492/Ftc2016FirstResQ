@@ -20,7 +20,7 @@ import trclib.TrcRobot;
 
 public class FtcRobot implements TrcPidController.PidInput,
                                  TrcAnalogTrigger.TriggerHandler,
-                                 TrcDigitalTrigger.TriggerHandler
+                                 TrcDigitalTrigger.TriggerHandler   //???
 {
     //
     // Sensors.
@@ -29,9 +29,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcHiTechnicGyro hitechnicGyro;
     public TrcGyro gyro;
     public FtcOpticalDistanceSensor lightSensor;
-    public FtcTouch touchSensor;
     public ColorSensor colorSensor;
     public UltrasonicSensor sonarSensor;
+    public FtcTouch touchSensor;
     //
     // DriveBase subsystem.
     //
@@ -43,14 +43,14 @@ public class FtcRobot implements TrcPidController.PidInput,
     public TrcPidController pidCtrlDrive;
     public TrcPidController pidCtrlTurn;
     public TrcPidDrive pidDrive;
-    public TrcDigitalTrigger touchTrigger;
     public TrcAnalogTrigger lineTrigger;
+    public TrcDigitalTrigger touchTrigger;
     public TrcPidController pidCtrlLineFollow;
     public TrcPidDrive pidLineFollow;
     //
-    // SlideHook subsystem.
+    // Slider subsystem.
     //
-    public SlideHook slideHook;
+    public Slider slider;
     //
     // Elevator subsystem.
     //
@@ -64,10 +64,6 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     public ClimberRelease leftWing;
     public ClimberRelease rightWing;
-    //
-    // CattleGuard subsystem.
-    //
-    public CattleGuard cattleGuard;
     //
     // ButtonPush subsystem.
     //
@@ -84,9 +80,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         gyro = mrGyro;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
-        touchSensor = new FtcTouch("touchSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
         sonarSensor = hardwareMap.ultrasonicSensor.get("sonarSensor");
+        touchSensor = new FtcTouch("touchSensor");
         //
         // DriveBase subsystem.
         //
@@ -122,7 +118,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         touchTrigger = new TrcDigitalTrigger("touchTrigger", touchSensor, this);
         lineTrigger = new TrcAnalogTrigger(
-                "lineTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this, false);
+                "lineTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this);
         pidCtrlLineFollow = new TrcPidController(
                 "lineFollowPid",
                 RobotInfo.LINEFOLLOW_KP, RobotInfo.LINEFOLLOW_KI,
@@ -133,9 +129,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         pidLineFollow = new TrcPidDrive(
                 "lineFollowDrive", driveBase, null, pidCtrlDrive, pidCtrlLineFollow);
         //
-        // SlideHook subsystem.
+        // Slider subsystem.
         //
-        slideHook = new SlideHook();
+        slider = new Slider();
+        slider.zeroCalibrate(RobotInfo.SLIDER_CAL_POWER);
         //
         // Elevator subsystem.
         //
@@ -153,11 +150,6 @@ public class FtcRobot implements TrcPidController.PidInput,
         rightWing = new ClimberRelease("rightWing", true);
         leftWing.setPosition(RobotInfo.WING_LEFT_RETRACT_POSITION);
         rightWing.setPosition(RobotInfo.WING_RIGHT_RETRACT_POSITION);
-        //
-        // CattleGuard subsystem.
-        //
-        cattleGuard = new CattleGuard();
-        cattleGuard.retract();
         //
         // ButtonPusher subsystem.
         //
@@ -184,7 +176,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         }
         else if (pidCtrl == pidCtrlLineFollow)
         {
-            input = lightSensor.getValue();
+            input = lightSensor.getData().value;
         }
 
         return input;

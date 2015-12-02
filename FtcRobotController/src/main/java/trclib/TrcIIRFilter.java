@@ -1,6 +1,6 @@
 package trclib;
 
-public class TrcIIRFilter
+public class TrcIIRFilter extends TrcFilter
 {
     private static final String moduleName = "TrcIIRFilter";
     private static final boolean debugEnabled = false;
@@ -9,13 +9,10 @@ public class TrcIIRFilter
     private double weight;
     private double filteredData;
 
-    public TrcIIRFilter()
+    public TrcIIRFilter(String instanceName, double weight)
     {
-        this(0.9);
-    }   //TrcIIRFilter
+        super(instanceName);
 
-    public TrcIIRFilter(double weight)
-    {
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(
@@ -35,7 +32,17 @@ public class TrcIIRFilter
         filteredData = 0.0;
     }   //TrcIIRFilter
 
-    public double filter(double data)
+    public TrcIIRFilter(String instanceName)
+    {
+        this(instanceName, 0.9);
+    }   //TrcIIRFilter
+
+    //
+    // Implements TrcFilter abstract methods.
+    //
+
+    @Override
+    public double filterData(double data)
     {
         final String funcName = "filter";
 
@@ -52,6 +59,6 @@ public class TrcIIRFilter
         }
 
         return filteredData;
-    }   //filter
+    }   //filterData
 
 }   //class TrcIIRFilter

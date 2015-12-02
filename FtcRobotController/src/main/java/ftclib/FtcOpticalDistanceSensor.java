@@ -3,62 +3,128 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
+import hallib.HalUtil;
 import trclib.TrcAnalogInput;
 import trclib.TrcDbgTrace;
+import trclib.TrcFilter;
+import trclib.TrcSensorData;
 
-public class FtcOpticalDistanceSensor implements TrcAnalogInput
+/**
+ * This class implements the Modern Robotics Optical Distance sensor.
+ * It is a simple value sensor and does not need integration or calibration.
+ */
+public class FtcOpticalDistanceSensor extends TrcAnalogInput
 {
     private static final String moduleName = "FtcOpticalDistanceSensor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private HardwareMap hardwareMap;
-    private String instanceName;
     private OpticalDistanceSensor sensor;
 
-    public FtcOpticalDistanceSensor(HardwareMap hardwareMap, String instanceName)
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param hardwareMap specifies the global hardware map.
+     * @param instanceName specifies the instance name.
+     * @param filter specifies a filter object used for filtering sensor noise.
+     *               If none needed, it can be set to null.
+     */
+    public FtcOpticalDistanceSensor(HardwareMap hardwareMap, String instanceName, TrcFilter filter)
     {
+        super(instanceName, 0, filter);
+
         if (debugEnabled)
         {
-            dbgTrace = new TrcDbgTrace(
-                    moduleName + "." + instanceName,
-                    false,
-                    TrcDbgTrace.TraceLevel.API,
-                    TrcDbgTrace.MsgLevel.INFO);
+            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName,
+                                       false,
+                                       TrcDbgTrace.TraceLevel.API,
+                                       TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.hardwareMap = hardwareMap;
-        this.instanceName = instanceName;
         sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
+        setEnabled(true);
     }   //FtcOpticalDistanceSensor
 
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param filter specifies a filter object used for filtering sensor noise.
+     *               If none needed, it can be set to null.
+     */
+    public FtcOpticalDistanceSensor(String instanceName, TrcFilter filter)
+    {
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, filter);
+    }   //FtcOpticalDistanceSensor
+
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     */
     public FtcOpticalDistanceSensor(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName);
+        this(instanceName, null);
     }   //FtcOpticalDistanceSensor
 
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
-
     //
-    // Implements TrcAnalogInput.
+    // Implements TrcAnalogInput abstract methods.
     //
 
     @Override
-    public int getValue()
+    public TrcSensorData getRawData()
     {
-        final String funcName = "getValue";
-        int value = sensor.getLightDetectedRaw();
+        final String funcName = "getRawData";
+        TrcSensorData data = new TrcSensorData(
+                HalUtil.getCurrentTime(), sensor.getLightDetectedRaw());
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
         }
 
-        return value;
-    }   //getValue
+        return data;
+    }   //getRawData
+
+    /**
+     * This method returns the raw integrated data which is not supported.
+     *
+     * @throws UnsupportedOperationException exception.
+     */
+    @Override
+    public TrcSensorData getRawIntegratedData()
+    {
+        final String funcName = "getRawIntegratedData";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
+        }
+
+        throw new UnsupportedOperationException("This sensor does not support integrated data.");
+    }   //getRawIntegratedData
+
+    /**
+     * This method returns the raw integrated data which is not supported.
+     *
+     * @throws UnsupportedOperationException exception.
+     */
+    @Override
+    public TrcSensorData getRawDoubleIntegratedData()
+    {
+        final String funcName = "getRawDoubleIntegratedData";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
+        }
+
+        throw new UnsupportedOperationException(
+                "This sensor does not support double integrated data.");
+    }   //getRawDoubleIntegratedData
 
 }   //class FtcOpticalDistanceSensor

@@ -1,209 +1,137 @@
 package trclib;
 
-import hallib.HalUtil;
-
-public abstract class TrcGyro
+/**
+ * This class implements a platform independent gyro. Typically, this
+ * class is extended by a platform dependent gyro class. The platform
+ * dependent gyro class must implement the abstract methods required
+ * by this class. The abstract methods allow this class to get raw
+ * data for each gyro axis.
+ * Depending on the options specified in the constructor, this class
+ * creates a calibrator, a data processors, an integrator and an unwrapper.
+ * The platform dependent gyro can specify how many axes it supports by
+ * setting the HAS_AXIS options. If it does not provide heading data, it can
+ * set the INTEGRATE options. Or if the heading data it provides wrap-around,
+ * it can set the UNWRAP_HEADING options to enable the unwrapper to unwrap
+ * the heading data. If it supports its own calibration, it can override the
+ * calibrate() and isCalibrating() methods to call its own. Otherwise, it can
+ * set the DO_CALIBRATION option to enable the built-in calibrator.
+ */
+public abstract class TrcGyro implements TrcSensorData.DataProvider
 {
-    public abstract TrcSensorAxisData getRawRates();
-    public abstract TrcSensorAxisData getRawHeadings();
+    /**
+     * Thia abstract method returns the raw rate of the x-axis.
+     *
+     * @return raw rate of x-axis.
+     */
+    public abstract TrcSensorData getRawXRate();
 
-    private class RawGyroXRate implements TrcFilteredSensor
-    {
-        private TrcKalmanFilter kalman = null;
-        private double sign = 1.0;
+    /**
+     * Thia abstract method returns the raw rate of the y-axis.
+     *
+     * @return raw rate of y-axis.
+     */
+    public abstract TrcSensorData getRawYRate();
 
-        public RawGyroXRate(boolean useFilter)
-        {
-            if (useFilter)
-            {
-                kalman = new TrcKalmanFilter();
-            }
-        }   //RawGyroXRate
+    /**
+     * Thia abstract method returns the raw rate of the z-axis.
+     *
+     * @return raw rate of z-axis.
+     */
+    public abstract TrcSensorData getRawZRate();
 
-        public void setInverted(boolean inverted)
-        {
-            sign = inverted? -1.0: 1.0;
-        }   //setInverted
+    /**
+     * Thia abstract method returns the raw heading of the x-axis.
+     *
+     * @return raw heading of x-axis.
+     */
+    public abstract TrcSensorData getRawXHeading();
 
-        public TrcSensorData getRawValue()
-        {
-            updateRateData();
-            double value = sign*rateData.x;
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getRawValue
+    /**
+     * Thia abstract method returns the raw heading of the y-axis.
+     *
+     * @return raw heading of y-axis.
+     */
+    public abstract TrcSensorData getRawYHeading();
 
-        public TrcSensorData getFilteredValue()
-        {
-            updateRateData();
-            double value = sign*filterData(kalman, rateData.x, xZeroOffset, xDeadband);
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getFilteredValue
+    /**
+     * Thia abstract method returns the raw heading of the z-axis.
+     *
+     * @return raw heading of z-axis.
+     */
+    public abstract TrcSensorData getRawZHeading();
 
-    }   //class RawGyroXRate
+    //
+    // Gyro options.
+    //
+    public static final int GYRO_HAS_X_AXIS             = (1 << 0);
+    public static final int GYRO_HAS_Y_AXIS             = (1 << 1);
+    public static final int GYRO_HAS_Z_AXIS             = (1 << 2);
+    public static final int GYRO_INTEGRATE_X            = (1 << 3);
+    public static final int GYRO_INTEGRATE_Y            = (1 << 4);
+    public static final int GYRO_INTEGRATE_Z            = (1 << 5);
+    public static final int GYRO_UNWRAP_XHEADING        = (1 << 6);
+    public static final int GYRO_UNWRAP_YHEADING        = (1 << 7);
+    public static final int GYRO_UNWRAP_ZHEADING        = (1 << 8);
+    public static final int GYRO_DO_CALIBRATION         = (1 << 9);
 
-    private class RawGyroYRate implements TrcFilteredSensor
-    {
-        private TrcKalmanFilter kalman = null;
-        private double sign = 1.0;
+    //
+    // Data names that the data provider must provide data for.
+    //
+    private static final String DATANAME_RAW_XRATE          = "rawXRate";
+    private static final String DATANAME_RAW_YRATE          = "rawYRate";
+    private static final String DATANAME_RAW_ZRATE          = "rawZRate";
+    private static final String DATANAME_PROCESSED_XRATE    = "processedXRate";
+    private static final String DATANAME_PROCESSED_YRATE    = "processedYRate";
+    private static final String DATANAME_PROCESSED_ZRATE    = "processedZRate";
+    private static final String DATANAME_PROCESSED_XHEADING = "processedXHeading";
+    private static final String DATANAME_PROCESSED_YHEADING = "processedYHeading";
+    private static final String DATANAME_PROCESSED_ZHEADING = "processedZHeading";
 
-        public RawGyroYRate(boolean useFilter)
-        {
-            if (useFilter)
-            {
-                kalman = new TrcKalmanFilter();
-            }
-        }   //RawGyroYRate
-
-        public void setInverted(boolean inverted)
-        {
-            sign = inverted? -1.0: 1.0;
-        }   //setInverted
-
-        public TrcSensorData getRawValue()
-        {
-            updateRateData();
-            double value = sign*rateData.y;
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getRawValue
-
-        public TrcSensorData getFilteredValue()
-        {
-            updateRateData();
-            double value = sign*filterData(kalman, rateData.y, yZeroOffset, yDeadband);
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getFilteredValue
-
-    }   //class RawGyroYRate
-
-    private class RawGyroZRate implements TrcFilteredSensor
-    {
-        private TrcKalmanFilter kalman = null;
-        private double sign = 1.0;
-
-        public RawGyroZRate(boolean useFilter)
-        {
-            if (useFilter)
-            {
-                kalman = new TrcKalmanFilter();
-            }
-        }   //RawGyroZRate
-
-        public void setInverted(boolean inverted)
-        {
-            sign = inverted? -1.0: 1.0;
-        }   //setInverted
-
-        public TrcSensorData getRawValue()
-        {
-            updateRateData();
-            double value = sign*rateData.z;
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getRawValue
-
-        public TrcSensorData getFilteredValue()
-        {
-            updateRateData();
-            double value = sign*filterData(kalman, rateData.z, zZeroOffset, zDeadband);
-            return new TrcSensorData(value, rateData.timestamp);
-        }   //getFilteredValue
-
-    }   //class RawGyroZRate
-
-    private double filterData(
-            TrcKalmanFilter kalman, double value, double zeroOffset, double deadband)
-    {
-        value = TrcUtil.applyDeadband(value - zeroOffset, deadband);
-        if (kalman != null)
-        {
-            value = kalman.filter(value);
-        }
-        return value;
-    }   //filterData
-
-    private class RawGyroXHeading implements TrcFilteredSensor
-    {
-        public TrcSensorData getRawValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.x, headingData.timestamp);
-        }   //getRawValue
-
-        public TrcSensorData getFilteredValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.x, headingData.timestamp);
-        }   //getFilteredValue
-
-    }   //class RawGyroXHeading
-
-    private class RawGyroYHeading implements TrcFilteredSensor
-    {
-        public TrcSensorData getRawValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.y, headingData.timestamp);
-        }   //getRawValue
-
-        public TrcSensorData getFilteredValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.y, headingData.timestamp);
-        }   //getFilteredValue
-
-    }   //class RawGyroYHeading
-
-    private class RawGyroZHeading implements TrcFilteredSensor
-    {
-        public TrcSensorData getRawValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.z, headingData.timestamp);
-        }   //getRawValue
-
-        public TrcSensorData getFilteredValue()
-        {
-            updateHeadingData();
-            return new TrcSensorData(headingData.z, headingData.timestamp);
-        }   //getFilteredValue
-
-    }   //class RawGyroZHeading
-
-    public static final int GYROOPTION_INTEGRATE_X          = (1 << 0);
-    public static final int GYROOPTION_INTEGRATE_Y          = (1 << 1);
-    public static final int GYROOPTION_INTEGRATE_Z          = (1 << 2);
-    public static final int GYROOPTION_X_WRAPAROUND         = (1 << 3);
-    public static final int GYROOPTION_Y_WRAPAROUND         = (1 << 4);
-    public static final int GYROOPTION_Z_WRAPAROUND         = (1 << 5);
-    public static final int GYROOPTION_FILTER               = (1 << 6);
+    //
+    // Built-in calibrator parameters.
+    //
+    private static final int NUM_CAL_SAMPLES            = 100;
+    private static final long CAL_INTERVAL              = 10;   //in msec.
 
     private static final String moduleName = "TrcGyro";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private static final int NUM_CAL_SAMPLES = 100;
+    private int xIndex = -1;
+    private int yIndex = -1;
+    private int zIndex = -1;
+    private final String instanceName;
+    private int options;
+    private TrcDataProcessor dataProcessor = null;
+    private TrcDataIntegrator dataIntegrator = null;
+    private TrcDataUnwrapper dataUnwrapper = null;
+    private TrcDataCalibrator calibrator = null;
+    private double[] zeroOffsets = null;
+    private double[] deadbands = null;
 
-    private String instanceName;
-    private RawGyroXRate rawGyroXRate = null;
-    private RawGyroYRate rawGyroYRate = null;
-    private RawGyroZRate rawGyroZRate = null;
-    private TrcIntegrator xIntegrator = null;
-    private TrcIntegrator yIntegrator = null;
-    private TrcIntegrator zIntegrator = null;
-    private TrcWrapAroundHandler xWrapAroundHandler = null;
-    private TrcWrapAroundHandler yWrapAroundHandler = null;
-    private TrcWrapAroundHandler zWrapAroundHandler = null;
-    private double xZeroOffset = 0.0;
-    private double xDeadband = 0.0;
-    private double yZeroOffset = 0.0;
-    private double yDeadband = 0.0;
-    private double zZeroOffset = 0.0;
-    private double zDeadband = 0.0;
-    private boolean calibrating = false;
-    private TrcSensorAxisData rateData = null;
-    private TrcSensorAxisData headingData = null;
-    private double dataStaleTime = 0.005;
-
-    public TrcGyro(String instanceName, int options)
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param options specifies the gyro options:
+     *                GYRO_HAS_X_AXIS - supports x-axis.
+     *                GYRO_HAS_Y_AXIS - supports y-axis.
+     *                GYRO_HAS_Z_AXIS - supports z-axis.
+     *                GYRO_INTEGRATE_X - do integration on x-axis to get x heading.
+     *                GYRO_INTEGRATE_Y - do integration on y-axis to get y heading.
+     *                GYRO_INTEGRATE_Z - do integration on z-axis to get z heading.
+     *                GYRO_UNWRAP_XHEADING - unwrap heading of x-axis.
+     *                GYRO_UNWRAP_YHEADING - unwrap heading of y-axis.
+     *                GYRO_UNWRAP_ZHEADING - unwrap heading of z-axis.
+     *                GYRO_DO_CALIBRATION - do calibration on the gyro.
+     * @param filters specifies an array of filter objects one for each supported axis.
+     *                It is assumed that the order of the filters in the array is x, y
+     *                and then z. If an axis is specified in the options but no filter
+     *                will be used on that axis, the corresponding element in the array
+     *                should be set to null. If no filter is used at all, filters can
+     *                be set to null.
+     */
+    public TrcGyro(final String instanceName, final int options, TrcFilter[] filters)
     {
         if (debugEnabled)
         {
@@ -213,164 +141,269 @@ public abstract class TrcGyro
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
+        //
+        // Count the number of axes and set up the indices for each axis.
+        //
+        int numAxes = 0;
+
+        if ((options & GYRO_HAS_X_AXIS) != 0)
+        {
+            xIndex = numAxes;
+            numAxes++;
+        }
+
+        if ((options & GYRO_HAS_Y_AXIS) != 0)
+        {
+            yIndex = numAxes;
+            numAxes++;
+        }
+
+        if ((options & GYRO_HAS_Z_AXIS) != 0)
+        {
+            zIndex = numAxes;
+            numAxes++;
+        }
+
+        //
+        // Make sure we have at least one axis.
+        //
+        if (numAxes == 0)
+        {
+            throw new IllegalArgumentException("options must specify at least one axis.");
+        }
+
+        //
+        // If no filters are provided, create an array of null filters.
+        //
+        if (filters == null)
+        {
+            filters = new TrcFilter[numAxes];
+        }
+
+        //
+        // Make sure the filter array must have numAxes elements.
+        // Even if we don't filter on some axes, we still must have numAxes elements
+        // but the elements of those axes can be null.
+        //
+        if (filters.length != numAxes)
+        {
+            throw new IllegalArgumentException(
+                    String.format("filters must be an array of %d elements.", numAxes));
+        }
+
         this.instanceName = instanceName;
-        boolean useFilter = (options & GYROOPTION_FILTER) != 0;
-        rawGyroXRate = new RawGyroXRate(useFilter);
-        rawGyroYRate = new RawGyroYRate(useFilter);
-        rawGyroZRate = new RawGyroZRate(useFilter);
+        this.options = options;
 
-        if ((options & GYROOPTION_INTEGRATE_X) != 0)
+        //
+        // Create and initialize the array of data providers, one for each axis.
+        // This class is the data provider for all.
+        //
+        TrcSensorData.DataProvider[] dataProviders = new TrcSensorData.DataProvider[numAxes];
+
+        if (xIndex != -1)
         {
-            xIntegrator = new TrcIntegrator("x" + instanceName, rawGyroXRate);
+            dataProviders[xIndex] = this;
         }
 
-        if ((options & GYROOPTION_INTEGRATE_Y) != 0)
+        if (yIndex != -1)
         {
-            yIntegrator = new TrcIntegrator("y" + instanceName, rawGyroYRate);
+            dataProviders[yIndex] = this;
         }
 
-        if ((options & GYROOPTION_INTEGRATE_Z) != 0)
+        if (zIndex != -1)
         {
-            zIntegrator = new TrcIntegrator("z" + instanceName, rawGyroZRate);
+            dataProviders[zIndex] = this;
         }
 
-        if ((options & GYROOPTION_X_WRAPAROUND) != 0)
+        //
+        // Create the data processor with the given filter array.
+        //
+        dataProcessor = new TrcDataProcessor(instanceName, filters);
+
+        //
+        // Create the data integrator. Data integrator needs data providers to
+        // provide processed rate data for each axis.
+        //
+        if ((options & (GYRO_INTEGRATE_X | GYRO_INTEGRATE_Y | GYRO_INTEGRATE_Z)) != 0)
         {
-            xWrapAroundHandler = new TrcWrapAroundHandler(
-                    "x" + instanceName,
-                    new RawGyroXHeading(),
-                    0.0, 360.0);
+            String[] dataNames = new String[numAxes];
+
+            if ((xIndex != -1) && (options & GYRO_INTEGRATE_X) != 0)
+            {
+                dataNames[xIndex] = DATANAME_PROCESSED_XRATE;
+            }
+
+            if (yIndex != -1 && (options & GYRO_INTEGRATE_Y) != 0)
+            {
+                dataNames[yIndex] = DATANAME_PROCESSED_YRATE;
+            }
+
+            if (zIndex != -1 && (options & GYRO_INTEGRATE_Z) != 0)
+            {
+                dataNames[zIndex] = DATANAME_PROCESSED_ZRATE;
+            }
+
+            dataIntegrator = new TrcDataIntegrator(instanceName, dataProviders, dataNames, false);
         }
 
-        if ((options & GYROOPTION_Y_WRAPAROUND) != 0)
+        //
+        // Create the data unwrapper. Data unwrapper needs data providers to
+        // provide processed heading data for each axis. Integration of rate
+        // and unwrapping of heading are mutually exclusive. If we are doing
+        // software integration, the resulting heading is not wrap-around.
+        // If we need to unwrap heading, the heading is from the physical
+        // sensor and not from the integrator.
+        //
+        if ((options & (GYRO_UNWRAP_XHEADING | GYRO_UNWRAP_YHEADING | GYRO_UNWRAP_ZHEADING)) != 0)
         {
-            yWrapAroundHandler = new TrcWrapAroundHandler(
-                    "y" + instanceName,
-                    new RawGyroYHeading(),
-                    0.0, 360.0);
+            String[] dataNames = new String[numAxes];
+
+            if ((xIndex != -1) && (options & GYRO_UNWRAP_XHEADING) != 0)
+            {
+                if ((options & GYRO_INTEGRATE_X) != 0)
+                {
+                    throw new IllegalArgumentException(
+                            "Options IntegrateX and UnwrapX cannot coexist.");
+                }
+                dataNames[xIndex] = DATANAME_PROCESSED_XHEADING;
+            }
+
+            if ((yIndex != -1) && (options & GYRO_UNWRAP_YHEADING) != 0)
+            {
+                if ((options & GYRO_INTEGRATE_Y) != 0)
+                {
+                    throw new IllegalArgumentException(
+                            "Options IntegrateY and UnwrapY cannot coexist.");
+                }
+                dataNames[yIndex] = DATANAME_PROCESSED_YHEADING;
+            }
+
+            if ((zIndex != -1) && (options & GYRO_UNWRAP_ZHEADING) != 0)
+            {
+                if ((options & GYRO_INTEGRATE_Z) != 0)
+                {
+                    throw new IllegalArgumentException(
+                            "Options IntegrateZ and UnwrapZ cannot coexist.");
+                }
+                dataNames[zIndex] = DATANAME_PROCESSED_ZHEADING;
+            }
+
+            dataUnwrapper = new TrcDataUnwrapper(instanceName, dataProviders, dataNames);
         }
 
-        if ((options & GYROOPTION_Z_WRAPAROUND) != 0)
+        //
+        // Create the data calibrator. Data calibrator needs data providers to
+        // provide raw rate data for each axis.
+        //
+        if ((options & GYRO_DO_CALIBRATION) != 0)
         {
-            zWrapAroundHandler = new TrcWrapAroundHandler(
-                    "z" + instanceName,
-                    new RawGyroZHeading(),
-                    0.0, 360.0);
+            String[] dataNames = new String[numAxes];
+            zeroOffsets = new double[numAxes];
+            deadbands = new double[numAxes];
+
+            if (xIndex != -1)
+            {
+                dataNames[xIndex] = DATANAME_RAW_XRATE;
+            }
+
+            if (yIndex != -1)
+            {
+                dataNames[yIndex] = DATANAME_RAW_YRATE;
+            }
+
+            if (zIndex != -1)
+            {
+                dataNames[zIndex] = DATANAME_RAW_ZRATE;
+            }
+
+            calibrator = new TrcDataCalibrator(instanceName, dataProviders, dataNames);
         }
     }   //TrcGyro
 
-    public TrcGyro(String instanceName)
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param options specifies the gyro options:
+     *                GYRO_HAS_X_AXIS - supports x-axis.
+     *                GYRO_HAS_Y_AXIS - supports y-axis.
+     *                GYRO_HAS_Z_AXIS - supports z-axis.
+     *                GYRO_INTEGRATE_X - do integration on x-axis to get x heading.
+     *                GYRO_INTEGRATE_Y - do integration on y-axis to get y heading.
+     *                GYRO_INTEGRATE_Z - do integration on z-axis to get z heading.
+     *                GYRO_UNWRAP_XHEADING - unwrap heading of x-axis.
+     *                GYRO_UNWRAP_YHEADING - unwrap heading of y-axis.
+     *                GYRO_UNWRAP_ZHEADING - unwrap heading of z-axis.
+     *                GYRO_DO_CALIBRATION - do calibration on the gyro.
+     */
+    public TrcGyro(final String instanceName, final int options)
     {
-        this(instanceName, 0);
+        this(instanceName, options, null);
     }   //TrcGyro
 
+    /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
     public String toString()
     {
         return instanceName;
     }   //toString
 
-    public void setDataStaleTime(double dataStaleTime)
-    {
-        final String funcName = "setDataStaleTime";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "staleTime=%f", dataStaleTime);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        this.dataStaleTime = dataStaleTime;
-    }   //setDataStaleTime
-
-    private void updateRateData()
-    {
-        final String funcName = "updateRateData";
-
-        if (rateData == null ||
-            HalUtil.getCurrentTime() - rateData.timestamp > dataStaleTime)
-        {
-            rateData = getRawRates();
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-    }   //updateRateData
-
-    private void updateHeadingData()
-    {
-        final String funcName = "updateHeadingData";
-
-        if (headingData == null ||
-            HalUtil.getCurrentTime() - headingData.timestamp > dataStaleTime)
-        {
-            headingData = getRawHeadings();
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-    }   //updateHeadingData
-
-    public void setEnabled(boolean enabled)
+    /**
+     * This method enables/disables the processing of gyro data. It is not
+     * automatically enabled when the TrcGyro object is created. You need
+     * to explicitly enable the it before data processing will start. As
+     * part of enabling the gyro, calibrate() is also called. calibrate()
+     * may be overridden by the platform dependent gyro if it is capable
+     * of doing its own. Otherwise, calibrate will call the built-in
+     * calibrator to do the calibration.
+     * Enabling/disabling data processing for the gyro involves
+     * enabling/disabling the integrator and the unwrapper if
+     * they exist.
+     *
+     * @param enabled specifies true if enabling, false otherwise.
+     */
+    protected void setEnabled(boolean enabled)
     {
         final String funcName = "setEnabled";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "inverted=%s", Boolean.toString(enabled));
+                                "enabled=%s", Boolean.toString(enabled));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        calibrate();
-        while (isCalibrating())
+        if (enabled)
         {
-            try
-            {
-                Thread.sleep(50);
-            }
-            catch (InterruptedException e)
-            {
-            }
+            calibrate();
         }
 
-        if (xIntegrator != null)
+        //
+        // Enable/disable integrator.
+        //
+        if (dataIntegrator != null)
         {
-            xIntegrator.setEnabled(enabled);
+            dataIntegrator.setEnabled(enabled);
         }
 
-        if (yIntegrator != null)
+        //
+        // Enable/disable unwrapper.
+        //
+        if (dataUnwrapper != null)
         {
-            yIntegrator.setEnabled(enabled);
-        }
-
-        if (zIntegrator != null)
-        {
-            zIntegrator.setEnabled(enabled);
-        }
-
-        if (xWrapAroundHandler != null)
-        {
-            xWrapAroundHandler.setEnabled(enabled);
-        }
-
-        if (yWrapAroundHandler != null)
-        {
-            yWrapAroundHandler.setEnabled(enabled);
-        }
-
-        if (zWrapAroundHandler != null)
-        {
-            zWrapAroundHandler.setEnabled(enabled);
+            dataUnwrapper.setEnabled(enabled);
         }
     }   //setEnabled
 
+    /**
+     * This method inverts the x-axis. This is useful if the orientation of
+     * the gyro x-axis is such that the data goes the wrong direction.
+     *
+     * @param inverted specifies true to invert x-axis, false otherwise.
+     */
     public void setXInverted(boolean inverted)
     {
         final String funcName = "setXInverted";
@@ -382,9 +415,15 @@ public abstract class TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        rawGyroXRate.setInverted(inverted);
+        dataProcessor.setInverted(xIndex, inverted);
     }   //setXInverted
 
+    /**
+     * This method inverts the y-axis. This is useful if the orientation of
+     * the gyro y-axis is such that the data goes the wrong direction.
+     *
+     * @param inverted specifies true to invert y-axis, false otherwise.
+     */
     public void setYInverted(boolean inverted)
     {
         final String funcName = "setYInverted";
@@ -396,9 +435,15 @@ public abstract class TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        rawGyroYRate.setInverted(inverted);
+        dataProcessor.setInverted(yIndex, inverted);
     }   //setYInverted
 
+    /**
+     * This method inverts the z-axis. This is useful if the orientation of
+     * the gyro z-axis is such that the data goes the wrong direction.
+     *
+     * @param inverted specifies true to invert z-axis, false otherwise.
+     */
     public void setZInverted(boolean inverted)
     {
         final String funcName = "setZInverted";
@@ -410,94 +455,420 @@ public abstract class TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        rawGyroZRate.setInverted(inverted);
+        dataProcessor.setInverted(zIndex, inverted);
     }   //setZInverted
 
-    public void calibrate()
+    /**
+     * This method sets the scale factor for the data of the x-axis.
+     *
+     * @param scale specifies the x scale factor.
+     */
+    public void setXScale(double scale)
+    {
+        final String funcName = "setXScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        dataProcessor.setScale(xIndex, scale);
+    }   //setXScale
+
+    /**
+     * This method sets the scale factor for the data of the y-axis.
+     *
+     * @param scale specifies the y scale factor.
+     */
+    public void setYScale(double scale)
+    {
+        final String funcName = "setYScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        dataProcessor.setScale(yIndex, scale);
+    }   //setYScale
+
+    /**
+     * This method sets the scale factor for the data of the z-axis.
+     *
+     * @param scale specifies the z scale factor.
+     */
+    public void setZScale(double scale)
+    {
+        final String funcName = "setZScale";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        dataProcessor.setScale(zIndex, scale);
+    }   //setZScale
+
+    /**
+     * This method sets the heading value range of the x-axis.
+     * The value range is used by the unwrapper to unwrap heading
+     * data.
+     *
+     * @param valueRangeLow specifies the low value of the x-axis range.
+     * @param valueRangeHigh specifies the high value of the x-axis range.
+     */
+    public void setXValueRange(double valueRangeLow, double valueRangeHigh)
+    {
+        final String funcName = "setXValueRange";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "low=%f,high=%f", valueRangeLow, valueRangeHigh);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.setValueRange(xIndex, valueRangeLow, valueRangeHigh);
+        }
+    }   //setXValueRange
+
+    /**
+     * This method sets the heading value range of the y-axis.
+     * The value range is used by the unwrapper to unwrap heading
+     * data.
+     *
+     * @param valueRangeLow specifies the low value of the y-axis range.
+     * @param valueRangeHigh specifies the high value of the y-axis range.
+     */
+    public void setYValueRange(double valueRangeLow, double valueRangeHigh)
+    {
+        final String funcName = "setYValueRange";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "low=%f,high=%f", valueRangeLow, valueRangeHigh);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.setValueRange(yIndex, valueRangeLow, valueRangeHigh);
+        }
+    }   //setYValueRange
+
+    /**
+     * This method sets the heading value range of the z-axis.
+     * The value range is used by the unwrapper to unwrap heading
+     * data.
+     *
+     * @param valueRangeLow specifies the low value of the z-axis range.
+     * @param valueRangeHigh specifies the high value of the z-axis range.
+     */
+    public void setZValueRange(double valueRangeLow, double valueRangeHigh)
+    {
+        final String funcName = "setZValueRange";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "low=%f,high=%f", valueRangeLow, valueRangeHigh);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.setValueRange(zIndex, valueRangeLow, valueRangeHigh);
+        }
+    }   //setZValueRange
+
+    /**
+     * This method calls the built-in calibrator to calibrates the gyro.
+     *
+     * @param numCalSamples specifies the number of calibration samples to take.
+     * @param calInterval specifes the interval in msec between samples.
+     */
+    public void calibrate(int numCalSamples, long calInterval)
     {
         final String funcName = "calibrate";
 
-        xZeroOffset = 0.0;
-        xDeadband = 0.0;
-        yZeroOffset = 0.0;
-        yDeadband = 0.0;
-        zZeroOffset = 0.0;
-        zDeadband = 0.0;
-        rateData = getRawRates();
-        double xMinValue = rateData.x;
-        double xMaxValue = xMinValue;
-        double xSum = 0.0;
-        double yMinValue = rateData.y;
-        double yMaxValue = yMinValue;
-        double ySum = 0.0;
-        double zMinValue = rateData.z;
-        double zMaxValue = zMinValue;
-        double zSum = 0.0;
-        TrcSensorAxisData data;
-
-        calibrating = true;
-        for (int i = 0; i < NUM_CAL_SAMPLES; i++)
+        if (calibrator != null)
         {
-            data = getRawRates();
-            xSum += data.x;
-            ySum += data.y;
-            zSum += data.z;
+            calibrator.calibrate(numCalSamples, calInterval, zeroOffsets, deadbands);
 
-            if (data.x < xMinValue)
+            if ((options & GYRO_HAS_X_AXIS) != 0)
             {
-                xMinValue = data.x;
-            }
-            else if (data.x > xMaxValue)
-            {
-                xMaxValue = data.x;
+                dataProcessor.setCalibrationData(xIndex, zeroOffsets[xIndex], deadbands[xIndex]);
             }
 
-            if (data.y < yMinValue)
+            if ((options & GYRO_HAS_Y_AXIS) != 0)
             {
-                yMinValue = data.y;
-            }
-            else if (data.y > yMaxValue)
-            {
-                yMaxValue = data.y;
+                dataProcessor.setCalibrationData(yIndex, zeroOffsets[yIndex], deadbands[yIndex]);
             }
 
-            if (data.z < zMinValue)
+            if ((options & GYRO_HAS_Z_AXIS) != 0)
             {
-                zMinValue = data.z;
-            }
-            else if (data.z > zMaxValue)
-            {
-                zMaxValue = data.z;
-            }
-
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
+                dataProcessor.setCalibrationData(zIndex, zeroOffsets[zIndex], deadbands[zIndex]);
             }
         }
 
-        xZeroOffset = xSum/NUM_CAL_SAMPLES;
-        xDeadband = (xMaxValue - xMinValue);
-        yZeroOffset = ySum/NUM_CAL_SAMPLES;
-        yDeadband = (yMaxValue - yMinValue);
-        zZeroOffset = zSum/NUM_CAL_SAMPLES;
-        zDeadband = (zMaxValue - zMinValue);
-        calibrating = false;
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "numSamples=%d,calInterval=%d", numCalSamples, calInterval);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //calibrate
+
+    /**
+     * This method resets the unwrapper on the x-axis.
+     */
+    public void resetXUnwrapper()
+    {
+        final String funcName = "resetXUnwrapper";
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.reset(xIndex);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetXUnwrapper
+
+    /**
+     * This method resets the unwrapper on the y-axis.
+     */
+    public void resetYUnwrapper()
+    {
+        final String funcName = "resetYUnwrapper";
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.reset(yIndex);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetYUnwrapper
+
+    /**
+     * This method resets the unwrapper on the z-axis.
+     */
+    public void resetZUnwrapper()
+    {
+        final String funcName = "resetZUnwrapper";
+
+        if (dataUnwrapper != null)
+        {
+            dataUnwrapper.reset(zIndex);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //resetZUnwrapper
+
+    /**
+     * This method returns the rotation rate on the x-axis.
+     *
+     * @return X rotation rate.
+     */
+    public TrcSensorData getXRotationRate()
+    {
+        final String funcName = "getXRotationRate";
+        TrcSensorData data = getSensorData(DATANAME_PROCESSED_XRATE);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "! (x:%.1f,%.1f y:%.1f,%.1f z:%.1f,%.1f)",
-                               xZeroOffset, xDeadband,
-                               yZeroOffset, yDeadband,
-                               zZeroOffset, zDeadband);
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
         }
+
+        return data;
+    }   //getXRotationRate
+
+    /**
+     * This method returns the rotation rate on the y-axis.
+     *
+     * @return Y rotation rate.
+     */
+    public TrcSensorData getYRotationRate()
+    {
+        final String funcName = "getYRotationRate";
+        TrcSensorData data = getSensorData(DATANAME_PROCESSED_YRATE);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getYRotationRate
+
+    /**
+     * This method returns the rotation rate on the z-axis.
+     *
+     * @return Z rotation rate.
+     */
+    public TrcSensorData getZRotationRate()
+    {
+        final String funcName = "getZRotationRate";
+        TrcSensorData data = getSensorData(DATANAME_PROCESSED_ZRATE);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getZRotationRate
+
+    /**
+     * This method returns the heading of the x-axis. If there is an integrator,
+     * we call the integrator to get the heading. Else if we have an unwrapper,
+     * we call the unwrapper to get the heading else we call the platform dependent
+     * gyro to get the raw heading value.
+     *
+     * @return X heading.
+     */
+    public TrcSensorData getXHeading()
+    {
+        final String funcName = "getXHeading";
+        TrcSensorData data = null;
+
+        if (dataIntegrator != null)
+        {
+            data = dataIntegrator.getIntegratedData(xIndex);
+        }
+        else if (dataUnwrapper != null)
+        {
+            data = dataUnwrapper.getUnwrappedData(xIndex);
+        }
+        else
+        {
+            data = getRawXHeading();
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getXHeading
+
+    /**
+     * This method returns the heading of the y-axis. If there is an integrator,
+     * we call the integrator to get the heading. Else if we have an unwrapper,
+     * we call the unwrapper to get the heading else we call the platform dependent
+     * gyro to get the raw heading value.
+     *
+     * @return Y heading.
+     */
+    public TrcSensorData getYHeading()
+    {
+        final String funcName = "getYHeading";
+        TrcSensorData data = null;
+
+        if (dataIntegrator != null)
+        {
+            data = dataIntegrator.getIntegratedData(yIndex);
+        }
+        else if (dataUnwrapper != null)
+        {
+            data = dataUnwrapper.getUnwrappedData(yIndex);
+        }
+        else
+        {
+            data = getRawYHeading();
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getYHeading
+
+    /**
+     * This method returns the heading of the z-axis. If there is an integrator,
+     * we call the integrator to get the heading. Else if we have an unwrapper,
+     * we call the unwrapper to get the heading else we call the platform dependent
+     * gyro to get the raw heading value.
+     *
+     * @return Z heading.
+     */
+    public TrcSensorData getZHeading()
+    {
+        final String funcName = "getZHeading";
+        TrcSensorData data = null;
+
+        if (dataIntegrator != null)
+        {
+            data = dataIntegrator.getIntegratedData(zIndex);
+        }
+        else if (dataUnwrapper != null)
+        {
+            data = dataUnwrapper.getUnwrappedData(zIndex);
+        }
+        else
+        {
+            data = getRawZHeading();
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getZHeading
+
+    //
+    // The following methods can be overridden by a platform dependent gyro class.
+    //
+
+    /**
+     * This method calls the built-in calibrator to calibrates the gyro.
+     * This method can be overridden by the platform dependent gyro to
+     * provide its own calibration.
+     */
+    public void calibrate()
+    {
+        calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
     }   //calibrate
 
+    /**
+     * This method always returns false because the built-in calibrator is synchronous.
+     *
+     * @return false.
+     */
     public boolean isCalibrating()
     {
         final String funcName = "isCalibrating";
@@ -505,170 +876,142 @@ public abstract class TrcGyro
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(calibrating));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=false");
         }
 
-        return calibrating;
+        //
+        // The built-in calibrator is synchronous, so we always return false.
+        //
+
+        return false;
     }   //isCalibrating
 
+    /**
+     * This method resets the integrator on the x-axis.
+     */
     public void resetXIntegrator()
     {
         final String funcName = "resetXIntegrator";
 
+        if (dataIntegrator != null)
+        {
+            dataIntegrator.reset(xIndex);
+        }
+
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-
-        if (xIntegrator != null)
-        {
-            xIntegrator.reset();
-        }
     }   //resetXIntegrator
 
+    /**
+     * This method resets the integrator on the y-axis.
+     */
     public void resetYIntegrator()
     {
         final String funcName = "resetYIntegrator";
 
+        if (dataIntegrator != null)
+        {
+            dataIntegrator.reset(yIndex);
+        }
+
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-
-        if (yIntegrator != null)
-        {
-            yIntegrator.reset();
-        }
     }   //resetYIntegrator
 
+    /**
+     * This method resets the integrator on the z-axis.
+     */
     public void resetZIntegrator()
     {
         final String funcName = "resetZIntegrator";
 
+        if (dataIntegrator != null)
+        {
+            dataIntegrator.reset(zIndex);
+        }
+
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-
-        if (zIntegrator != null)
-        {
-            zIntegrator.reset();
-        }
     }   //resetZIntegrator
 
-    public double getXRotation()
+    //
+    // Implements TrcSensorData.DataProvider interface.
+    //
+
+    /**
+     * This method returns the sensor data idnetified by the given dataName. The
+     * possible data returned can be raw gyro rate, processed gyro rate or processed
+     * unwrapped gyro heading for each axis.
+     *
+     * @param dataName specifies the data names to identify what sensor data to get.
+     * @return sensor data.
+     */
+    @Override
+    public TrcSensorData getSensorData(String dataName)
     {
-        final String funcName = "getXRotation";
-        double value = rawGyroXRate.getFilteredValue().data;
+        final String funcName = "getSensorData";
+        TrcSensorData data = null;
 
-        if (debugEnabled)
+        if (dataName.equals(DATANAME_RAW_XRATE))
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            data = getRawXRate();
         }
-
-        return value;
-    }   //getXRotation
-
-    public double getYRotation()
-    {
-        final String funcName = "getYRotation";
-        double value = rawGyroYRate.getFilteredValue().data;
-
-        if (debugEnabled)
+        else if (dataName.equals(DATANAME_RAW_YRATE))
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            data = getRawYRate();
         }
-
-        return value;
-    }   //getYRotation
-
-    public double getZRotation()
-    {
-        final String funcName = "getZRotation";
-        double value = rawGyroZRate.getFilteredValue().data;
-
-        if (debugEnabled)
+        else if (dataName.equals(DATANAME_RAW_ZRATE))
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            data = getRawZRate();
         }
-
-        return value;
-    }   //getZRotation
-
-    public double getXHeading()
-    {
-        final String funcName = "getXHeading";
-        double value = 0.0;
-
-        if (xIntegrator != null)
+        else if (dataName.equals(DATANAME_PROCESSED_XRATE))
         {
-            value = xIntegrator.getOutput();
+            data = getRawXRate();
+            data.value = dataProcessor.processData(xIndex, data.value);
         }
-        else if (xWrapAroundHandler != null)
+        else if (dataName.equals(DATANAME_PROCESSED_YRATE))
         {
-            value = xWrapAroundHandler.getCumulatedValue();
+            data = getRawYRate();
+            data.value = dataProcessor.processData(yIndex, data.value);
         }
-
-        if (debugEnabled)
+        else if (dataName.equals(DATANAME_PROCESSED_ZRATE))
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            data = getRawZRate();
+            data.value = dataProcessor.processData(zIndex, data.value);
         }
-
-        return value;
-    }   //getXHeading
-
-    public double getYHeading()
-    {
-        final String funcName = "getYHeading";
-        double value = 0.0;
-
-        if (yIntegrator != null)
+        else if (dataName.equals(DATANAME_PROCESSED_XHEADING))
         {
-            value = yIntegrator.getOutput();
+            data = getRawXHeading();
+            data.value = dataProcessor.processData(xIndex, data.value);
         }
-        else if (yWrapAroundHandler != null)
+        else if (dataName.equals(DATANAME_PROCESSED_YHEADING))
         {
-            value = yWrapAroundHandler.getCumulatedValue();
+            data = getRawYHeading();
+            data.value = dataProcessor.processData(yIndex, data.value);
+        }
+        else if (dataName.equals(DATANAME_PROCESSED_ZHEADING))
+        {
+            data = getRawZHeading();
+            data.value = dataProcessor.processData(zIndex, data.value);
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
         }
 
-        return value;
-    }   //getYHeading
-
-    public double getZHeading()
-    {
-        final String funcName = "getZHeading";
-        double value = 0.0;
-
-        if (zIntegrator != null)
-        {
-            value = zIntegrator.getOutput();
-        }
-        else if (zWrapAroundHandler != null)
-        {
-            value = zWrapAroundHandler.getCumulatedValue();
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getZHeading
+        return data;
+    }   //getSensorData
 
 }   //class TrcGyro

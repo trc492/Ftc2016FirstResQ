@@ -20,7 +20,7 @@ public class RobotInfo
     public static final double TURN_TOLERANCE                   = 2.0;
     public static final double TURN_SETTLING                    = 0.2;
 
-    public static final double LINE_THRESHOLD                   = ((18.0 + 80.0)/2.0);
+    public static final double LINE_THRESHOLD                   = ((16.0 + 70.0)/2.0);
     public static final double LINEFOLLOW_KP                    = 0.02;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;
@@ -40,22 +40,22 @@ public class RobotInfo
     public static final double ELEVATOR_MAX_HEIGHT              = 23.5;
     public static final double ELEVATOR_INCHES_PER_CLICK        = (23.5/9700.0);
     public static final double ELEVATOR_CAL_POWER               = -0.2;
-    public static final double CHAINLOCK_UNLOCK_POSITION        = 0.0;
-    public static final double CHAINLOCK_LOCK_POSITION          = 0.35;
+    public static final double BRAKE_OFF_POSITION               = 0.0;
+    public static final double BRAKE_ON_POSITION                = 0.35;
 
     //
-    // SlideHook subsystem.
+    // Slider subsystem.
     //
-    public static final double SLIDEHOOK_KP                     = 0.15;
-    public static final double SLIDEHOOK_KI                     = 0.0;
-    public static final double SLIDEHOOK_KD                     = 0.0;
-    public static final double SLIDEHOOK_KF                     = 0.0;
-    public static final double SLIDEHOOK_TOLERANCE              = 0.2;
-    public static final double SLIDEHOOK_SETTLING               = 0.2;
-    public static final double SLIDEHOOK_MIN_LENGTH             = 0.0;
-    public static final double SLIDEHOOK_MAX_LENGTH             = 10.0;
-    public static final double SLIDEHOOK_INCHES_PER_CLICK       = (10.0/20402.0);
-    public static final double SLIDEHOOK_CAL_POWER              = -1.0;
+    public static final double SLIDER_KP                        = 0.15;
+    public static final double SLIDER_KI                        = 0.0;
+    public static final double SLIDER_KD                        = 0.0;
+    public static final double SLIDER_KF                        = 0.0;
+    public static final double SLIDER_TOLERANCE                 = 0.2;
+    public static final double SLIDER_SETTLING                  = 0.2;
+    public static final double SLIDER_MIN_LENGTH                = 0.0;
+    public static final double SLIDER_MAX_LENGTH                = 10.0;
+    public static final double SLIDER_INCHES_PER_CLICK          = (10.0/20402.0);
+    public static final double SLIDER_CAL_POWER                 = -1.0;
 
     //
     // ButtonPusher subsystem.
@@ -64,14 +64,6 @@ public class RobotInfo
     public static final double PUSHER_RETRACT_LEFT              = 0.0;
     public static final double PUSHER_EXTEND_RIGHT              = 1.0;
     public static final double PUSHER_RETRACT_RIGHT             = 0.0;
-
-    //
-    // CattleGuard subsystem.
-    //
-    public static final double CATTLEGUARD_LEFT_EXTEND_POSITION = 0.0;
-    public static final double CATTLEGUARD_LEFT_RETRACT_POSITION= 1.0;
-    public static final double CATTLEGUARD_RIGHT_EXTEND_POSITION= 0.0;
-    public static final double CATTLEGUARD_RIGHT_RETRACT_POSITION= 1.0;
 
     //
     // ClimberRelease subsystem.

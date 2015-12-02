@@ -13,7 +13,7 @@ public class ClimberRelease
     public ClimberRelease(String instanceName, boolean inverted)
     {
         servo = new FtcServo(instanceName);
-        servo.setReverse(inverted);
+        servo.setInverted(inverted);
     }   //ClimberRelease
 
     public void setPosition(double position)

@@ -4,47 +4,44 @@ import ftclib.FtcDcMotor;
 import ftclib.FtcServo;
 import ftclib.FtcTouch;
 import trclib.TrcDigitalTrigger;
-import trclib.TrcMotorController;
 import trclib.TrcEvent;
-import trclib.TrcMotorLimitSwitches;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
 
 public class Elevator implements TrcPidController.PidInput,
-                                 TrcMotorLimitSwitches,
                                  TrcDigitalTrigger.TriggerHandler
 {
     //
     // This component consists of an elevator motor, a lower limit switch,
     // an upper limit switch, an encoder to keep track of the position of
-    // the elevator and a servo to engage/disengage the chain lock.
+    // the elevator and a servo to engage/disengage the brake.
     //
-    private FtcDcMotor motor;
-    private TrcPidController pidController;
-    private TrcPidMotor pidMotor;
     private FtcTouch lowerLimitSwitch;
     private FtcTouch upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
-    private FtcServo chainLock;
+    private FtcDcMotor motor;
+    private TrcPidController pidCtrl;
+    private TrcPidMotor pidMotor;
+    private FtcServo brake;
 
     public Elevator()
     {
-        motor = new FtcDcMotor("elevator", this);
-        pidController = new TrcPidController(
+        lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
+        upperLimitSwitch = new FtcTouch("upperLimitSwitch");
+        lowerLimitTrigger = new TrcDigitalTrigger("elevatorLowerLimit", lowerLimitSwitch, this);
+        lowerLimitTrigger.setEnabled(true);
+        motor = new FtcDcMotor("elevator", lowerLimitSwitch, upperLimitSwitch);
+        pidCtrl = new TrcPidController(
                 "elevator",
                 RobotInfo.ELEVATOR_KP, RobotInfo.ELEVATOR_KI,
                 RobotInfo.ELEVATOR_KD, RobotInfo.ELEVATOR_KF,
                 RobotInfo.ELEVATOR_TOLERANCE,RobotInfo.ELEVATOR_SETTLING,
                 this);
-        pidController.setAbsoluteSetPoint(true);
-        pidMotor = new TrcPidMotor("elevator", motor, pidController);
+        pidCtrl.setAbsoluteSetPoint(true);
+        pidMotor = new TrcPidMotor("elevator", motor, pidCtrl);
         pidMotor.setPositionScale(RobotInfo.ELEVATOR_INCHES_PER_CLICK);
-        lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
-        upperLimitSwitch = new FtcTouch("upperLimitSwitch");
-        lowerLimitTrigger = new TrcDigitalTrigger("elevatorLowerLimit", lowerLimitSwitch, this);
-        lowerLimitTrigger.setEnabled(true);
-        chainLock = new FtcServo("chainLock");
-        setChainLock(false);
+        brake = new FtcServo("brake");
+        setBrakeOn(false);
     }
 
     public void zeroCalibrate(double calPower)
@@ -52,10 +49,10 @@ public class Elevator implements TrcPidController.PidInput,
         pidMotor.zeroCalibrate(calPower);
     }
 
-    public void setChainLock(boolean locked)
+    public void setBrakeOn(boolean brakeOn)
     {
-        chainLock.setPosition(
-                locked? RobotInfo.CHAINLOCK_LOCK_POSITION: RobotInfo.CHAINLOCK_UNLOCK_POSITION);
+        brake.setPosition(
+                brakeOn? RobotInfo.BRAKE_ON_POSITION: RobotInfo.BRAKE_OFF_POSITION);
     }
 
     public void setPower(double power)
@@ -90,7 +87,7 @@ public class Elevator implements TrcPidController.PidInput,
 
     public void displayDebugInfo(int lineNum)
     {
-        pidController.displayPidInfo(lineNum);
+        pidCtrl.displayPidInfo(lineNum);
     }
 
     //
@@ -100,27 +97,13 @@ public class Elevator implements TrcPidController.PidInput,
     {
         double value = 0.0;
 
-        if (pidCtrl == pidController)
+        if (pidCtrl == this.pidCtrl)
         {
             value = getHeight();
         }
 
         return value;
     }   //getInput
-
-    //
-    // Implements TrcMotorLimitSwitches.
-    //
-
-    public boolean isForwardLimitSwitchActive(TrcMotorController speedController)
-    {
-        return upperLimitSwitch.isActive();
-    }   //isForwardLimitSwitchActive
-
-    public boolean isReverseLimitSwitchActive(TrcMotorController speedController)
-    {
-        return lowerLimitSwitch.isActive();
-    }   //isReverseLimitSwitchActive
 
     //
     // Implements TrcDigitalTrigger.TriggerHandler

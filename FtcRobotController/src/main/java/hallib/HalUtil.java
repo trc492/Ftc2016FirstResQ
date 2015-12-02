@@ -12,4 +12,24 @@ public class HalUtil
         return System.currentTimeMillis();
     }   //getCurrentTimeMillis
 
+    public static void sleep(long sleepTime)
+    {
+        long currTime = System.currentTimeMillis();
+
+        while (sleepTime > 0)
+        {
+            long wakeupTime = currTime + sleepTime;
+
+            try
+            {
+                Thread.sleep(sleepTime);
+            }
+            catch (InterruptedException e)
+            {
+                currTime = System.currentTimeMillis();
+                sleepTime = wakeupTime - currTime;
+            }
+        }
+    }   //sleep
+
 }   //class HalUtil

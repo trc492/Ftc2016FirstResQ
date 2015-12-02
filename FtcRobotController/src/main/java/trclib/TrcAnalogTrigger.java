@@ -27,9 +27,6 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     private double lowThreshold;
     private double highThreshold;
     private TriggerHandler eventHandler;
-    private TrcKalmanFilter kalman = null;
-    private boolean inverted = false;
-    private double unitScale = 1.0;
     private Zone prevZone;
 
     public TrcAnalogTrigger(
@@ -37,8 +34,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             TrcAnalogInput analogInput,
             double lowThreshold,
             double highThreshold,
-            TriggerHandler eventHandler,
-            boolean useFilter)
+            TriggerHandler eventHandler)
     {
         if (debugEnabled)
         {
@@ -59,10 +55,6 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
         this.lowThreshold = lowThreshold;
         this.highThreshold = highThreshold;
         this.eventHandler = eventHandler;
-        if (useFilter)
-        {
-            kalman = new TrcKalmanFilter();
-        }
         prevZone = Zone.UNKNOWN_ZONE;
     }   //TrcAnalogTrigger
 
@@ -70,10 +62,9 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             final String instanceName,
             TrcAnalogInput analogInput,
             double threshold,
-            TriggerHandler eventHandler,
-            boolean useFilter)
+            TriggerHandler eventHandler)
     {
-        this(instanceName, analogInput, threshold, threshold, eventHandler, useFilter);
+        this(instanceName, analogInput, threshold, threshold, eventHandler);
     }   //TrcAnalogTrigger
 
     public void setThresholds(double lowThreshold, double highThreshold)
@@ -92,53 +83,6 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
         this.highThreshold = highThreshold;
     }   //setThresholds
 
-    public void setInverted(boolean inverted)
-    {
-        final String funcName = "setInverted";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        this.inverted = inverted;
-    }   //setInverted
-
-    public void setScale(double scale)
-    {
-        final String funcName = "setScale";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "scale=%f", scale);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        this.unitScale = scale;
-    }   //setScale
-
-    public double getData()
-    {
-        final String funcName = "getData";
-        double data = analogInput.getValue()*unitScale;
-
-        if (kalman != null)
-        {
-            data = kalman.filter(data);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(
-                    funcName, TrcDbgTrace.TraceLevel.FUNC, "=%f", data);
-        }
-
-        return data;
-    }   //getValue
-
     public void setEnabled(boolean enabled)
     {
         final String funcName = "setEnabled";
@@ -151,14 +95,14 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
 
-        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName, this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
         else
         {
-            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
         }
     }   //setEnabled
 
@@ -180,20 +124,20 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "prePeriodic";
-        double data = getData();
+        double value = analogInput.getData().value;
 
         Zone zone;
-        if (data <= lowThreshold)
+        if (value <= lowThreshold)
         {
-            zone = inverted? Zone.HIGH_ZONE: Zone.LOW_ZONE;
+            zone = Zone.LOW_ZONE;
         }
-        else if (data <= highThreshold)
+        else if (value <= highThreshold)
         {
             zone = Zone.MID_ZONE;
         }
         else
         {
-            zone = inverted? Zone.LOW_ZONE: Zone.HIGH_ZONE;
+            zone = Zone.HIGH_ZONE;
         }
 
         if (zone != prevZone)
@@ -204,14 +148,14 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             prevZone = zone;
             if (eventHandler != null)
             {
-                eventHandler.AnalogTriggerEvent(this, zone, data);
+                eventHandler.AnalogTriggerEvent(this, zone, value);
             }
 
             if (debugEnabled)
             {
                 dbgTrace.traceInfo(
                         funcName, "%s entering %s (data=%f)",
-                        instanceName, zone.toString(), data);
+                        instanceName, zone.toString(), value);
             }
         }
     }   //prePeriodicTask

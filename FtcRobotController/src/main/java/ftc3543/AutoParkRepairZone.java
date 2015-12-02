@@ -14,14 +14,16 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
     private HalDashboard dashboard = HalDashboard.getInstance();
 
     private int alliance;
+    private int startPos;
     private double delay;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoParkRepairZone(int alliance, double delay)
+    public AutoParkRepairZone(int alliance, int startPos, double delay)
     {
         this.alliance = alliance;
+        this.startPos = startPos;
         this.delay = delay;
         event = new TrcEvent("ParkRepairZoneEvent");
         timer = new TrcTimer("ParkRepairZoneTimer");
@@ -31,8 +33,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkRepairZone: %s alliance, delay=%.1f",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue", delay);
+        dashboard.displayPrintf(1, "ParkRepairZone: %s alliance, startPos=%s",
+                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
+                                startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? "Mountain": "Corner");
+        dashboard.displayPrintf(2, "\tDelay=%.0f", delay);
 
         if (sm.isReady())
         {
@@ -60,7 +64,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     //
                     // Go forward fast.
                     //
-                    robot.pidDrive.setTarget(60.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(
+                            startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? 45.0: 60.0,
+                            0.0,
+                            false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -81,14 +88,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     //
                     robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
-                    if (alliance == autoMode.ALLIANCE_RED)
-                    {
-                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
-                    }
-                    else
-                    {
-                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
-                    }
+                    robot.pidDrive.setTarget(
+                            0.0,
+                            alliance == autoMode.ALLIANCE_RED? -90.0: 90.0,
+                            false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
                     break;
@@ -107,10 +110,18 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     sm.waitForEvents(state + 1);
                     break;
 
+                case TrcStateMachine.STATE_STARTED + 5:
+                    robot.hangingHook.extend();
+                    timer.set(5.0, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(state + 1);
+                    break;
+
                 default:
                     //
                     // We are done.
                     //
+                    robot.hangingHook.retract();
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
