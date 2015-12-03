@@ -18,8 +18,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
-    private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
-    private FtcRobot robot = autoMode.robot;
+    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
     private FtcAuto.Alliance alliance;

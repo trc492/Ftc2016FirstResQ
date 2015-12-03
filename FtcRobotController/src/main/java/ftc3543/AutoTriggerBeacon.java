@@ -22,8 +22,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
-    private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
-    private FtcRobot robot = autoMode.robot;
+    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
     private FtcAuto.Alliance alliance;
@@ -116,7 +115,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
                 case FOLLOW_LINE:
                     //
-                    // Follow the line until the touch sensor is hit.
+                    // Follow the line until the beacon is in front.
                     //
                     robot.lightTrigger.setEnabled(false);
                     robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
