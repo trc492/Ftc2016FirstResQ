@@ -27,6 +27,14 @@ public class RobotInfo
     public static final double LINEFOLLOW_KF                    = 0.0;
     public static final double LINEFOLLOW_TOLERANCE             = 2.0;
     public static final double LINEFOLLOW_SETTLING              = 0.2;
+
+    public static final double SONAR_KP                         = 0.10;
+    public static final double SONAR_KI                         = 0.0;
+    public static final double SONAR_KD                         = 0.0;
+    public static final double SONAR_KF                         = 0.0;
+    public static final double SONAR_TOLERANCE                  = 2.0;
+    public static final double SONAR_SETTLING                   = 0.2;
+    public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
     //
     // Elevator subsystem.
     //

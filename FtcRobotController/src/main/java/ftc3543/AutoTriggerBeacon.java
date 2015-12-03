@@ -94,7 +94,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Drive forward slowly until we reach the line.
                     //
-                    robot.lineTrigger.setEnabled(true);
+                    robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
@@ -118,12 +118,11 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Follow the line until the touch sensor is hit.
                     //
-                    robot.lineTrigger.setEnabled(false);
-                    robot.touchTrigger.setEnabled(true);
-                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
-                    robot.pidLineFollow.setTarget(
-                            24.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
+                    robot.lightTrigger.setEnabled(false);
+                    robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
+                    robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
+                    robot.pidDriveLineFollow.setTarget(
+                            6.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.PUSH_BUTTON);
                     break;
@@ -134,8 +133,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Simultaneously dump the climbers into the bin and
                     // wait for it to finish.
                     //
-                    robot.touchTrigger.setEnabled(false);
-                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);;
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);;
                     int redValue = robot.colorSensor.red();
@@ -210,9 +209,6 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // We are done.
                     //
-                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

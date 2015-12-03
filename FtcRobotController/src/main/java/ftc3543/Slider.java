@@ -1,7 +1,7 @@
 package ftc3543;
 
 import ftclib.FtcDcMotor;
-import ftclib.FtcTouch;
+import ftclib.FtcTouchSensor;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcEvent;
 import trclib.TrcPidController;
@@ -10,8 +10,8 @@ import trclib.TrcPidMotor;
 public class Slider implements TrcPidController.PidInput,
                                TrcDigitalTrigger.TriggerHandler
 {
-    private FtcTouch lowerLimitSwitch;
-    private FtcTouch upperLimitSwitch;
+    private FtcTouchSensor lowerLimitSwitch;
+    private FtcTouchSensor upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
     private FtcDcMotor motor;
     private TrcPidController pidCtrl;
@@ -19,8 +19,8 @@ public class Slider implements TrcPidController.PidInput,
 
     public Slider()
     {
-        lowerLimitSwitch = new FtcTouch("slideLowerLimit");
-        upperLimitSwitch = new FtcTouch("slideUpperLimit");
+        lowerLimitSwitch = new FtcTouchSensor("slideLowerLimit");
+        upperLimitSwitch = new FtcTouchSensor("slideUpperLimit");
         lowerLimitTrigger = new TrcDigitalTrigger("slideLowerTrigger", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
         motor = new FtcDcMotor("slider", lowerLimitSwitch, upperLimitSwitch);

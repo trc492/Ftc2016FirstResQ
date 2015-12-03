@@ -2,7 +2,7 @@ package ftc3543;
 
 import ftclib.FtcDcMotor;
 import ftclib.FtcServo;
-import ftclib.FtcTouch;
+import ftclib.FtcTouchSensor;
 import trclib.TrcDigitalTrigger;
 import trclib.TrcEvent;
 import trclib.TrcPidController;
@@ -16,8 +16,8 @@ public class Elevator implements TrcPidController.PidInput,
     // an upper limit switch, an encoder to keep track of the position of
     // the elevator and a servo to engage/disengage the brake.
     //
-    private FtcTouch lowerLimitSwitch;
-    private FtcTouch upperLimitSwitch;
+    private FtcTouchSensor lowerLimitSwitch;
+    private FtcTouchSensor upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
     private FtcDcMotor motor;
     private TrcPidController pidCtrl;
@@ -26,8 +26,8 @@ public class Elevator implements TrcPidController.PidInput,
 
     public Elevator()
     {
-        lowerLimitSwitch = new FtcTouch("lowerLimitSwitch");
-        upperLimitSwitch = new FtcTouch("upperLimitSwitch");
+        lowerLimitSwitch = new FtcTouchSensor("lowerLimitSwitch");
+        upperLimitSwitch = new FtcTouchSensor("upperLimitSwitch");
         lowerLimitTrigger = new TrcDigitalTrigger("elevatorLowerLimit", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
         motor = new FtcDcMotor("elevator", lowerLimitSwitch, upperLimitSwitch);

@@ -1,7 +1,7 @@
 package ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import hallib.HalUtil;
 import trclib.TrcAnalogInput;
@@ -10,16 +10,16 @@ import trclib.TrcFilter;
 import trclib.TrcSensorData;
 
 /**
- * This class implements the Modern Robotics Optical Distance sensor.
+ * This class implements a platform dependent ultrasonic sensor.
  * It is a simple value sensor and does not need integration or calibration.
  */
-public class FtcOpticalDistanceSensor extends TrcAnalogInput
+public class FtcUltrasonicSensor extends TrcAnalogInput
 {
-    private static final String moduleName = "FtcOpticalDistanceSensor";
+    private static final String moduleName = "FtcUltrasonicSensor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private OpticalDistanceSensor sensor;
+    private UltrasonicSensor sensor;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -29,7 +29,7 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
      * @param filter specifies a filter object used for filtering sensor noise.
      *               If none needed, it can be set to null.
      */
-    public FtcOpticalDistanceSensor(HardwareMap hardwareMap, String instanceName, TrcFilter filter)
+    public FtcUltrasonicSensor(HardwareMap hardwareMap, String instanceName, TrcFilter filter)
     {
         super(instanceName, 0, filter);
 
@@ -41,9 +41,9 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
-        sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
+        sensor = hardwareMap.ultrasonicSensor.get(instanceName);
         setEnabled(true);
-    }   //FtcOpticalDistanceSensor
+    }   //FtcUltrasonicSensor
 
     /**
      * Constructor: Creates an instance of the object.
@@ -52,20 +52,20 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
      * @param filter specifies a filter object used for filtering sensor noise.
      *               If none needed, it can be set to null.
      */
-    public FtcOpticalDistanceSensor(String instanceName, TrcFilter filter)
+    public FtcUltrasonicSensor(String instanceName, TrcFilter filter)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, filter);
-    }   //FtcOpticalDistanceSensor
+    }   //FtcUltrasonicSensor
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
      */
-    public FtcOpticalDistanceSensor(String instanceName)
+    public FtcUltrasonicSensor(String instanceName)
     {
         this(instanceName, null);
-    }   //FtcOpticalDistanceSensor
+    }   //FtcUltrasonicSensor
 
     //
     // Implements TrcAnalogInput abstract methods.
@@ -76,7 +76,7 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
     {
         final String funcName = "getRawData";
         TrcSensorData data = new TrcSensorData(
-                HalUtil.getCurrentTime(), sensor.getLightDetectedRaw());
+                HalUtil.getCurrentTime(), sensor.getUltrasonicLevel());
 
         if (debugEnabled)
         {
@@ -111,4 +111,4 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
                 "This sensor does not support double integrated data.");
     }   //getRawDoubleIntegratedData
 
-}   //class FtcOpticalDistanceSensor
+}   //class FtcUltrasonicSensor

@@ -42,6 +42,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     private double driveDistance = 0.0;
     private double turnDegrees = 0.0;
     private Alliance alliance = Alliance.RED_ALLIANCE;
+    private double wallDistance = 0.0;
 
     //
     // Implements FtcOpMode abstract methods.
@@ -88,7 +89,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                 break;
 
             case LINE_FOLLOW:
-                doLineFollow(alliance);
+                doLineFollow(alliance, wallDistance);
                 break;
         }
     }   //runPeriodic
@@ -128,11 +129,12 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", testMenu, this);
         FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", testMenu, this);
         FtcMenu allianceMenu = new FtcMenu("Alliance:", testMenu, this);
+        FtcMenu wallDistanceMenu = new FtcMenu("Wall distance:", testMenu, this);
 
-        testMenu.addChoice("Sensor Tests", Test.SENSOR_TESTS);
-        testMenu.addChoice("Timed Drive", Test.TIMED_DRIVE, driveTimeMenu);
-        testMenu.addChoice("Distance Drive", Test.DISTANCE_DRIVE, driveDistanceMenu);
-        testMenu.addChoice("Degrees Turn", Test.DEGREES_TURN, turnDegreesMenu);
+        testMenu.addChoice("Sensor tests", Test.SENSOR_TESTS);
+        testMenu.addChoice("Timed drive", Test.TIMED_DRIVE, driveTimeMenu);
+        testMenu.addChoice("Distance drive", Test.DISTANCE_DRIVE, driveDistanceMenu);
+        testMenu.addChoice("Degrees turn", Test.DEGREES_TURN, turnDegreesMenu);
         testMenu.addChoice("Line follow", Test.LINE_FOLLOW, allianceMenu);
 
         driveTimeMenu.addChoice("1 sec", 1.0);
@@ -152,8 +154,13 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         turnDegreesMenu.addChoice("180 degrees", 180.0);
         turnDegreesMenu.addChoice("360 degrees", 360.0);
 
-        allianceMenu.addChoice("Red", Alliance.RED_ALLIANCE);
-        allianceMenu.addChoice("Blue", Alliance.BLUE_ALLIANCE);
+        allianceMenu.addChoice("Red", Alliance.RED_ALLIANCE, wallDistanceMenu);
+        allianceMenu.addChoice("Blue", Alliance.BLUE_ALLIANCE, wallDistanceMenu);
+
+        wallDistanceMenu.addChoice("4 inches", 4.0);
+        wallDistanceMenu.addChoice("6 inches", 6.0);
+        wallDistanceMenu.addChoice("8 inches", 8.0);
+        wallDistanceMenu.addChoice("12 inches", 12.0);
 
         FtcMenu.walkMenuTree(testMenu);
 
@@ -162,6 +169,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         driveDistance = (Double)driveDistanceMenu.getCurrentChoiceObject();
         turnDegrees = (Double)turnDegreesMenu.getCurrentChoiceObject();
         alliance = (Alliance)allianceMenu.getCurrentChoiceObject();
+        wallDistance = (Double)wallDistanceMenu.getCurrentChoiceObject();
 
         dashboard.displayPrintf(0, "Test: %s", testMenu.getCurrentChoiceText());
     }   //doMenus
@@ -187,10 +195,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
                                 robot.colorSensor.argb());
-        dashboard.displayPrintf(12, "Light=%.0f,Sonar=%.1f,Touch=%d",
+        dashboard.displayPrintf(12, "Light=%.0f,Sonar=%.1f",
                                 robot.lightSensor.getData().value,
-                                robot.sonarSensor.getUltrasonicLevel(),
-                                robot.touchSensor.isActive()? 1: 0);
+                                robot.sonarSensor.getData().value);
         dashboard.displayPrintf(13, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0,
@@ -310,21 +317,21 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         }
     }   //doTurnDegrees
 
-    private void doLineFollow(Alliance alliance)
+    private void doLineFollow(Alliance alliance, double wallDistance)
     {
-        dashboard.displayPrintf(8, "Line following: %s", alliance.toString());
-        dashboard.displayPrintf(9, "Light=%.0f,Sonar=%.1f,Touch=%d",
+        dashboard.displayPrintf(8, "Line following: %s, distance=%.1f",
+                                alliance.toString(), wallDistance);
+        dashboard.displayPrintf(9, "Light=%.0f,Sonar=%.1f",
                                 robot.lightSensor.getData().value,
-                                robot.sonarSensor.getUltrasonicLevel(),
-                                robot.touchSensor.isActive()? 1: 0);
+                                robot.sonarSensor.getData().value);
         dashboard.displayPrintf(10, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
                                 robot.colorSensor.argb());
-        robot.pidCtrlDrive.displayPidInfo(11);
-        robot.pidCtrlLineFollow.displayPidInfo(13);
+        robot.pidCtrlSonar.displayPidInfo(11);
+        robot.pidCtrlLight.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -335,11 +342,11 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // Drive forward until we found the line.
                     //
-                    robot.lineTrigger.setEnabled(true);
+                    robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
-
+                    robot.pidCtrlSonar.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
@@ -351,12 +358,12 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     if (alliance == Alliance.RED_ALLIANCE)
                     {
-                        robot.pidCtrlLineFollow.setInverted(true);
+                        robot.pidCtrlLight.setInverted(true);
                         robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
                     }
                     else
                     {
-                        robot.pidCtrlLineFollow.setInverted(false);
+                        robot.pidCtrlLight.setInverted(false);
                         robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
                     }
                     sm.addEvent(event);
@@ -367,10 +374,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // Follow the line until the touch switch is activated.
                     //
-                    robot.lineTrigger.setEnabled(false);
-                    robot.touchTrigger.setEnabled(true);
-                    robot.pidLineFollow.setTarget(
-                            60.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                    robot.lightTrigger.setEnabled(false);
+                    robot.pidDriveLineFollow.setTarget(
+                            wallDistance, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
@@ -380,9 +386,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // We are done, restore everything.
                     //
-                    robot.touchTrigger.setEnabled(false);
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

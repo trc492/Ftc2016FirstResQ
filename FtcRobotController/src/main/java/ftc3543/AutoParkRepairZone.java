@@ -86,7 +86,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     //
                     // Drive forward slowly until we reach the line.
                     //
-                    robot.lineTrigger.setEnabled(true);
+                    robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
@@ -110,12 +110,11 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     //
                     // Follow the line until the touch sensor is hit.
                     //
-                    robot.lineTrigger.setEnabled(false);
-                    robot.touchTrigger.setEnabled(true);
-                    robot.pidCtrlLineFollow.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);;
-                    robot.pidLineFollow.setTarget(
-                            12.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
+                    robot.lightTrigger.setEnabled(false);
+                    robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
+                    robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
+                    robot.pidDriveLineFollow.setTarget(
+                            6.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DEPOSIT_CLIMBERS);
                     break;
@@ -135,7 +134,8 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     robot.hangingHook.retract();
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlLineFollow.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
+                    robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }
