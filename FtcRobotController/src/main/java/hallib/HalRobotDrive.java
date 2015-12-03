@@ -4,6 +4,12 @@ import trclib.TrcMotorController;
 import trclib.TrcDbgTrace;
 import trclib.TrcUtil;
 
+/**
+ * This class implements a robot drive base that supports 2-motor or 4-motor
+ * drive trains. It supports tank drive, arcade drive, mecanum drive and swerve
+ * drive. This is a port from the WPILib RobotDrive class and extended with
+ * addition features.
+ */
 public class HalRobotDrive
 {
     public static class MotorType
@@ -45,6 +51,15 @@ public class HalRobotDrive
     private TrcMotorController rearLeftMotor;
     private TrcMotorController rearRightMotor;
 
+    /**
+     * The method initializes this instance object and is called by different
+     * constructors.
+     *
+     * @param frontLeftMotor specifies the left front motor controller object.
+     * @param rearLeftMotor specifies the left rear motor controller object.
+     * @param frontRightMotor specifies the right front motor controller object.
+     * @param rearRightMotor specifies the right rear motor controller object.
+     */
     private void robotDriveInit(
             TrcMotorController frontLeftMotor,
             TrcMotorController rearLeftMotor,
@@ -76,6 +91,14 @@ public class HalRobotDrive
         stopMotor();
     }   //robotDriveInit
 
+    /**
+     * Constructor: Create an instance of the object with 4 motors.
+     *
+     * @param frontLeftMotor specifies the left front motor controller object.
+     * @param rearLeftMotor specifies the left rear motor controller object.
+     * @param frontRightMotor specifies the right front motor controller object.
+     * @param rearRightMotor specifies the right rear motor controller object.
+     */
     public HalRobotDrive(
             TrcMotorController frontLeftMotor,
             TrcMotorController rearLeftMotor,
@@ -93,6 +116,12 @@ public class HalRobotDrive
         robotDriveInit(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     }   //HalRobotDrive
 
+    /**
+     * Constructor: Create an instance of the object with 2 motors.
+     *
+     * @param leftMotor specifies the left motor controller object.
+     * @param rightMotor specifies the right motor controller object.
+     */
     public HalRobotDrive(TrcMotorController leftMotor, TrcMotorController rightMotor)
     {
         if (leftMotor == null || rightMotor == null)
@@ -103,6 +132,12 @@ public class HalRobotDrive
         robotDriveInit(null, leftMotor, null, rightMotor);
     }   //HalRobotDrive
 
+    /**
+     * This method drives the motors with the given magnitude and curve values.
+     *
+     * @param magnitude specifies the magnitude value.
+     * @param curve specifies the curve value.
+     */
     public void drive(double magnitude, double curve)
     {
         final String funcName = "drive";
@@ -146,6 +181,9 @@ public class HalRobotDrive
         tankDrive(leftOutput, rightOutput);
     }   //drive
 
+    /**
+     * This method stops all the motors.
+     */
     public void stopMotor()
     {
         final String funcName = "stopMotor";
@@ -162,6 +200,11 @@ public class HalRobotDrive
         if (rearRightMotor != null) rearRightMotor.setPower(0.0);
     }   //stopMotor
 
+    /**
+     * This method sets the sensitivity for the drive() method.
+     *
+     * @param sensitivity specifies the sensitivity value.
+     */
     public void setSensitivity(double sensitivity)
     {
         final String funcName = "setSensitivity";
@@ -176,6 +219,11 @@ public class HalRobotDrive
         this.sensitivity = sensitivity;
     }   //setSensitivity
 
+    /**
+     * This method sets the maximum output value of the motor.
+     *
+     * @param maxOutput specifies the maximum output value.
+     */
     public void setMaxOutput(double maxOutput)
     {
         final String funcName = "setMaxOutput";
@@ -189,6 +237,11 @@ public class HalRobotDrive
         this.maxOutput = maxOutput;
     }   //setMaxOutput
 
+    /**
+     * This method returns the number of motors in the drive train.
+     *
+     * @return number of motors.
+     */
     public int getNumMotors()
     {
         final String funcName = "getNumMotors";
@@ -202,6 +255,12 @@ public class HalRobotDrive
         return numMotors;
     }   //getNumMotors
 
+    /**
+     * This method inverts direction of a given motor in the drive train.
+     *
+     * @param motorType specifies the motor in the drive train.
+     * @param isInverted specifies true if inverting motor direction.
+     */
     public void setInvertedMotor(MotorType motorType, boolean isInverted)
     {
         final String funcName = "setInvertedMotor";
@@ -246,6 +305,13 @@ public class HalRobotDrive
         }
     }   //setInvertedMotor
 
+    /**
+     * This method implements tank drive where leftPower controls the left motors
+     * and right power controls the right motors.
+     *
+     * @param leftPower specifies left power value.
+     * @param rightPower specifies right power value.
+     */
     public void tankDrive(double leftPower, double rightPower)
     {
         final String funcName = "tankDrive";
@@ -281,6 +347,14 @@ public class HalRobotDrive
         }
     }   //tankDrive
 
+    /**
+     * This method implements arcade drive where drivePower controls how fast
+     * the robot goes in the y-axis and turnPower controls how fast it will
+     * turn.
+     *
+     * @param drivePower specifies the drive power value.
+     * @param turnPower specifies the turn power value.
+     */
     public void arcadeDrive(double drivePower, double turnPower)
     {
         final String funcName = "arcadeDrive";
@@ -345,6 +419,16 @@ public class HalRobotDrive
         tankDrive(leftPower, rightPower);
     }   //arcadeDrive
 
+    /**
+     * This method implements mecanum drive where x controls how fast the robot will
+     * go in the x direction, and y controls how fast the robot will go in the y direction.
+     * Rotation controls how fast the robot rotates and gyroAngle specifies the heading
+     * the robot should maintain.
+     * @param x specifies the x power.
+     * @param y specifies the y power.
+     * @param rotation specifies the rotating power.
+     * @param gyroAngle specifies the gyro angle to maintain.
+     */
     public void mecanumDrive_Cartesian(double x, double y, double rotation, double gyroAngle)
     {
         final String funcName = "mecanumDrive_Cartesian";
@@ -398,6 +482,14 @@ public class HalRobotDrive
         }
     }   //mecanumDrive_Cartesian
 
+    /**
+     * This method implements mecanum drive where magnitude controls how fast the robot
+     * will go in the given direction and how fast it will robote.
+     *
+     * @param magnitude specifies the magnitude combining x and y axes.
+     * @param direction specifies the direction.
+     * @param rotation specifies the rotation power.
+     */
     public void mecanumDrive_Polar(double magnitude, double direction, double rotation)
     {
         final String funcName = "mecanumDrive_Polar";
@@ -447,6 +539,11 @@ public class HalRobotDrive
         }
     }   //mecanumDrive_Polar
 
+    /**
+     * This method normalizes the power to the four wheels for mecanum drive.
+     *
+     * @param wheelSpeeds specifies the wheel speed of all four wheels.
+     */
     private void normalize(double[] wheelSpeeds)
     {
         double maxMagnitude = Math.abs(wheelSpeeds[0]);
