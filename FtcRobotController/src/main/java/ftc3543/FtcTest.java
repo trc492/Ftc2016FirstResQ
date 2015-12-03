@@ -22,6 +22,14 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         BLUE_ALLIANCE
     }   //enum Alliance
 
+    private enum State
+    {
+        START,
+        TURN_TO_LINE,
+        FOLLOW_LINE,
+        DONE
+    }   //enum State
+
     //
     // Miscellaneous.
     //
@@ -53,7 +61,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         // Choice menus.
         //
         doMenus();
-        sm.start();
+        sm.start(State.START);
     }   //robotInit
 
     @Override
@@ -207,20 +215,20 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
         if (sm.isReady())
         {
-            int state = sm.getState();
-
+            State state = (State)sm.getState();
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case START:
                     //
                     // Drive the robot forward and set a timer for the given time.
                     //
                     robot.driveBase.tankDrive(0.2, 0.2);
                     timer.set(time, event);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done, stop the robot.
@@ -244,19 +252,19 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
         if (sm.isReady())
         {
-            int state = sm.getState();
-
+            State state = (State)sm.getState();
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case START:
                     //
                     // Drive the given distance.
                     //
                     robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.
@@ -279,19 +287,19 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
         if (sm.isReady())
         {
-            int state = sm.getState();
-
+            State state = (State)sm.getState();
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case START:
                     //
                     // Turn the given degrees.
                     //
                     robot.pidDrive.setTarget(0.0, degrees, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.
@@ -320,11 +328,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
         if (sm.isReady())
         {
-            int state = sm.getState();
-
+            State state = (State)sm.getState();
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case START:
                     //
                     // Drive forward until we found the line.
                     //
@@ -335,10 +342,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
                     robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.TURN_TO_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case TURN_TO_LINE:
                     //
                     // Turn slowly to find the line again.
                     //
@@ -353,10 +360,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                         robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
                     }
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.FOLLOW_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 2:
+                case FOLLOW_LINE:
                     //
                     // Follow the line until the touch switch is activated.
                     //
@@ -365,9 +372,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     robot.pidLineFollow.setTarget(
                             60.0, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done, restore everything.

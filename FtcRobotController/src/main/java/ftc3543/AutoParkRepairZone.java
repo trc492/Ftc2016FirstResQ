@@ -9,6 +9,17 @@ import trclib.TrcTimer;
 
 public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 {
+    private enum State
+    {
+        DO_DELAY,
+        MOVE_FORWARD,
+        FIND_LINE,
+        TURN_TO_LINE,
+        FOLLOW_LINE,
+        DEPOSIT_CLIMBERS,
+        DONE
+    }   //enum State
+
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -29,7 +40,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
         event = new TrcEvent("ParkRepairZoneEvent");
         timer = new TrcTimer("ParkRepairZoneTimer");
         sm = new TrcStateMachine("autoParkRepairZone");
-        sm.start();
+        sm.start(State.DO_DELAY);
     }
 
     public void autoPeriodic()
@@ -39,27 +50,27 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
         if (sm.isReady())
         {
-            int state = sm.getState();
+            State state = (State)sm.getState();
 
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case DO_DELAY:
                     //
                     // If there is a delay, set the timer for it.
                     //
                     if (delay == 0.0)
                     {
-                        sm.setState(state + 1);
+                        sm.setState(State.MOVE_FORWARD);
                     }
                     else
                     {
                         timer.set(delay, event);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.MOVE_FORWARD);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case MOVE_FORWARD:
                     //
                     // Go forward fast.
                     //
@@ -68,10 +79,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.FIND_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 2:
+                case FIND_LINE:
                     //
                     // Drive forward slowly until we reach the line.
                     //
@@ -79,10 +90,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.TURN_TO_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 3:
+                case TURN_TO_LINE:
                     //
                     // Turn slowly to find the edge of the line.
                     //
@@ -92,10 +103,10 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                             alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.FOLLOW_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 4:
+                case FOLLOW_LINE:
                     //
                     // Follow the line until the touch sensor is hit.
                     //
@@ -106,16 +117,17 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     robot.pidLineFollow.setTarget(
                             12.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DEPOSIT_CLIMBERS);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 5:
+                case DEPOSIT_CLIMBERS:
                     robot.hangingHook.extend();
                     timer.set(5.0, event);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.

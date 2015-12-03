@@ -9,6 +9,13 @@ import trclib.TrcTimer;
 
 public class AutoDefense implements TrcRobot.AutoStrategy
 {
+    private enum State
+    {
+        DO_DELAY,
+        DRIVE_DISTANCE,
+        DONE
+    }   //enum State
+
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -26,7 +33,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
         event = new TrcEvent("DefenseEvent");
         timer = new TrcTimer("DefenseTimer");
         sm = new TrcStateMachine("autoDefense");
-        sm.start();
+        sm.start(State.DO_DELAY);
     }
 
     public void autoPeriodic()
@@ -35,35 +42,36 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
         if (sm.isReady())
         {
-            int state = sm.getState();
+            State state = (State)sm.getState();
 
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case DO_DELAY:
                     //
                     // If there is a delay, set the timer for it.
                     //
                     if (delay == 0.0)
                     {
-                        sm.setState(state + 1);
+                        sm.setState(State.DRIVE_DISTANCE);
                     }
                     else
                     {
                         timer.set(delay, event);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.DRIVE_DISTANCE);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case DRIVE_DISTANCE:
                     //
                     // Drive the set distance.
                     //
                     robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.

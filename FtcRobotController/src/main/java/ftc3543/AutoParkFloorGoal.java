@@ -9,6 +9,15 @@ import trclib.TrcTimer;
 
 public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 {
+    private enum State
+    {
+        DO_DELAY,
+        MOVE_FORWARD,
+        TURN_TO_FLOOR_GOAL,
+        GOTO_FLOOR_GOAL,
+        DONE
+    }   //enum State
+
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -29,7 +38,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
         event = new TrcEvent("ParkFloorGoalEvent");
         timer = new TrcTimer("ParkFloorGoalTimer");
         sm = new TrcStateMachine("autoParkFloorGoal");
-        sm.start();
+        sm.start(State.DO_DELAY);
     }
 
     public void autoPeriodic()
@@ -39,27 +48,27 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
         if (sm.isReady())
         {
-            int state = sm.getState();
+            State state = (State)sm.getState();
 
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case DO_DELAY:
                     //
                     // If there is a delay, set the timer for it.
                     //
                     if (delay == 0.0)
                     {
-                        sm.setState(state + 1);
+                        sm.setState(State.MOVE_FORWARD);
                     }
                     else
                     {
                         timer.set(delay, event);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.MOVE_FORWARD);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case MOVE_FORWARD:
                     //
                     // Move forward towards the floor goal.
                     //
@@ -68,10 +77,10 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 10.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.TURN_TO_FLOOR_GOAL);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 2:
+                case TURN_TO_FLOOR_GOAL:
                     //
                     // Turn to face the floor goal.
                     //
@@ -80,10 +89,10 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                             alliance == FtcAuto.Alliance.RED_ALLIANCE? -60.0: 60.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.GOTO_FLOOR_GOAL);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 3:
+                case GOTO_FLOOR_GOAL:
                     //
                     // Go into the floor goal.
                     //
@@ -92,9 +101,10 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 10.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.

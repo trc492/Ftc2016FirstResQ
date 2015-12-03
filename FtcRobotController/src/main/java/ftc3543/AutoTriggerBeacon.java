@@ -9,6 +9,19 @@ import trclib.TrcTimer;
 
 public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 {
+    private enum State
+    {
+        DO_DELAY,
+        MOVE_FORWARD,
+        FIND_LINE,
+        TURN_TO_LINE,
+        FOLLOW_LINE,
+        PUSH_BUTTON,
+        RETRACT,
+        PARK_FLOOR_GOAL,
+        DONE
+    }   //enum State
+
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -34,7 +47,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         event = new TrcEvent("TriggerBeaconEvent");
         timer = new TrcTimer("TriggerBeaconTimer");
         sm = new TrcStateMachine("autoTriggerBeacon");
-        sm.start();
+        sm.start(State.DO_DELAY);
     }
 
     public void autoPeriodic()
@@ -45,27 +58,27 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
         if (sm.isReady())
         {
-            int state = sm.getState();
+            State state = (State)sm.getState();
 
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case DO_DELAY:
                     //
                     // If there is a delay, set the timer for it.
                     //
                     if (delay == 0.0)
                     {
-                        sm.setState(state + 1);
+                        sm.setState(State.MOVE_FORWARD);
                     }
                     else
                     {
                         timer.set(delay, event);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.MOVE_FORWARD);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case MOVE_FORWARD:
                     //
                     // Go forward fast.
                     //
@@ -74,10 +87,10 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.FIND_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 2:
+                case FIND_LINE:
                     //
                     // Drive forward slowly until we reach the line.
                     //
@@ -85,10 +98,10 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.TURN_TO_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 3:
+                case TURN_TO_LINE:
                     //
                     // Turn slowly to find the edge of the line.
                     //
@@ -98,10 +111,10 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                             alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.FOLLOW_LINE);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 4:
+                case FOLLOW_LINE:
                     //
                     // Follow the line until the touch sensor is hit.
                     //
@@ -112,10 +125,10 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidLineFollow.setTarget(
                             24.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.PUSH_BUTTON);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 5:
+                case PUSH_BUTTON:
                     //
                     // Determine which button to press and press it.
                     // Simultaneously dump the climbers into the bin and
@@ -141,10 +154,10 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.hangingHook.extend();
                     timer.set(5.0, event);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.RETRACT);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 6:
+                case RETRACT:
                     //
                     // Release the button pusher and retract the hanging hook.
                     //
@@ -155,7 +168,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         //
                         // Stay there, we are done!
                         //
-                        sm.setState(1000);
+                        sm.setState(State.DONE);
                     }
                     else if (option == FtcAuto.BeaconOption.DEFENSE)
                     {
@@ -167,7 +180,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                                 alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
                                 false, event, 0.0);
                         sm.addEvent(event);
-                        sm.waitForEvents(1000);
+                        sm.waitForEvents(State.DONE);
                     }
                     else if (option == FtcAuto.BeaconOption.PARK_FLOOR_GOAL)
                     {
@@ -179,19 +192,20 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                                 alliance == FtcAuto.Alliance.RED_ALLIANCE? 90.0: -90.0,
                                 false, event, 0.0);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.PARK_FLOOR_GOAL);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 7:
+                case PARK_FLOOR_GOAL:
                     //
                     // Go into the floor goal.
                     //
                     robot.pidDrive.setTarget(-24.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done.

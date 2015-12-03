@@ -16,13 +16,11 @@ public class TrcStateMachine
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    public static final int STATE_DISABLED = -1;
-    public static final int STATE_STARTED = 0;
-
     private final String instanceName;
     private ArrayList<TrcEvent> eventList = new ArrayList<TrcEvent>();
-    private int currState = STATE_DISABLED;
-    private int nextState = STATE_DISABLED;
+    private Object currState = null;
+    private Object nextState = null;
+    private boolean enabled = false;
     private boolean ready = false;
     private boolean expired = false;
     private double expiredTime = 0.0;
@@ -63,7 +61,7 @@ public class TrcStateMachine
      *
      * @param state specifies the starting state.
      */
-    public void start(int state)
+    public void start(Object state)
     {
         final String funcName = "start";
 
@@ -77,6 +75,7 @@ public class TrcStateMachine
         eventList.clear();
         currState = state;
         nextState = state;
+        enabled = true;
         ready = true;
         expired = false;
         expiredTime = 0.0;
@@ -86,15 +85,6 @@ public class TrcStateMachine
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
-    }   //start
-
-    /**
-     * This method starts the state machine and puts it in ready mode.
-     * The state machine will be started at STATE_STARTED.
-     */
-    public void start()
-    {
-        start(STATE_STARTED);
     }   //start
 
     /**
@@ -110,8 +100,9 @@ public class TrcStateMachine
         }
 
         eventList.clear();
-        currState = STATE_DISABLED;
-        nextState = STATE_DISABLED;
+        currState = null;
+        nextState = null;
+        enabled = false;
         ready = false;
         expired = false;
         expiredTime = 0.0;
@@ -128,7 +119,7 @@ public class TrcStateMachine
      *
      * @return current state of the state machine.
      */
-    public int getState()
+    public Object getState()
     {
         final String funcName = "getState";
 
@@ -148,7 +139,7 @@ public class TrcStateMachine
      *
      * @param state specifies the state to set the state machine to.
      */
-    public void setState(int state)
+    public void setState(Object state)
     {
         final String funcName = "setState";
 
@@ -181,10 +172,10 @@ public class TrcStateMachine
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(
                     funcName, TrcDbgTrace.TraceLevel.API,
-                    "=%s", Boolean.toString(currState != STATE_DISABLED));
+                    "=%s", Boolean.toString(enabled));
         }
 
-        return currState != STATE_DISABLED;
+        return enabled;
     }   //isEnabled
 
     /**
@@ -208,7 +199,7 @@ public class TrcStateMachine
         // If the state machine is enabled but not ready, check all events if the
         // state machine should be put back in ready mode.
         //
-        if (currState != STATE_DISABLED && !ready)
+        if (enabled && !ready)
         {
             //
             // If a timeout was specifies and we have past the timeout time,
@@ -267,10 +258,10 @@ public class TrcStateMachine
             dbgTrace.traceExit(
                     funcName, TrcDbgTrace.TraceLevel.TASK,
                     "=%s",
-                    Boolean.toString(currState != STATE_DISABLED && ready));
+                    Boolean.toString(enabled && ready));
         }
 
-        return currState != STATE_DISABLED && ready;
+        return enabled && ready;
     }   //isReady
 
     /**
@@ -343,7 +334,7 @@ public class TrcStateMachine
      *                         will cause the state machien to go
      *                         ready.
      */
-    public void waitForEvents(int nextState, double timeout, boolean waitForAllEvents)
+    public void waitForEvents(Object nextState, double timeout, boolean waitForAllEvents)
     {
         final String funcName = "waitForEvents";
 
@@ -384,7 +375,7 @@ public class TrcStateMachine
      * @param timeout specifies a timeout value. A zero value means
      *                there is no timeout.
      */
-    public void waitForEvents(int nextState, double timeout)
+    public void waitForEvents(Object nextState, double timeout)
     {
         waitForEvents(nextState, timeout, false);
     }   //waitForEvents
@@ -398,7 +389,7 @@ public class TrcStateMachine
      * @param nextState specifies the next state when the state machine
      *                  becomes ready.
      */
-    public void waitForEvents(int nextState)
+    public void waitForEvents(Object nextState)
     {
         waitForEvents(nextState, 0.0, false);
     }   //waitForEvents

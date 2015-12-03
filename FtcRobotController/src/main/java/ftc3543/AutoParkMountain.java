@@ -9,6 +9,15 @@ import trclib.TrcTimer;
 
 public class AutoParkMountain implements TrcRobot.AutoStrategy
 {
+    private enum State
+    {
+        DO_DELAY,
+        MOVE_FORWARD,
+        TURN_TO_MOUNTAIN,
+        GOTO_MOUNTAIN,
+        DONE
+    }   //enum State
+
     private FtcAuto autoMode = (FtcAuto)FtcOpMode.getInstance();
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -28,7 +37,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
         event = new TrcEvent("ParkMountainEvent");
         timer = new TrcTimer("ParkMountainTimer");
         sm = new TrcStateMachine("autoParkMountain");
-        sm.start();
+        sm.start(State.DO_DELAY);
     }
 
     public void autoPeriodic()
@@ -38,27 +47,27 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
 
         if (sm.isReady())
         {
-            int state = sm.getState();
+            State state = (State)sm.getState();
 
             switch (state)
             {
-                case TrcStateMachine.STATE_STARTED:
+                case DO_DELAY:
                     //
                     // If there is a delay, set the timer for it.
                     //
                     if (delay == 0.0)
                     {
-                        sm.setState(state + 1);
+                        sm.setState(State.MOVE_FORWARD);
                     }
                     else
                     {
                         timer.set(delay, event);
                         sm.addEvent(event);
-                        sm.waitForEvents(state + 1);
+                        sm.waitForEvents(State.MOVE_FORWARD);
                     }
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 1:
+                case MOVE_FORWARD:
                     //
                     // Move forward towards the mountain.
                     //
@@ -67,10 +76,10 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.TURN_TO_MOUNTAIN);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 2:
+                case TURN_TO_MOUNTAIN:
                     //
                     // Turn to face the mountain.
                     //
@@ -79,10 +88,10 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                             alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.GOTO_MOUNTAIN);
                     break;
 
-                case TrcStateMachine.STATE_STARTED + 3:
+                case GOTO_MOUNTAIN:
                     //
                     // Turn on the tread drive and run as hard as you could
                     // to climb up the mountain
@@ -92,9 +101,10 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
-                    sm.waitForEvents(state + 1);
+                    sm.waitForEvents(State.DONE);
                     break;
 
+                case DONE:
                 default:
                     //
                     // We are done, stop!
