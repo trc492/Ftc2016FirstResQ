@@ -6,6 +6,12 @@ import trclib.TrcDbgTrace;
 import trclib.TrcRobot;
 import trclib.TrcTaskMgr;
 
+/**
+ * This class implements the platform dependent gamepad. It provides
+ * monitoring of the gamepad buttons. If the caller of this class
+ * provides a button notification handler, it will call it when
+ * there are button events.
+ */
 public class FtcGamepad implements TrcTaskMgr.Task
 {
     public static final int GAMEPAD_A           = ((int)1 << 0);
@@ -23,8 +29,19 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public static final int GAMEPAD_DPAD_UP     = ((int)1 << 12);
     public static final int GAMEPAD_DPAD_DOWN   = ((int)1 << 13);
 
+    /**
+     * This interface if provided will allow this class to do a
+     * notification callback when there are button activities.
+     */
     public interface ButtonHandler
     {
+        /**
+         * This method is called when button event is detected.
+         *
+         * @param gamepad specifies the gamepad object that generated the event.
+         * @param btnMask specifies the button ID that generates the event
+         * @param pressed specifies true if the button is pressed, false otherwise.
+         */
         public void gamepadButtonEvent(
                 FtcGamepad gamepad,
                 final int btnMask,
@@ -41,6 +58,14 @@ public class FtcGamepad implements TrcTaskMgr.Task
     private int prevButtons;
     private int ySign;
 
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param gamepad specifies the gamepad associated with this instance.
+     * @param buttonHandler specifies the object that will handle the button events.
+     *                      If none provided, it is set to null.
+     */
     public FtcGamepad(final String instanceName, Gamepad gamepad, ButtonHandler buttonHandler)
     {
         if (debugEnabled)
@@ -72,6 +97,15 @@ public class FtcGamepad implements TrcTaskMgr.Task
         }
     }   //FtcGamepad
 
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param gamepad specifies the gamepad associated with this instance.
+     * @param buttonHandler specifies the object that will handle the button events.
+     *                      If none provided, it is set to null.
+     * @param deadbandThreshold specifies the deadband of the gamepad analog sticks.
+     */
     public FtcGamepad(
             final String instanceName,
             Gamepad gamepad,
@@ -82,11 +116,36 @@ public class FtcGamepad implements TrcTaskMgr.Task
         gamepad.setJoystickDeadzone((float) deadbandThreshold);
     }   //FtcGamepad
 
+    /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
+
+    /**
+     * This method sets the gamepad association. Normally, this method should not exist.
+     * However, there is an issue with the FIRST SDK where the gamepad objects passed
+     * into our constructor could be invalid after "Init" and before the competition
+     * starts. Therefore, we provide this method so one can call to re-associate the
+     * gamepad instances in the startMode() method.
+     *
+     * @param gamepad specifies the gamepad associated with this instance.
+     */
     public void setGamepad(Gamepad gamepad)
     {
         this.gamepad = gamepad;
     }   //setGamepad
 
+    /**
+     * This method returns the button states in an integer by combining all
+     * the button states.
+     *
+     * @return buttoh states.
+     */
     public int getButtons()
     {
         final String funcName = "getButtons";
@@ -117,6 +176,11 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return buttons;
     }   //getButtons
 
+    /**
+     * This method inverts the y-axis of the analog sticks.
+     *
+     * @param inverted specifies true if inverting the y-axis, false otherwise.
+     */
     public void setYInverted(boolean inverted)
     {
         final String funcName = "setYInverted";
@@ -133,6 +197,15 @@ public class FtcGamepad implements TrcTaskMgr.Task
         }
     }   //setYInverted
 
+    /**
+     * This method returns the x-axis value of the left stick.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return x-axis value of the left stick.
+     */
     public double getLeftStickX(boolean squared)
     {
         final String funcName = "getLeftStickX";
@@ -151,11 +224,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getLeftStickX
 
+    /**
+     * This method returns the x-axis value of the left stick.
+     *
+     * @return x-axis value of the left stick.
+     */
     public double getLeftStickX()
     {
         return getLeftStickX(false);
     }   //getLeftStickX
 
+    /**
+     * This method returns the y-axis value of the left stick.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return y-axis value of the left stick.
+     */
     public double getLeftStickY(boolean squared)
     {
         final String funcName = "getLeftStickY";
@@ -174,11 +261,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getLeftStickY
 
+    /**
+     * This method returns the y-axis value of the left stick.
+     *
+     * @return y-axis value of the left stick.
+     */
     public double getLeftStickY()
     {
         return getLeftStickY(false);
     }   //getLeftStickY
 
+    /**
+     * This method returns the x-axis value of the right stick.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return x-axis value of the right stick.
+     */
     public double getRightStickX(boolean squared)
     {
         final String funcName = "getRightStickX";
@@ -197,11 +298,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getRightStickX
 
+    /**
+     * This method returns the x-axis value of the right stick.
+     *
+     * @return x-axis value of the right stick.
+     */
     public double getRightStickX()
     {
         return getRightStickX(false);
     }   //getRightStickX
 
+    /**
+     * This method returns the y-axis value of the right stick.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return y-axis value of the right stick.
+     */
     public double getRightStickY(boolean squared)
     {
         final String funcName = "getRightStickY";
@@ -220,11 +335,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getRightStickY
 
+    /**
+     * This method returns the y-axis value of the right stick.
+     *
+     * @return y-axis value of the right stick.
+     */
     public double getRightStickY()
     {
         return getRightStickY(false);
     }   //getRightStickY
 
+    /**
+     * This method returns the left trigger value.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return left trigger value.
+     */
     public double getLeftTrigger(boolean squared)
     {
         final String funcName = "getLeftTrigger";
@@ -243,11 +372,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getLeftTrigger
 
+    /**
+     * This method returns the left trigger value.
+     *
+     * @return left trigger value.
+     */
     public double getLeftTrigger()
     {
         return getLeftTrigger(false);
     }   //getLeftTrigger
 
+    /**
+     * This method returns the right trigger value.
+     *
+     * @param squared specifies true if the value should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return right trigger value.
+     */
     public double getRightTrigger(boolean squared)
     {
         final String funcName = "getRightTrigger";
@@ -266,31 +409,73 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getRightTrigger
 
+    /**
+     * This method returns the right trigger value.
+     *
+     * @return right trigger value.
+     */
     public double getRightTrigger()
     {
         return getRightTrigger(false);
     }   //getRightTrigger
 
+    /**
+     * This method returns the left stick magnitude combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return left stick magnitude.
+     */
     public double getLeftStickMagnitude(boolean squared)
     {
         return getMagnitude(getLeftStickX(squared), getLeftStickY(squared));
     }   //getLeftStickMagnitude
 
+    /**
+     * This method returns the left stick magnitude combining the x and y axes.
+     *
+     * @return left stick magnitude.
+     */
     public double getLeftStickMagnitude()
     {
         return getLeftStickMagnitude(false);
     }   //getLeftStickMagnitude
 
+    /**
+     * This method returns the right stick magnitude combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return right stick magnitude.
+     */
     public double getRightStickMagnitude(boolean squared)
     {
         return getMagnitude(getRightStickX(squared), getRightStickY(squared));
     }   //getRightStickMagnitude
 
+    /**
+     * This method returns the right stick magnitude combining the x and y axes.
+     *
+     * @return right stick magnitude.
+     */
     public double getRightStickMagnitude()
     {
         return getRightStickMagnitude(false);
     }   //getRightStickMagnitude
 
+    /**
+     * This method returns the left stick direction in radians combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return left stick direction in radians.
+     */
     public double getLeftStickDirectionRadians(boolean squared)
     {
         final String funcName = "getLeftStickDirectionRadians";
@@ -309,11 +494,25 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getLeftStickDirectionRadians
 
+    /**
+     * This method returns the left stick direction in radians combining the x and y axes.
+     *
+     * @return left stick direction in radians.
+     */
     public double getLeftStickDirectionRadians()
     {
         return getLeftStickDirectionRadians(false);
     }   //getLeftStickDirectionRadians
 
+    /**
+     * This method returns the right stick direction in radians combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return right stick direction in radians.
+     */
     public double getRightStickDirectionRadians(boolean squared)
     {
         final String funcName = "getRightStickDirectionRadians";
@@ -332,31 +531,71 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getRightStickDirectionRadian
 
+    /**
+     * This method returns the right stick direction in radians combining the x and y axes.
+     *
+     * @return right stick direction in radians.
+     */
     public double getRightStickDirectionRadians()
     {
         return getRightStickDirectionRadians(false);
     }   //getRightStickDirectionRadians
 
+    /**
+     * This method returns the left stick direction in degrees combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return left stick direction in degrees.
+     */
     public double getLeftStickDirectionDegrees(boolean squared)
     {
         return Math.toDegrees(getLeftStickDirectionRadians(squared));
     }   //getLeftStickDirectionDegrees
 
+    /**
+     * This method returns the left stick direction in degrees combining the x and y axes.
+     *
+     * @return left stick direction in degrees.
+     */
     public double getLeftStickDirectionDegrees()
     {
         return getLeftStickDirectionDegrees(false);
     }   //getLeftStickDirectionDegrees
 
+    /**
+     * This method returns the right stick direction in degrees combining the x and y axes.
+     *
+     * @param squared specifies true if both x and y should be squared, false otherwise.
+     *                If the value is squared, it gives you more precise control on
+     *                the low end values.
+     *
+     * @return right stick direction in degrees.
+     */
     public double getRightStickDirectionDegrees(boolean squared)
     {
         return Math.toDegrees(getRightStickDirectionRadians(squared));
     }   //getRightStickDirectionDegrees
 
+    /**
+     * This method returns the right stick direction in degrees combining the x and y axes.
+     *
+     * @return right stick direction in degrees.
+     */
     public double getRightStickDirectionDegrees()
     {
         return getRightStickDirectionDegrees(false);
     }   //getRightStickDirectionDegrees
 
+    /**
+     * This method returns the square of the given value.
+     *
+     * @param value specifies the value to be squared.
+     * @param squared specifies true if the value will be squared, false otherwise.
+     * @return squared value.
+     */
     private double squareValue(double value, boolean squared)
     {
         if (squared)
@@ -367,6 +606,15 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //squareValue
 
+    /**
+     * This method returns the magnitude value combining the x and y values.
+     * The magnitude is calculated by squaring both x and y, sum them and take
+     * the square root.
+     *
+     * @param x specifies the x value.
+     * @param y specifies the y value.
+     * @return returns the magnitude value.
+     */
     private double getMagnitude(double x, double y)
     {
         final String funcName = "getMagnitude";
@@ -384,11 +632,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
         return value;
     }   //getMagnitude
 
-    public String toString()
-    {
-        return instanceName;
-    }
-
     //
     // Implements TrcTaskMgr.Task
     //
@@ -400,6 +643,12 @@ public class FtcGamepad implements TrcTaskMgr.Task
     {
     }   //stopTask
 
+    /**
+     * This method runs periodically and checks for changes in the button states.
+     * If any button changed state, the button handler is called if one exists.
+     *
+     * @param runMode specifies the current robot run mode.
+     */
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "prePeriodic";

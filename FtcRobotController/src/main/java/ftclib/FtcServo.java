@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import trclib.TrcServo;
 import trclib.TrcDbgTrace;
 
+/**
+ * This class implements a platform dependent servo extending TrcServo.
+ * It provides implementation of the abstract methods in TrcServo.
+ */
 public class FtcServo extends TrcServo
 {
     private static final String moduleName = "FtcServo";
@@ -14,6 +18,12 @@ public class FtcServo extends TrcServo
 
     private Servo servo;
 
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param hardwareMap specifies the global hardware map.
+     * @param instanceName specifies the instance name.
+     */
     public FtcServo(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
@@ -30,6 +40,11 @@ public class FtcServo extends TrcServo
         servo = hardwareMap.servo.get(instanceName);
     }   //FtcServo
 
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     */
     public FtcServo(String instanceName)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName);
@@ -39,6 +54,11 @@ public class FtcServo extends TrcServo
     // Implements TrcServo abstract methods.
     //
 
+    /**
+     * This methods inverts the servo motor direction.
+     *
+     * @param inverted specifies true if the servo direction is inverted, false otherwise.
+     */
     @Override
     public void setInverted(boolean inverted)
     {
@@ -54,6 +74,11 @@ public class FtcServo extends TrcServo
         servo.setDirection(inverted? Servo.Direction.REVERSE: Servo.Direction.FORWARD);
     }   //setInverted
 
+    /**
+     * This method returns true if the servo direction is inverted.
+     *
+     * @return true if the servo direction is inverted, false otherwise.
+     */
     @Override
     public boolean getInverted()
     {
@@ -69,6 +94,13 @@ public class FtcServo extends TrcServo
         return isInverted;
     }   //getInverted
 
+    /**
+     * This method sets the servo motor position.
+     *
+     * @param position specifies the physical position of the servo motor.
+     *                 This value may be in degrees if setPhysicalRange
+     *                 is called with the degree range.
+     */
     @Override
     public void setPosition(double position)
     {
@@ -83,6 +115,12 @@ public class FtcServo extends TrcServo
         servo.setPosition(toLogicalPosition(position));
     }   //setPosition
 
+    /**
+     * This method returns the physical position value of the servo motor.
+     *
+     * @return physical position of the servo, could be in degrees if
+     *         setPhysicalRangis called to set the range in degrees.
+     */
     @Override
     public double getPosition()
     {

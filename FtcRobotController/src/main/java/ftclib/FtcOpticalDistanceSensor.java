@@ -10,8 +10,9 @@ import trclib.TrcFilter;
 import trclib.TrcSensorData;
 
 /**
- * This class implements the Modern Robotics Optical Distance sensor.
- * It is a simple value sensor and does not need integration or calibration.
+ * This class implements the Modern Robotics Optical Distance sensor
+ * extending TrcAnalogInput. It provides implementation of the abstract
+ * methods in TrcAnalogInput.
  */
 public class FtcOpticalDistanceSensor extends TrcAnalogInput
 {
@@ -71,6 +72,11 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
     // Implements TrcAnalogInput abstract methods.
     //
 
+    /**
+     * This method returns the raw sensor data.
+     *
+     * @return raw sensor data.
+     */
     @Override
     public TrcSensorData getRawData()
     {

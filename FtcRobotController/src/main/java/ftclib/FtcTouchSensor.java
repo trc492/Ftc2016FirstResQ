@@ -6,6 +6,11 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import trclib.TrcDigitalInput;
 import trclib.TrcDbgTrace;
 
+/**
+ * This class implements a platform dependent touch sensor extending
+ * TrcDigitalInput. It provides implementation of the abstract methods
+ * in TrcDigitalInput.
+ */
 public class FtcTouchSensor extends TrcDigitalInput
 {
     private static final String moduleName = "FtcTouchSensor";
@@ -14,6 +19,12 @@ public class FtcTouchSensor extends TrcDigitalInput
 
     private TouchSensor touchSensor;
 
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param hardwareMap specifies the global hardware map.
+     * @param instanceName specifies the instance name.
+     */
     public FtcTouchSensor(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
@@ -30,6 +41,11 @@ public class FtcTouchSensor extends TrcDigitalInput
         this.touchSensor = hardwareMap.touchSensor.get(instanceName);
     }   //FtcTouchSensor
 
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     */
     public FtcTouchSensor(String instanceName)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName);
@@ -39,6 +55,11 @@ public class FtcTouchSensor extends TrcDigitalInput
     // Implements TrcDigitalInput abstract methods.
     //
 
+    /**
+     * This method returns the state of the touch sensor.
+     *
+     * @return true if the touch sensor is active, false otherwise.
+     */
     @Override
     public boolean isActive()
     {

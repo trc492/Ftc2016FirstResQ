@@ -8,14 +8,13 @@ import trclib.TrcMotorController;
 import trclib.TrcDbgTrace;
 
 /**
- * This class implements the platform dependent motor controller
- * which extends the platform independent TrcMotorController class.
- * It is basically a DcMotor with built-in limit switches support.
- * When this class is constructed with limit switches, setPower will
- * respect them and not move the motor into a direction where the
- * limit switch is activated. It also provides a software encoder
- * reset without switching the Modern Robotics motor controller mode
- * which is problematic.
+ * This class implements the Modern Robotics Motor Controller extending
+ * TrcMotorController. It provides implementation of the abstract methods
+ * in TrcMotorController. It supports limit switches. When this class is
+ * constructed with limit switches, setPower will respect them and will
+ * not move the motor into the direction where the limit switch is activated.
+ * It also provides a software encoder reset without switching the Modern
+ * Robotics motor controller mode which is problematic.
  */
 public class FtcDcMotor extends TrcMotorController
 {

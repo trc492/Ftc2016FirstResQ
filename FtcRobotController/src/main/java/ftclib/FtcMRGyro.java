@@ -10,8 +10,10 @@ import trclib.TrcGyro;
 import trclib.TrcSensorData;
 
 /**
- * This class implements the Modern Robotics gyro. It supports 3 axes: x, y and z.
- * It provides rotation rate data for all 3 axes. However, it only provides heading
+ * This class implements the Modern Robotics gyro extending TrcGyro.
+ * It provides implementation of the abstract methods in TrcGyro.
+ * The Modern Robotics gyro supports 3 axes: x, y and z. It provides
+ * rotation rate data for all 3 axes. However, it only provides heading
  * data for the z-axis and the heading data is wrap-around.
  */
 public class FtcMRGyro extends TrcGyro

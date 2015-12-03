@@ -10,9 +10,10 @@ import trclib.TrcGyro;
 import trclib.TrcSensorData;
 
 /**
- * This class implements the HiTechnic gyro. It supports only the z axis.
- * It provides rotation rate data but not heading and it does not support
- * built-in calibration.
+ * This class implements the HiTechnic gyro extending TrcGyro.
+ * It provides implementation of the abstract methods in TrcGyro.
+ * It supports only the z axis. It provides rotation rate data
+ * but not heading and it does not support built-in calibration.
  */
 public class FtcHiTechnicGyro extends TrcGyro
 {

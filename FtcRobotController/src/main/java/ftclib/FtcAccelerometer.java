@@ -10,10 +10,11 @@ import trclib.TrcFilter;
 import trclib.TrcSensorData;
 
 /**
- * This class implements the platform dependent accelerometer.
- * It supports 3 axes: x, y and z. It provides acceleration data
- * for all 3 axes. However, it doesn't provide any velocity or
- * distance data.
+ * This class implements the platform dependent accelerometer extending
+ * TrcAccelerometer. It provides implementation of the abstract methods
+ * in TrcAccelerometer. It supports 3 axes: x, y and z. It provides
+ * acceleration data for all 3 axes. However, it doesn't provide any
+ * velocity or distance data.
  */
 public class FtcAccelerometer extends TrcAccelerometer
 {

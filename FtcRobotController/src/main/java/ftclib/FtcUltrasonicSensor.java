@@ -10,8 +10,9 @@ import trclib.TrcFilter;
 import trclib.TrcSensorData;
 
 /**
- * This class implements a platform dependent ultrasonic sensor.
- * It is a simple value sensor and does not need integration or calibration.
+ * This class implements a platform dependent ultrasonic sensor
+ * extending TrcAnalogInput. It provides implementation of the
+ * abstract methods in TrcAnalogInput.
  */
 public class FtcUltrasonicSensor extends TrcAnalogInput
 {
