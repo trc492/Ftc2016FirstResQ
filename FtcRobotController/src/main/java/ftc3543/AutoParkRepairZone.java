@@ -13,14 +13,15 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
-    private int alliance;
-    private int startPos;
+    private FtcAuto.Alliance alliance;
+    private FtcAuto.StartPosition startPos;
     private double delay;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoParkRepairZone(int alliance, int startPos, double delay)
+    public AutoParkRepairZone(
+            FtcAuto.Alliance alliance, FtcAuto.StartPosition startPos, double delay)
     {
         this.alliance = alliance;
         this.startPos = startPos;
@@ -33,10 +34,8 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkRepairZone: %s alliance, startPos=%s",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? "Mountain": "Corner");
-        dashboard.displayPrintf(2, "\tDelay=%.0f", delay);
+        dashboard.displayPrintf(1, "ParkRepairZone: %s, %s, delay=%.0f",
+                                alliance.toString(), startPos.toString(), delay);
 
         if (sm.isReady())
         {
@@ -65,7 +64,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? 45.0: 60.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 45.0: 60.0,
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
@@ -90,7 +89,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(
                             0.0,
-                            alliance == autoMode.ALLIANCE_RED? -90.0: 90.0,
+                            alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);

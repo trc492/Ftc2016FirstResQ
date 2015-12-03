@@ -13,15 +13,19 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
-    private int alliance;
-    private int startPos;
+    private FtcAuto.Alliance alliance;
+    private FtcAuto.StartPosition startPos;
     private double delay;
-    private int option;
+    private FtcAuto.BeaconOption option;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoTriggerBeacon(int alliance, int startPos, double delay, int option)
+    public AutoTriggerBeacon(
+            FtcAuto.Alliance alliance,
+            FtcAuto.StartPosition startPos,
+            double delay,
+            FtcAuto.BeaconOption option)
     {
         this.alliance = alliance;
         this.startPos = startPos;
@@ -35,10 +39,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "TriggerBeacon: %s alliance, startPos=%s",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? "Mountain": "Corner");
-        dashboard.displayPrintf(2, "\tDelay=%.0f", delay);
+        dashboard.displayPrintf(1, "TriggerBeacon: %s, %s, delay=%.0f",
+                                alliance.toString(), startPos.toString(), delay);
+        dashboard.displayPrintf(2, "\toption: %s", option.toString());
 
         if (sm.isReady())
         {
@@ -67,7 +70,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? 45.0: 60.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 45.0: 60.0,
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
@@ -92,7 +95,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(
                             0.0,
-                            alliance == autoMode.ALLIANCE_RED? -90.0: 90.0,
+                            alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
@@ -127,11 +130,11 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     int greenValue = robot.colorSensor.green();
                     boolean isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
                     boolean isBlue = blueValue > 0 && redValue == 0 && greenValue == 0;
-                    if (alliance == autoMode.ALLIANCE_RED && isRed)
+                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed)
                     {
                         robot.buttonPusher.pushRightButton();
                     }
-                    else if (alliance == autoMode.ALLIANCE_BLUE && isBlue)
+                    else if (alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
                     {
                         robot.buttonPusher.pushLeftButton();
                     }
@@ -147,33 +150,33 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.buttonPusher.retract();
                     robot.hangingHook.retract();
-                    if (option == autoMode.BEACON_OPTION_DO_NOTHING)
+                    if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //
                         // Stay there, we are done!
                         //
                         sm.setState(1000);
                     }
-                    else if (option == autoMode.BEACON_OPTION_DEFENSE)
+                    else if (option == FtcAuto.BeaconOption.DEFENSE)
                     {
                         //
                         // Run to the opponent side and bump them if necessary.
                         //
                         robot.pidDrive.setTarget(
                                 -35.0,
-                                alliance == autoMode.ALLIANCE_RED? -45.0: 45.0,
+                                alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
                                 false, event, 0.0);
                         sm.addEvent(event);
                         sm.waitForEvents(1000);
                     }
-                    else if (option == autoMode.BEACON_OPTION_PARK_FLOORGOAL)
+                    else if (option == FtcAuto.BeaconOption.PARK_FLOOR_GOAL)
                     {
                         //
                         // Turn to face the floor goal.
                         //
                         robot.pidDrive.setTarget(
                                 0.0,
-                                alliance == autoMode.ALLIANCE_RED? 90.0: -90.0,
+                                alliance == FtcAuto.Alliance.RED_ALLIANCE? 90.0: -90.0,
                                 false, event, 0.0);
                         sm.addEvent(event);
                         sm.waitForEvents(state + 1);

@@ -13,14 +13,15 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
-    private int alliance;
-    private int startPos;
+    private FtcAuto.Alliance alliance;
+    private FtcAuto.StartPosition startPos;
     private double delay;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoParkFloorGoal(int alliance, int startPos, double delay)
+    public AutoParkFloorGoal(
+            FtcAuto.Alliance alliance, FtcAuto.StartPosition startPos, double delay)
     {
         this.alliance = alliance;
         this.startPos = startPos;
@@ -33,10 +34,8 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkFloorGoal: %s alliance, startPos=%s",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? "Mountain": "Corner");
-        dashboard.displayPrintf(2, "\tDelay=%.0f", delay);
+        dashboard.displayPrintf(1, "ParkFloorGoal: %s, %s, delay=%.0f",
+                                alliance.toString(), startPos.toString(), delay);
 
         if (sm.isReady())
         {
@@ -65,7 +64,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     // Move forward towards the floor goal.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? 50.0: 60.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 60.0,
                             0.0,
                             false, event, 10.0);
                     sm.addEvent(event);
@@ -78,7 +77,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     //
                     robot.pidDrive.setTarget(
                             0.0,
-                            alliance == autoMode.ALLIANCE_RED? -60.0: 60.0,
+                            alliance == FtcAuto.Alliance.RED_ALLIANCE? -60.0: 60.0,
                             false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(state + 1);
@@ -89,7 +88,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     // Go into the floor goal.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == autoMode.STARTPOS_NEAR_MOUNTAIN? 45.0: 20.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 45.0: 20.0,
                             0.0,
                             false, event, 10.0);
                     sm.addEvent(event);

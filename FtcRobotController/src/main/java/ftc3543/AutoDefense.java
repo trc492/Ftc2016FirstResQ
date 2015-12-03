@@ -13,16 +13,14 @@ public class AutoDefense implements TrcRobot.AutoStrategy
     private FtcRobot robot = autoMode.robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
 
-    private int alliance;
     private double delay;
     private double distance;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoDefense(int alliance, double delay, double distance)
+    public AutoDefense(double delay, double distance)
     {
-        this.alliance = alliance;
         this.delay = delay;
         this.distance = distance;
         event = new TrcEvent("DefenseEvent");
@@ -33,9 +31,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "Defense: %s alliance, delay=%.0f, distance=%.0f",
-                                alliance == autoMode.ALLIANCE_RED? "Red": "Blue",
-                                delay, distance/12.0);
+        dashboard.displayPrintf(1, "Defense: delay=%.0f, distance=%.0f", delay, distance/12.0);
 
         if (sm.isReady())
         {

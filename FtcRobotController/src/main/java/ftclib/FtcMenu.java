@@ -37,13 +37,13 @@ public class FtcMenu
     private static int prevMenuButtons = 0;
 
     private HalDashboard dashboard;
-    private FtcMenu parent;
     private String menuTitle;
+    private FtcMenu parent;
     private MenuButtons menuButtons;
     private ArrayList<String> choiceTextTable = new ArrayList<String>();
-    private ArrayList<Double> choiceValueTable = new ArrayList<Double>();
+    private ArrayList<Object> choiceObjectTable = new ArrayList<Object>();
     private ArrayList<FtcMenu> childMenuTable = new ArrayList<FtcMenu>();
-    private int selectedChoice = -1;
+    private int currentChoice = -1;
     private int firstDisplayedChoice = 0;
 
     /**
@@ -92,13 +92,13 @@ public class FtcMenu
     /**
      * Constructor: Creates an instance of the object.
      *
-     * @param parent specifies the parent menu to go back to if the BACK button
-     *               is pressed. If this is the root menu, it can be set to null.
      * @param menuTitle specifies the title of the menu. The title will be displayed
      *                  as the first line in the menu.
+     * @param parent specifies the parent menu to go back to if the BACK button
+     *               is pressed. If this is the root menu, it can be set to null.
      * @param menuButtons specifies the object that implements the MenuButtons interface.
      */
-    public FtcMenu(FtcMenu parent, String menuTitle, MenuButtons menuButtons)
+    public FtcMenu(String menuTitle, FtcMenu parent, MenuButtons menuButtons)
     {
         if (debugEnabled)
         {
@@ -115,8 +115,8 @@ public class FtcMenu
         }
 
         dashboard = HalDashboard.getInstance();
-        this.parent = parent;
         this.menuTitle = menuTitle;
+        this.parent = parent;
         this.menuButtons = menuButtons;
     }   //FtcMenu
 
@@ -125,12 +125,12 @@ public class FtcMenu
      * order of them being added.
      *
      * @param choiceText specifies the choice text that will be displayed on the dashboard.
-     * @param choiceValue specifies the value to be returned if the choice is selected.
+     * @param choiceObj specifies the object to be returned if the choice is selected.
      * @param childMenu specifies the next menu to go to when this choice is selected.
      *                  If this is the last menu (a leaf node in the tree), it can be set
      *                  to null.
      */
-    public void addChoice(String choiceText, double choiceValue, FtcMenu childMenu)
+    public void addChoice(String choiceText, Object choiceObj, FtcMenu childMenu)
     {
         final String funcName = "addChoice";
 
@@ -138,21 +138,22 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(
                     funcName, TrcDbgTrace.TraceLevel.API,
-                    "text=%s,value=%f,child=%s",
-                    choiceText, choiceValue, childMenu == null? "null": childMenu.getTitle());
+                    "text=%s,obj=%s,child=%s",
+                    choiceText, choiceObj.toString(),
+                    childMenu == null? "null": childMenu.getTitle());
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
         choiceTextTable.add(choiceText);
-        choiceValueTable.add(choiceValue);
+        choiceObjectTable.add(choiceObj);
         childMenuTable.add(childMenu);
-        if (selectedChoice == -1)
+        if (currentChoice == -1)
         {
             //
             // This is the first added choice in the menu.
             // Make it the default choice by highlighting it.
             //
-            selectedChoice = 0;
+            currentChoice = 0;
         }
     }   //addChoice
 
@@ -161,61 +162,21 @@ public class FtcMenu
      * order of them being added.
      *
      * @param choiceText specifies the choice text that will be displayed on the dashboard.
-     * @param choiceValue specifies the value to be returned if the choice is selected.
+     * @param choiceObj specifies the object to be returned if the choice is selected.
      */
-    public void addChoice(String choiceText, double choiceValue)
+    public void addChoice(String choiceText, Object choiceObj)
     {
-        addChoice(choiceText, choiceValue, null);
+        addChoice(choiceText, choiceObj, null);
     }   //addChoice
-
-    /**
-     * This method traverses the menu tree from the given root menu displaying each
-     * menu and waiting for the user to select a choice. When the user makes a choice,
-     * it will go to the next menu from that choice. If the user cancels the menu, it
-     * will go back to the parent menu where it came from. When the user makes a choice
-     * and there is no next menu from that choice, the traversal is ended.
-     * Note: this is a static method, meaning you can call it without a menu instance.
-     *
-     * @param rootMenu specifies the root of the menu tree.
-     */
-    public static void walkMenuTree(FtcMenu rootMenu)
-    {
-        FtcMenu menu = rootMenu;
-
-        while (menu != null)
-        {
-            int choice = menu.getChoice();
-            if (choice != -1)
-            {
-                //
-                // User selected a choice, let's go to the next menu.
-                //
-                menu = menu.childMenuTable.get(choice);
-            }
-            else if (menu != rootMenu)
-            {
-                //
-                // User canceled a menu, let's go back to the parent menu
-                // unless we are already at the root menu in which case
-                // we stay in the root menu.
-                //
-                menu = menu.getParent();
-            }
-        }
-        //
-        // We are done with the menus. Let's clear the dashboard.
-        //
-        HalDashboard.getInstance().clearDisplay();
-    }   //walkMenuTree
 
     /**
      * This method returns the parent menu of this menu.
      *
      * @return parent menu (can be null if this menu is the root menu).
      */
-    public FtcMenu getParent()
+    public FtcMenu getParentMenu()
     {
-        final String funcName = "getParent";
+        final String funcName = "getParentMenu";
 
         if (debugEnabled)
         {
@@ -224,7 +185,7 @@ public class FtcMenu
         }
 
         return parent;
-    }   //getParent
+    }   //getParentMenu
 
     /**
      * This method returns the title text of this menu.
@@ -245,6 +206,124 @@ public class FtcMenu
     }   //getTitle
 
     /**
+     * This method returns the choice text of the given choice index.
+     *
+     * @param choice specifies the choice index in the menu.
+     * @return text of the choice.
+     */
+    public String getChoiceText(int choice)
+    {
+        final String funcName = "getChoiceText";
+        String text = choiceTextTable.get(choice);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "choice=%d", choice);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", text);
+        }
+
+        return text;
+    }   //getChoiceText
+
+    /**
+     * This method returns the choice object of the given choice index.
+     *
+     * @param choice specifies the choice index in the menu.
+     * @return object of the given choice.
+     */
+    public Object getChoiceObject(int choice)
+    {
+        final String funcName = "getChoiceObject";
+        Object obj = choiceObjectTable.get(choice);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "choice=%d", choice);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", obj.toString());
+        }
+
+        return obj;
+    }   //getChoiceObject
+
+    /**
+     * This method returns the index of the current choice. Every menu has a
+     * current choice even if the menu hasn't been displayed and the user
+     * hasn't picked a choice. In that case, the current choice is the
+     * highlighted selection of the menu which is the first choice in the menu.
+     * If the menu is empty, the current choice index is -1.
+     *
+     * @return current choice index, -1 if menu is empty.
+     */
+    public int getCurrentChoice()
+    {
+        final String funcName = "getCurrentChoice";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currentChoice);
+        }
+
+        return currentChoice;
+    }   //getCurrentChoice
+
+    /**
+     * This method returns the text of the current choice. Every menu has a
+     * current choice even if the menu hasn't been displayed and the user
+     * hasn't picked a choice. In that case, the current choice is the
+     * highlighted selection of the menu which is the first choice in the menu.
+     * If the menu is empty, the current choice index is -1.
+     *
+     * @return current choice text, null if menu is empty.
+     */
+    public String getCurrentChoiceText()
+    {
+        final String funcName = "getCurrentChoiceText";
+        String text = null;
+
+        if (currentChoice != -1)
+        {
+            text = choiceTextTable.get(currentChoice);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", text);
+        }
+
+        return text;
+    }   //getCurrentChoiceText
+
+    /**
+     * This method returns the object of the current choice. Every menu has a
+     * current choice even if the menu hasn't been displayed and the user
+     * hasn't picked a choice. In that case, the current choice is the
+     * highlighted selection of the menu which is the first choice in the menu.
+     * If the menu is empty, the current choice index is -1.
+     *
+     * @return current choice object, null if menu is empty.
+     */
+    public Object getCurrentChoiceObject()
+    {
+        final String funcName = "getCurrentChoiceObject";
+        Object obj = null;
+
+        if (currentChoice != -1)
+        {
+            choiceObjectTable.get(currentChoice);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", obj.toString());
+        }
+
+        return obj;
+    }   //getCurrentChoiceObject
+
+    /**
      * This method displays the menu and waits for the user to navigate the selections
      * and make a choice.
      * Note: this is a blocking method, it won't return until a choice is made or the
@@ -252,9 +331,9 @@ public class FtcMenu
      *
      * @return choice index of the selection, -1 if the menu is canceled.
      */
-    public int getChoice()
+    public int getUserChoice()
     {
-        final String funcName = "getChoice";
+        final String funcName = "getUserChoice";
         int choice = -1;
         boolean done = false;
 
@@ -287,7 +366,7 @@ public class FtcMenu
                     //
                     // MenuEnter is pressed. Set choice to the selected choice and exit.
                     //
-                    choice = selectedChoice;
+                    choice = currentChoice;
                     done = true;
                 }
                 else if ((buttonsPressed & MENUBUTTON_UP) != 0)
@@ -321,164 +400,88 @@ public class FtcMenu
         }
 
         return choice;
-    }   //getChoice
+    }   //getUserChoice
 
     /**
-     * This method returns the value of the selected choice. If the menu is canceled.
-     * -1.0 is returned.
-     * Note: this is a blocking method, it won't return until a choice is made or
-     * canceled.
+     * This method displays the menu and waits for the user to navigate the selections
+     * and make a choice.
+     * Note: this is a blocking method, it won't return until a choice is made or the
+     * menu is canceled.
      *
-     * @return selected choice value, -1.0 if cenceled.
+     * @return choice text of the selection, null if the menu is canceled.
      */
-    public double getChoiceValue()
-    {
-        double value = -1.0;
-
-        if (getChoice() != -1)
-        {
-            value = getSelectedChoiceValue();
-        }
-
-        return value;
-    }   //getChoiceValue
-
-    /**
-     * This method returns the text of the selected choice. If the menu is canceled
-     * null is returned.
-     * Note: this is a blocking method, it won't return until a choice is made or
-     * canceled.
-     *
-     * @return selected choice text, null if canceled.
-     */
-    public String getChoiceText()
+    public String getUserChoiceText()
     {
         String text = null;
+        int choice = getUserChoice();
 
-        if (getChoice() != -1)
+        if (choice != -1)
         {
-            text = getSelectedChoiceText();
+            text = getChoiceText(choice);
         }
 
         return text;
-    }   //getChoiceText
+    }   //getUserChoiceText
 
     /**
-     * This method returns the choice index of the current selection. Every menu
-     * has a current selection even if the menu hasn't been displayed and the
-     * user hasn't picked a choice. In that case, the current selection is the
-     * default selection of the menu which is the first choice in the menu. If
-     * the menu is empty, the current selection choice index is -1.
+     * This method displays the menu and waits for the user to navigate the selections
+     * and make a choice.
+     * Note: this is a blocking method, it won't return until a choice is made or the
+     * menu is canceled.
      *
-     * @return selected choice index, -1 if menu is empty.
+     * @return choice object of the selection, null if the menu is canceled.
      */
-    public int getSelectedChoice()
+    public Object getUserChoiceObject()
     {
-        final String funcName = "getSelectedChoice";
+        Object obj = null;
+        int choice = getUserChoice();
 
-        if (debugEnabled)
+        if (choice != -1)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%d", selectedChoice);
+            obj = getChoiceObject(choice);
         }
 
-        return selectedChoice;
-    }   //getSelectedChoice
+        return obj;
+    }   //getUserChoiceObject
 
     /**
-     * This method returns the choice value of the current selection. Every menu
-     * has a current selection even if the menu hasn't been displayed and the
-     * user hasn't picked a choice. In that case, the current selection is the
-     * default selection of the menu which is the first choice in the menu. If
-     * the menu is empty, the current selection value is -1.
+     * This method traverses the menu tree from the given root menu displaying each
+     * menu and waiting for the user to select a choice. When the user makes a choice,
+     * it will go to the next menu from that choice. If the user cancels the menu, it
+     * will go back to the parent menu where it came from. When the user makes a choice
+     * and there is no next menu from that choice, the traversal is ended.
+     * Note: this is a static method, meaning you can call it without a menu instance.
      *
-     * @return selected choice text, -1 if there is no selection.
+     * @param rootMenu specifies the root of the menu tree.
      */
-    public double getSelectedChoiceValue()
+    public static void walkMenuTree(FtcMenu rootMenu)
     {
-        final String funcName = "getSelectedChoiceValue";
-        double value =
-                selectedChoice == -1? -1.0: choiceValueTable.get(selectedChoice).doubleValue();
-
-        if (debugEnabled)
+        FtcMenu menu = rootMenu;
+        while (menu != null)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%f", value);
+            int choice = menu.getUserChoice();
+            if (choice != -1)
+            {
+                //
+                // User selected a choice, let's go to the next menu.
+                //
+                menu = menu.childMenuTable.get(choice);
+            }
+            else if (menu != rootMenu)
+            {
+                //
+                // User canceled a menu, let's go back to the parent menu
+                // unless we are already at the root menu in which case
+                // we stay in the root menu.
+                //
+                menu = menu.getParentMenu();
+            }
         }
-
-        return value;
-    }   //getSelectedChoiceValue
-
-    /**
-     * This method returns the choice text of the current selection. Every menu
-     * has a current selection even if the menu hasn't been displayed and the
-     * user hasn't picked a choice. In that case, the current selection is the
-     * default selection of the menu which is the first choice in the menu. If
-     * the menu is empty, the current selection text is null.
-     *
-     * @return selected choice text, null if there is no selection.
-     */
-    public String getSelectedChoiceText()
-    {
-        final String funcName = "getSelectedChoiceValue";
-        String text =
-                selectedChoice == -1? null: choiceTextTable.get(selectedChoice);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", text);
-        }
-
-        return text;
-    }   //getSelectedChoiceText
-
-    /**
-     * This method returns the choice value of the given choice index.
-     *
-     * @param choice specifies the choice index in the menu.
-     * @return value of the choice.
-     */
-    public double getChoiceValue(int choice)
-    {
-        final String funcName = "getChoiceValue";
-        double value = choiceValueTable.get(choice).doubleValue();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                               "choice=%d", choice);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%d", value);
-        }
-
-        return value;
-    }   //getChoiceValue
-
-    /**
-     * This method returns the choice text of the given choice index.
-     *
-     * @param choice specifies the choice index in the menu.
-     * @return text of the choice.
-     */
-    public String getChoiceText(int choice)
-    {
-        final String funcName = "getChoiceText";
-        String text = choiceTextTable.get(choice);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "choice=%d", choice);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", text);
-        }
-
-        return text;
-    }   //getChoiceText
+        //
+        // We are done with the menus. Let's clear the dashboard.
+        //
+        HalDashboard.getInstance().clearDisplay();
+    }   //walkMenuTree
 
     /**
      * This method checks all the menu button states and combine them into an integer,
@@ -532,8 +535,7 @@ public class FtcMenu
         {
             dashboard.displayPrintf(
                     i - firstDisplayedChoice + 1,
-                    i == selectedChoice? ">>\t%s": "%s",
-                    choiceTextTable.get(i));
+                    i == currentChoice? ">>\t%s": "%s", choiceTextTable.get(i));
         }
     }   //displayMenu
 
@@ -547,25 +549,25 @@ public class FtcMenu
 
         if (choiceTextTable.size() == 0)
         {
-            selectedChoice = -1;
+            currentChoice = -1;
         }
         else
         {
-            selectedChoice++;
-            if (selectedChoice >= choiceTextTable.size())
+            currentChoice++;
+            if (currentChoice >= choiceTextTable.size())
             {
-                selectedChoice = 0;
+                currentChoice = 0;
             }
 
             int lastDisplayedChoice =
                     Math.min(firstDisplayedChoice + HalDashboard.MAX_NUM_TEXTLINES - 2,
                              choiceTextTable.size() - 1);
-            if (selectedChoice > lastDisplayedChoice)
+            if (currentChoice > lastDisplayedChoice)
             {
                 //
                 // Scroll down.
                 //
-                firstDisplayedChoice = selectedChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
+                firstDisplayedChoice = currentChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
             }
         }
 
@@ -573,7 +575,7 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (choice=%d)", selectedChoice);
+                               "! (choice=%d)", currentChoice);
         }
     }   //nextChoice
 
@@ -587,22 +589,22 @@ public class FtcMenu
 
         if (choiceTextTable.size() == 0)
         {
-            selectedChoice = -1;
+            currentChoice = -1;
         }
         else
         {
-            selectedChoice--;
-            if (selectedChoice < 0)
+            currentChoice--;
+            if (currentChoice < 0)
             {
-                selectedChoice = choiceTextTable.size() - 1;
+                currentChoice = choiceTextTable.size() - 1;
             }
 
-            if (selectedChoice < firstDisplayedChoice)
+            if (currentChoice < firstDisplayedChoice)
             {
                 //
                 // Scroll up.
                 //
-                firstDisplayedChoice = selectedChoice;
+                firstDisplayedChoice = currentChoice;
             }
         }
 
@@ -610,7 +612,7 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (choice=%d)", selectedChoice);
+                               "! (choice=%d)", currentChoice);
         }
     }   //prevChoice
 
