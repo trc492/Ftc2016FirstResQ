@@ -245,7 +245,7 @@ public abstract class TrcAnalogInput implements TrcSensorData.DataProvider
      * This method calls the built-in calibrator to calibrates the gyro.
      *
      * @param numCalSamples specifies the number of calibration samples to take.
-     * @param calInterval specifes the interval in msec between samples.
+     * @param calInterval specifies the interval in msec between samples.
      */
     public void calibrate(int numCalSamples, long calInterval)
     {

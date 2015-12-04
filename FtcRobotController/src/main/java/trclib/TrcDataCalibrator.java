@@ -42,7 +42,7 @@ public class TrcDataCalibrator
         {
             throw new NullPointerException("dataProviders/providerNames cannot be null.");
         }
-        else if (dataProviders.length <= 0)
+        else if (dataProviders.length == 0)
         {
             throw new IllegalArgumentException(
                     "dataProviders array must have at least one element.");

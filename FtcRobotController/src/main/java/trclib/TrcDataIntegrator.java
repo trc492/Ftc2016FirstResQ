@@ -51,7 +51,7 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
         {
             throw new NullPointerException("dataProviders/dataNames cannot be null.");
         }
-        else if (dataProviders.length <= 0)
+        else if (dataProviders.length == 0)
         {
             throw new IllegalArgumentException(
                     "dataProviders array must have at least one element.");
@@ -184,11 +184,14 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
 
         for (int i = 0; i < integratedData.length; i++)
         {
-            prevTimes[i] = HalUtil.getCurrentTime();
-            integratedData[i].value = 0.0;
-            if (doubleIntegratedData != null)
+            if (integratedData[i] != null)
             {
-                doubleIntegratedData[i].value = 0.0;
+                prevTimes[i] = HalUtil.getCurrentTime();
+                integratedData[i].value = 0.0;
+                if (doubleIntegratedData != null)
+                {
+                    doubleIntegratedData[i].value = 0.0;
+                }
             }
         }
     }   //reset

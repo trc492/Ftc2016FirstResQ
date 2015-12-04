@@ -182,9 +182,7 @@ public abstract class FtcOpMode extends LinearOpMode
         {
             dbgTrace.traceInfo(funcName, "Running Start Mode Tasks ...");
         }
-        taskMgr.executeTaskType(
-                TrcTaskMgr.TaskType.START_TASK,
-                runMode);
+        taskMgr.executeTaskType(TrcTaskMgr.TaskType.START_TASK, runMode);
 
         if (debugEnabled)
         {

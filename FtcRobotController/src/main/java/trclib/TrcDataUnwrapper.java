@@ -164,8 +164,11 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
 
         for (int i = 0; i < dataProviders.length; i++)
         {
-            prevData[i] = dataProviders[i].getSensorData(dataNames[i]);
-            numCrossovers[i] = 0;
+            if (dataNames[i] != null)
+            {
+                prevData[i] = dataProviders[i].getSensorData(dataNames[i]);
+                numCrossovers[i] = 0;
+            }
         }
     }   //reset
 
