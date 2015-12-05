@@ -34,7 +34,7 @@ public class FtcMenu
     private static final int MENUBUTTON_UP      = (1 << 2);
     private static final int MENUBUTTON_DOWN    = (1 << 3);
 
-    private static int prevMenuButtons = 0;
+    private static int prevButtonStates = 0;
 
     private HalDashboard dashboard;
     private String menuTitle;
@@ -209,17 +209,24 @@ public class FtcMenu
      * This method returns the choice text of the given choice index.
      *
      * @param choice specifies the choice index in the menu.
-     * @return text of the choice.
+     * @return text of the choice if choice index is valid, null otherwise.
      */
     public String getChoiceText(int choice)
     {
         final String funcName = "getChoiceText";
-        String text = choiceTextTable.get(choice);
+        String text = null;
+        int tableSize = choiceTextTable.size();
+
+        if (tableSize > 0 && choice >= 0 && choice < tableSize)
+        {
+            text = choiceTextTable.get(choice);
+        }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "choice=%d", choice);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", text);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", text != null? text: "null");
         }
 
         return text;
@@ -229,17 +236,24 @@ public class FtcMenu
      * This method returns the choice object of the given choice index.
      *
      * @param choice specifies the choice index in the menu.
-     * @return object of the given choice.
+     * @return object of the given choice if choice index is valid, null otherwise.
      */
     public Object getChoiceObject(int choice)
     {
         final String funcName = "getChoiceObject";
-        Object obj = choiceObjectTable.get(choice);
+        Object obj = null;
+        int tableSize = choiceObjectTable.size();
+
+        if (tableSize > 0 && choice >= 0 && choice < tableSize)
+        {
+            obj = choiceObjectTable.get(choice);
+        }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "choice=%d", choice);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", obj.toString());
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", obj != null? obj.toString(): "null");
         }
 
         return obj;
@@ -278,21 +292,7 @@ public class FtcMenu
      */
     public String getCurrentChoiceText()
     {
-        final String funcName = "getCurrentChoiceText";
-        String text = null;
-
-        if (currentChoice != -1)
-        {
-            text = choiceTextTable.get(currentChoice);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", text);
-        }
-
-        return text;
+        return getChoiceText(currentChoice);
     }   //getCurrentChoiceText
 
     /**
@@ -306,21 +306,7 @@ public class FtcMenu
      */
     public Object getCurrentChoiceObject()
     {
-        final String funcName = "getCurrentChoiceObject";
-        Object obj = null;
-
-        if (currentChoice != -1)
-        {
-            choiceObjectTable.get(currentChoice);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", obj.toString());
-        }
-
-        return obj;
+        return getChoiceObject(currentChoice);
     }   //getCurrentChoiceObject
 
     /**
@@ -344,19 +330,19 @@ public class FtcMenu
 
         while (!done)
         {
-            int currMenuButtons = getMenuButtons();
-            int changedButtons = currMenuButtons ^ prevMenuButtons;
+            int currButtonStates = getMenuButtons();
+            int changedButtons = currButtonStates ^ prevButtonStates;
 
             if (debugEnabled)
             {
-                dbgTrace.traceInfo(funcName, "buttons=%x", currMenuButtons);
+                dbgTrace.traceInfo(funcName, "buttons=%x", currButtonStates);
             }
             //
             // Check if any menu buttons changed states.
             //
             if (changedButtons != 0)
             {
-                int buttonsPressed = currMenuButtons & changedButtons;
+                int buttonsPressed = currButtonStates & changedButtons;
 
                 if ((buttonsPressed & MENUBUTTON_BACK) != 0)
                 {
@@ -389,7 +375,7 @@ public class FtcMenu
                     nextChoice();
                 }
 
-                prevMenuButtons = currMenuButtons;
+                prevButtonStates = currButtonStates;
             }
             //
             // Refresh the display to show the choice movement.
@@ -417,15 +403,7 @@ public class FtcMenu
      */
     public String getUserChoiceText()
     {
-        String text = null;
-        int choice = getUserChoice();
-
-        if (choice != -1)
-        {
-            text = getChoiceText(choice);
-        }
-
-        return text;
+        return getChoiceText(getUserChoice());
     }   //getUserChoiceText
 
     /**
@@ -438,15 +416,7 @@ public class FtcMenu
      */
     public Object getUserChoiceObject()
     {
-        Object obj = null;
-        int choice = getUserChoice();
-
-        if (choice != -1)
-        {
-            obj = getChoiceObject(choice);
-        }
-
-        return obj;
+        return getChoiceObject(getUserChoice());
     }   //getUserChoiceObject
 
     /**

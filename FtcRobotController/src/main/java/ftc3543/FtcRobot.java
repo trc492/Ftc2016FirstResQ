@@ -75,7 +75,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         // Initialize sensors.
         //
         mrGyro = new FtcMRGyro("gyroSensor");
-//        hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
+        hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         gyro = mrGyro;
         sonarSensor = new FtcUltrasonicSensor("sonarSensor");
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
