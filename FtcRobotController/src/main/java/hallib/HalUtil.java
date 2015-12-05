@@ -44,8 +44,8 @@ public class HalUtil
             }
             catch (InterruptedException e)
             {
-                sleepTime = wakeupTime - System.currentTimeMillis();
             }
+            sleepTime = wakeupTime - System.currentTimeMillis();
         }
     }   //sleep
 

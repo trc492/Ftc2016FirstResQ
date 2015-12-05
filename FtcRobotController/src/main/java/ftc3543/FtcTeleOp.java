@@ -3,7 +3,6 @@ package ftc3543;
 import ftclib.FtcGamepad;
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
-import trclib.TrcBooleanState;
 import trclib.TrcRobot;
 
 public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler

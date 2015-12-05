@@ -56,6 +56,9 @@ public abstract class FtcOpMode extends LinearOpMode
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private static TrcDbgTrace opModeTrace = null;
+    private static String opModeName = null;
+
     private final static String OPMODE_AUTO     = "FtcAuto";
     private final static String OPMODE_TELEOP   = "FtcTeleOp";
     private final static String OPMODE_TEST     = "FtcTest";
@@ -88,6 +91,41 @@ public abstract class FtcOpMode extends LinearOpMode
         return instance;
     }   //getInstance
 
+    /**
+     * This method returns a global debug trace object for tracing OpMode code.
+     * If it doesn't exist yet, one is created. This is an easy way to quickly
+     * get some debug output without a whole lot of setup overhead as the full
+     * module-based debug tracing.
+     *
+     * @return global opMode trace object.
+     */
+    public static TrcDbgTrace getOpModeTraceInstance()
+    {
+        if (opModeTrace == null)
+        {
+            opModeTrace = new TrcDbgTrace(
+                    opModeName, false, TrcDbgTrace.TraceLevel.API, TrcDbgTrace.MsgLevel.INFO);
+        }
+
+        return opModeTrace;
+    }   //getOpModeTraceInstance
+
+    /**
+     * This method sets the OpMode trace configuration. The OpMode trace object was
+     * created with default configuration of disabled method tracing, method tracing
+     * level is set to API and message trace level set to INFO. Call this method if
+     * you want to change the configuration.
+     *
+     * @param traceEnabled specifies true if enabling method tracing.
+     * @param traceLevel specifies the method tracing level.
+     * @param msgLevel specifies the message tracing level.
+     */
+    public static void setOpModeTraceConfig(
+            boolean traceEnabled, TrcDbgTrace.TraceLevel traceLevel, TrcDbgTrace.MsgLevel msgLevel)
+    {
+        opModeTrace.setDbgTraceConfig(traceEnabled, traceLevel, msgLevel);
+    }   //setOpModeTraceConfig
+
     //
     // Implements LinearOpMode
     //
@@ -116,28 +154,28 @@ public abstract class FtcOpMode extends LinearOpMode
         // Note that it means the OpMode must have "FtcAuto", "FtcTeleOp" and "FtcTest"
         // in its name.
         //
-        String opModeName = this.toString();
-        String runModeName = "Invalid";
+        String opModeFullName = this.toString();
+        opModeName = "Invalid";
 
         if (debugEnabled)
         {
-            dbgTrace.traceInfo(funcName, "opModeName=<%s>", opModeName);
+            dbgTrace.traceInfo(funcName, "opModeFullName=<%s>", opModeFullName);
         }
 
-        if (opModeName.contains(OPMODE_AUTO))
+        if (opModeFullName.contains(OPMODE_AUTO))
         {
             runMode = TrcRobot.RunMode.AUTO_MODE;
-            runModeName = "Auto";
+            opModeName = "Auto";
         }
-        else if (opModeName.contains(OPMODE_TELEOP))
+        else if (opModeFullName.contains(OPMODE_TELEOP))
         {
             runMode = TrcRobot.RunMode.TELEOP_MODE;
-            runModeName = "TeleOp";
+            opModeName = "TeleOp";
         }
-        else if (opModeName.contains(OPMODE_TEST))
+        else if (opModeFullName.contains(OPMODE_TEST))
         {
             runMode = TrcRobot.RunMode.TEST_MODE;
-            runModeName = "Test";
+            opModeName = "Test";
         }
         else
         {
@@ -194,7 +232,7 @@ public abstract class FtcOpMode extends LinearOpMode
         while (opModeIsActive())
         {
             dashboard.displayPrintf(
-                    0, "%s: %.3f", runModeName, HalUtil.getCurrentTime() - startTime);
+                    0, "%s: %.3f", opModeName, HalUtil.getCurrentTime() - startTime);
 
             if (debugEnabled)
             {

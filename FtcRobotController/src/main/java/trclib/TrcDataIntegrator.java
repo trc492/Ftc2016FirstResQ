@@ -305,26 +305,29 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
 
         for (int i = 0; i < inputData.length; i++)
         {
-            //
-            // Get sensor data.
-            //
-            inputData[i] = dataProviders[i].getSensorData(dataNames[i]);
-            double deltaTime = inputData[i].timestamp - prevTimes[i];
-            //
-            // Do integration.
-            //
-            integratedData[i].timestamp = inputData[i].timestamp;
-            integratedData[i].value += inputData[i].value*deltaTime;
-            //
-            // Do double integration if necessary.
-            //
-            if (doubleIntegratedData != null)
+            if (dataNames[i] != null)
             {
-                doubleIntegratedData[i].timestamp = inputData[i].timestamp;
-                doubleIntegratedData[i].value = integratedData[i].value*deltaTime;
-            }
+                //
+                // Get sensor data.
+                //
+                inputData[i] = dataProviders[i].getSensorData(dataNames[i]);
+                double deltaTime = inputData[i].timestamp - prevTimes[i];
+                //
+                // Do integration.
+                //
+                integratedData[i].timestamp = inputData[i].timestamp;
+                integratedData[i].value += inputData[i].value*deltaTime;
+                //
+                // Do double integration if necessary.
+                //
+                if (doubleIntegratedData != null)
+                {
+                    doubleIntegratedData[i].timestamp = inputData[i].timestamp;
+                    doubleIntegratedData[i].value = integratedData[i].value*deltaTime;
+                }
 
-            prevTimes[i] = inputData[i].timestamp;
+                prevTimes[i] = inputData[i].timestamp;
+            }
         }
 
         if (debugEnabled)

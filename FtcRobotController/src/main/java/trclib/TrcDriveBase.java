@@ -433,23 +433,75 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         double lfSpeed = 0.0, lrSpeed = 0.0, rfSpeed = 0.0, rrSpeed = 0.0;
         if (leftFrontMotor != null)
         {
-            lfEnc = leftFrontMotor.getPosition();
-            lfSpeed = leftFrontMotor.getSpeed();
+            try
+            {
+                lfEnc = leftFrontMotor.getPosition();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
+
+            try
+            {
+                lfSpeed = leftFrontMotor.getSpeed();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
         }
         if (leftRearMotor != null)
         {
-            lrEnc = leftRearMotor.getPosition();
-            lrSpeed = leftRearMotor.getSpeed();
+            try
+            {
+                lrEnc = leftRearMotor.getPosition();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
+
+            try
+            {
+                lrSpeed = leftRearMotor.getSpeed();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
         }
         if (rightFrontMotor != null)
         {
-            rfEnc = rightFrontMotor.getPosition();
-            rfSpeed = rightFrontMotor.getSpeed();
+            try
+            {
+                rfEnc = rightFrontMotor.getPosition();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
+
+            try
+            {
+                rfSpeed = rightFrontMotor.getSpeed();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
         }
         if (rightRearMotor != null)
         {
-            rrEnc = rightRearMotor.getPosition();
-            rrSpeed = rightRearMotor.getSpeed();
+            try
+            {
+                rrEnc = rightRearMotor.getPosition();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
+
+            try
+            {
+                rrSpeed = rightRearMotor.getSpeed();
+            }
+            catch (UnsupportedOperationException e)
+            {
+            }
         }
 
         if (fourMotors)

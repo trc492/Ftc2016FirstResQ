@@ -346,6 +346,11 @@ public class FtcMenu
         {
             int currMenuButtons = getMenuButtons();
             int changedButtons = currMenuButtons ^ prevMenuButtons;
+
+            if (debugEnabled)
+            {
+                dbgTrace.traceInfo(funcName, "buttons=%x", currMenuButtons);
+            }
             //
             // Check if any menu buttons changed states.
             //
@@ -457,6 +462,7 @@ public class FtcMenu
     public static void walkMenuTree(FtcMenu rootMenu)
     {
         FtcMenu menu = rootMenu;
+
         while (menu != null)
         {
             int choice = menu.getUserChoice();
@@ -491,6 +497,8 @@ public class FtcMenu
      */
     private int getMenuButtons()
     {
+        final String funcName = "getMenuButtons";
+
         int buttons = 0;
 
         if (menuButtons.isMenuBackButton()) buttons |= MENUBUTTON_BACK;
@@ -498,6 +506,11 @@ public class FtcMenu
         if (menuButtons.isMenuUpButton()) buttons |= MENUBUTTON_UP;
         if (menuButtons.isMenuDownButton()) buttons |= MENUBUTTON_DOWN;
 
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "=%x", buttons);
+        }
         return buttons;
     }   //getMenuButtons
 
