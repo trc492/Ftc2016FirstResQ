@@ -128,6 +128,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
             switch (btnMask)
             {
                 case FtcGamepad.GAMEPAD_A:
+                    if (pressed)
+                    {
+                        robot.elevator.setBrakeOn(false);
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_B:
@@ -153,6 +157,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:
+                    if (pressed)
+                    {
+                        robot.elevator.setBrakeOn(true);
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_LBUMPER:
@@ -206,17 +214,9 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_LEFT:
-                    if (pressed)
-                    {
-                        robot.elevator.setBrakeOn(false);
-                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_RIGHT:
-                    if (pressed)
-                    {
-                        robot.elevator.setBrakeOn(true);
-                    }
                     break;
             }
         }

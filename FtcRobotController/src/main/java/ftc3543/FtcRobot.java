@@ -3,12 +3,14 @@ package ftc3543;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import ftclib.FtcAnalogInput;
 import ftclib.FtcDcMotor;
 import ftclib.FtcMRGyro;
 import ftclib.FtcHiTechnicGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
 import ftclib.FtcUltrasonicSensor;
+import trclib.TrcAnalogInput;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
 import trclib.TrcGyro;
@@ -25,7 +27,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcMRGyro mrGyro;
     public FtcHiTechnicGyro hitechnicGyro;
     public TrcGyro gyro;
-    public FtcUltrasonicSensor sonarSensor;
+    public FtcAnalogInput maxSonarSensor;
+    public FtcUltrasonicSensor legoSonarSensor;
+    public TrcAnalogInput sonarSensor;
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
     //
@@ -77,7 +81,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         mrGyro = new FtcMRGyro("gyroSensor");
         hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         gyro = mrGyro;
-        sonarSensor = new FtcUltrasonicSensor("sonarSensor");
+        maxSonarSensor = new FtcAnalogInput("maxSonarSensor");
+        legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
+        sonarSensor = maxSonarSensor;
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
@@ -143,12 +149,12 @@ public class FtcRobot implements TrcPidController.PidInput,
         // Slider subsystem.
         //
         slider = new Slider();
-        slider.zeroCalibrate(RobotInfo.SLIDER_CAL_POWER);
+//        slider.zeroCalibrate(RobotInfo.SLIDER_CAL_POWER);
         //
         // Elevator subsystem.
         //
         elevator = new Elevator();
-        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
+//        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
         //
         // HangingHook subsystem.
         //
