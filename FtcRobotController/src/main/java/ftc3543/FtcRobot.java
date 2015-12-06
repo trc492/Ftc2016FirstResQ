@@ -82,9 +82,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         gyro = mrGyro;
         maxSonarSensor = new FtcAnalogInput("maxSonarSensor");
+        maxSonarSensor.setScale(RobotInfo.SONAR_SCALE_TO_INCHES);
         legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
+        legoSonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         sonarSensor = maxSonarSensor;
-        sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
         //

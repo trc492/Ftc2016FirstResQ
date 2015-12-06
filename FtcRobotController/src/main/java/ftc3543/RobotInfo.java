@@ -35,6 +35,7 @@ public class RobotInfo
     public static final double SONAR_TOLERANCE                  = 2.0;
     public static final double SONAR_SETTLING                   = 0.2;
     public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
+    public static final double SONAR_SCALE_TO_INCHES            = (512.0/(5.0/1024));
     //
     // Elevator subsystem.
     //
