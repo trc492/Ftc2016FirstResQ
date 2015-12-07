@@ -179,7 +179,8 @@ public abstract class FtcOpMode extends LinearOpMode
         }
         else
         {
-            throw new IllegalStateException("Invalid RunMode.");
+            throw new IllegalStateException(
+                    "Invalid OpMode (must be either FtcAuto, FtcTeleOp or FtcTest.");
         }
 
         if (debugEnabled)

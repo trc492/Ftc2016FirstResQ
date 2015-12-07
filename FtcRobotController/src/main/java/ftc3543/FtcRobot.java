@@ -32,6 +32,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     public TrcAnalogInput sonarSensor;
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
+    public double prevSonarValue;
     //
     // DriveBase subsystem.
     //
@@ -85,7 +86,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         maxSonarSensor.setScale(RobotInfo.SONAR_SCALE_TO_INCHES);
         legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
         legoSonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
-        sonarSensor = maxSonarSensor;
+        sonarSensor = legoSonarSensor;
+        prevSonarValue = sonarSensor.getData().value;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
         //
@@ -195,6 +197,19 @@ public class FtcRobot implements TrcPidController.PidInput,
         else if (pidCtrl == pidCtrlSonar)
         {
             input = sonarSensor.getData().value;
+            //
+            // The Lego Ultrasonic sensor occasionally returns a zero.
+            // This is causing havoc to PID control. Let's detect that
+            // and discard it and reuse the previous value instead.
+            //
+            if (input == 0.0)
+            {
+                input = prevSonarValue;
+            }
+            else
+            {
+                prevSonarValue = input;
+            }
         }
         else if (pidCtrl == pidCtrlLight)
         {

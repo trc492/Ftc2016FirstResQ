@@ -68,8 +68,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     @Override
     public void runPeriodic()
     {
-        super.runPeriodic();
-
+        State state = (State)sm.getState();
+        dashboard.displayPrintf(
+                8, "%s: %s", test.toString(), state != null? state.toString(): "STOPPED!");
         switch (test)
         {
             case SENSOR_TESTS:
@@ -177,32 +178,37 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     private void doSensorTests()
     {
         //
+        // Allow TeleOp to run so we can control the robot in test sensor mode.
+        //
+        super.runPeriodic();
+        //
         // Read all sensors and display on the dashboard.
         // Drive the robot around to sample different locations of the field.
         //
-        dashboard.displayPrintf(8, "Sensor Tests:");
-        dashboard.displayPrintf(9, "lfEnc=%.0f,rfEnc=%.0f,lrEnc=%.0f,rrEnc=%.0f",
+        dashboard.displayPrintf(9, "Sensor Tests:");
+        dashboard.displayPrintf(10, "lfEnc=%.0f,rfEnc=%.0f,lrEnc=%.0f,rrEnc=%.0f",
                                 robot.leftFrontWheel.getPosition(),
                                 robot.rightFrontWheel.getPosition(),
                                 robot.leftRearWheel.getPosition(),
                                 robot.rightRearWheel.getPosition());
-        dashboard.displayPrintf(10, "Gyro: Rate=%.1f,Heading=%.1f",
+        dashboard.displayPrintf(11, "Gyro: Rate=%.1f,Heading=%.1f",
                                 robot.gyro.getZRotationRate().value,
                                 robot.gyro.getZHeading().value);
-        dashboard.displayPrintf(11, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
+        dashboard.displayPrintf(12, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
                                 robot.colorSensor.argb());
-        dashboard.displayPrintf(12, "Light=%.0f,Sonar=%.1f",
+        dashboard.displayPrintf(13, "Light=%.0f,Sonar=%.1f",
                                 robot.lightSensor.getData().value,
                                 robot.sonarSensor.getData().value);
-        dashboard.displayPrintf(13, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
+        dashboard.displayPrintf(14, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0,
                                 robot.slider.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.slider.isUpperLimitSwitchPressed()? 1: 0);
+//        dashboard.displayPrintf(15, "Sonar=%.1f", robot.getInput(robot.pidCtrlSonar));
     }   //doTestSensors
 
     private void doTimedDrive(double time)
@@ -211,11 +217,11 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         double rfEnc = robot.rightFrontWheel.getPosition();
         double lrEnc = robot.leftRearWheel.getPosition();
         double rrEnc = robot.rightRearWheel.getPosition();
-        dashboard.displayPrintf(8, "Timed Drive: %.0f sec", time);
-        dashboard.displayPrintf(9, "lfEnc=%.0f,rfEnc=%.0f", lfEnc, rfEnc);
-        dashboard.displayPrintf(10, "lrEnc=%.0f,rrEnc=%.0f", lrEnc, rrEnc);
-        dashboard.displayPrintf(11, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
-        dashboard.displayPrintf(12, "xPos=%.1f,yPos=%.1f,heading=%.1f",
+        dashboard.displayPrintf(9, "Timed Drive: %.0f sec", time);
+        dashboard.displayPrintf(10, "lfEnc=%.0f,rfEnc=%.0f", lfEnc, rfEnc);
+        dashboard.displayPrintf(11, "lrEnc=%.0f,rrEnc=%.0f", lrEnc, rrEnc);
+        dashboard.displayPrintf(12, "average=%f", (lfEnc + rfEnc + lrEnc + rrEnc)/4.0);
+        dashboard.displayPrintf(13, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
@@ -249,13 +255,13 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doDistanceDrive(double distance)
     {
-        dashboard.displayPrintf(8, "Distance Drive: %.1f ft", distance/12.0);
-        dashboard.displayPrintf(9, "xPos=%.1f,yPos=%.1f,heading=%.1f",
+        dashboard.displayPrintf(9, "Distance Drive: %.1f ft", distance/12.0);
+        dashboard.displayPrintf(10, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlDrive.displayPidInfo(10);
-        robot.pidCtrlTurn.displayPidInfo(12);
+        robot.pidCtrlDrive.displayPidInfo(11);
+        robot.pidCtrlTurn.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -284,13 +290,13 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doDegreesTurn(double degrees)
     {
-        dashboard.displayPrintf(8, "Degrees Turn: %.1f", degrees);
-        dashboard.displayPrintf(9, "xPos=%.1f,yPos=%.1f,heading=%.1f",
+        dashboard.displayPrintf(9, "Degrees Turn: %.1f", degrees);
+        dashboard.displayPrintf(10, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlDrive.displayPidInfo(10);
-        robot.pidCtrlTurn.displayPidInfo(12);
+        robot.pidCtrlDrive.displayPidInfo(11);
+        robot.pidCtrlTurn.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -319,19 +325,19 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doLineFollow(Alliance alliance, double wallDistance)
     {
-        dashboard.displayPrintf(8, "Line following: %s, distance=%.1f",
+        dashboard.displayPrintf(9, "Line following: %s, distance=%.1f",
                                 alliance.toString(), wallDistance);
-        dashboard.displayPrintf(9, "Light=%.0f,Sonar=%.1f",
+        dashboard.displayPrintf(10, "Light=%.0f,Sonar=%.1f",
                                 robot.lightSensor.getData().value,
                                 robot.sonarSensor.getData().value);
-        dashboard.displayPrintf(10, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
+        dashboard.displayPrintf(11, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
                                 robot.colorSensor.argb());
-        robot.pidCtrlSonar.displayPidInfo(11);
-        robot.pidCtrlLight.displayPidInfo(13);
+        robot.pidCtrlSonar.displayPidInfo(12);
+        robot.pidCtrlLight.displayPidInfo(14);
 
         if (sm.isReady())
         {
