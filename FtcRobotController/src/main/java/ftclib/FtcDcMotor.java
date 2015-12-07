@@ -137,7 +137,7 @@ public class FtcDcMotor extends TrcMotorController
     /**
      * This method inverts the motor direction.
      *
-     * @param inverted specifies true if inverting motor direction, false otherwise.
+     * @param inverted specifies true to invert motor direction, false otherwise.
      */
     @Override
     public void setInverted(boolean inverted)
@@ -155,8 +155,7 @@ public class FtcDcMotor extends TrcMotorController
     }   //setInverted
 
     /**
-     * This method resets the motor position reading. The motor position
-     * reading is provided by an encoder.
+     * This method resets the motor position sensor, typically an encoder.
      */
     @Override
     public void resetPosition()
@@ -188,7 +187,7 @@ public class FtcDcMotor extends TrcMotorController
      * cause the encoder reading to go down when the motor is receiving positive
      * power. This method can correct this situation.
      *
-     * @param inverted specifies true if inverting position sensor direction,
+     * @param inverted specifies true to invert position sensor direction,
      *                 false otherwise.
      */
     @Override
@@ -207,7 +206,7 @@ public class FtcDcMotor extends TrcMotorController
     }   //setPositionSensorInverted
 
     /**
-     * This method returns the current motor position reading.
+     * This method returns the motor position by reading the position sensor.
      *
      * @return current motor position.
      */
@@ -248,9 +247,9 @@ public class FtcDcMotor extends TrcMotorController
     }   //getSpeed
 
     /**
-     * This method returns the reverse limit switch state.
+     * This method returns the state of the reverse limit switch.
      *
-     * @return true if reverse limit switch is activated, falsse otherwise.
+     * @return true if reverse limit switch is activated, false otherwise.
      */
     @Override
     public boolean isReverseLimitSwitchActive()
