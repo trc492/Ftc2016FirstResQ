@@ -143,13 +143,13 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     boolean isBlue = blueValue > 0 && redValue == 0 && greenValue == 0;
                     if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed)
                     {
-                        robot.buttonPusher.pushRightButton();
+                        robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_RIGHT);
                     }
                     else if (alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
                     {
-                        robot.buttonPusher.pushLeftButton();
+                        robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
                     }
-                    robot.hangingHook.extend();
+                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
@@ -159,8 +159,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Release the button pusher and retract the hanging hook.
                     //
-                    robot.buttonPusher.retract();
-                    robot.hangingHook.retract();
+                    robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
+                    robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
+                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //

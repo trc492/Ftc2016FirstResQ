@@ -88,6 +88,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 autoStrategy = new AutoTriggerBeacon(alliance, startPos, delay, beaconOption);
                 break;
 
+            case DO_NOTHING:
             default:
                 autoStrategy = null;
                 break;
