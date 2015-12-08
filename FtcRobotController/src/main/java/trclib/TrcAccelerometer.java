@@ -10,71 +10,72 @@ package trclib;
  * calibrator, a data processor and an integrator.
  * The platform dependent accelerometer can specify how many axes it supports
  * by setting the HAS_AXIS options. If it does not provide velocity or distance
- * data, it can set the INTEGRATE and DOUBLE_INTEGRATE options. If it supports
- * its own calibration, it can override the calibrate() and isCalibrating()
- * methods to call its own. Otherwise, it can set the DO_CALIBRATION option
+ * data, it can set the INTEGRATE and DOUBLE_INTEGRATE options and let the
+ * built-in integrator handle it. If it supports its own calibration, it can
+ * override the calibrate() and isCalibrating() methods to call its own. Otherwise,
+ * it can set the DO_CALIBRATION option
  * to enable the built-in calibrator.
  */
 public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
 {
     /**
-     * Thia abstract method returns the raw acceleration of the x-axis.
+     * This abstract method returns the raw acceleration of the x-axis.
      *
      * @return raw acceleration of x-axis.
      */
     public abstract TrcSensorData getRawXAcceleration();
 
     /**
-     * Thia abstract method returns the raw acceleration of the y-axis.
+     * This abstract method returns the raw acceleration of the y-axis.
      *
      * @return raw acceleration of y-axis.
      */
     public abstract TrcSensorData getRawYAcceleration();
 
     /**
-     * Thia abstract method returns the raw acceleration of the z-axis.
+     * This abstract method returns the raw acceleration of the z-axis.
      *
      * @return raw acceleration of z-axis.
      */
     public abstract TrcSensorData getRawZAcceleration();
 
     /**
-     * Thia abstract method returns the raw velocity of the x-axis.
+     * This abstract method returns the raw velocity of the x-axis.
      *
      * @return raw velocity of x-axis.
      */
     public abstract TrcSensorData getRawXVelocity();
 
     /**
-     * Thia abstract method returns the raw velocity of the y-axis.
+     * This abstract method returns the raw velocity of the y-axis.
      *
      * @return raw velocity of y-axis.
      */
     public abstract TrcSensorData getRawYVelocity();
 
     /**
-     * Thia abstract method returns the raw velocity of the z-axis.
+     * This abstract method returns the raw velocity of the z-axis.
      *
      * @return raw velocity of z-axis.
      */
     public abstract TrcSensorData getRawZVelocity();
 
     /**
-     * Thia abstract method returns the raw distance of the x-axis.
+     * This abstract method returns the raw distance of the x-axis.
      *
      * @return raw distance of x-axis.
      */
     public abstract TrcSensorData getRawXDistance();
 
     /**
-     * Thia abstract method returns the raw distance of the y-axis.
+     * This abstract method returns the raw distance of the y-axis.
      *
      * @return raw distance of y-axis.
      */
     public abstract TrcSensorData getRawYDistance();
 
     /**
-     * Thia abstract method returns the raw distance of the z-axis.
+     * This abstract method returns the raw distance of the z-axis.
      *
      * @return raw distance of z-axis.
      */
@@ -129,7 +130,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options:
+     * @param options specifies the gyro options. Multiple options can be OR'd together.
      *                ACCEL_HAS_X_AXIS - supports x-axis.
      *                ACCEL_HAS_Y_AXIS - supports y-axis.
      *                ACCEL_HAS_Z_AXIS - supports z-axis.
@@ -303,7 +304,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options:
+     * @param options specifies the gyro options. Multiple options can be OR'd together.
      *                ACCEL_HAS_X_AXIS - supports x-axis.
      *                ACCEL_HAS_Y_AXIS - supports y-axis.
      *                ACCEL_HAS_Z_AXIS - supports z-axis.

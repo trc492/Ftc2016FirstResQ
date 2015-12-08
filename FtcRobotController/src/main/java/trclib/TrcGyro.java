@@ -10,51 +10,52 @@ package trclib;
  * creates a calibrator, a data processors, an integrator and an unwrapper.
  * The platform dependent gyro can specify how many axes it supports by
  * setting the HAS_AXIS options. If it does not provide heading data, it can
- * set the INTEGRATE options. Or if the heading data it provides wrap-around,
- * it can set the UNWRAP_HEADING options to enable the unwrapper to unwrap
- * the heading data. If it supports its own calibration, it can override the
- * calibrate() and isCalibrating() methods to call its own. Otherwise, it can
- * set the DO_CALIBRATION option to enable the built-in calibrator.
+ * set the INTEGRATE options and let the built-in integrator handle it. Or
+ * if the heading data it provides wrap-around, it can set the UNWRAP_HEADING
+ * options to enable the unwrapper to unwrap the heading data. If it supports
+ * its own calibration, it can override the calibrate() and isCalibrating()
+ * methods to call its own. Otherwise, it can set the DO_CALIBRATION option
+ * to enable the built-in calibrator.
  */
 public abstract class TrcGyro implements TrcSensorData.DataProvider
 {
     /**
-     * Thia abstract method returns the raw rate of the x-axis.
+     * This abstract method returns the raw rate of the x-axis.
      *
      * @return raw rate of x-axis.
      */
     public abstract TrcSensorData getRawXRate();
 
     /**
-     * Thia abstract method returns the raw rate of the y-axis.
+     * This abstract method returns the raw rate of the y-axis.
      *
      * @return raw rate of y-axis.
      */
     public abstract TrcSensorData getRawYRate();
 
     /**
-     * Thia abstract method returns the raw rate of the z-axis.
+     * This abstract method returns the raw rate of the z-axis.
      *
      * @return raw rate of z-axis.
      */
     public abstract TrcSensorData getRawZRate();
 
     /**
-     * Thia abstract method returns the raw heading of the x-axis.
+     * This abstract method returns the raw heading of the x-axis.
      *
      * @return raw heading of x-axis.
      */
     public abstract TrcSensorData getRawXHeading();
 
     /**
-     * Thia abstract method returns the raw heading of the y-axis.
+     * This abstract method returns the raw heading of the y-axis.
      *
      * @return raw heading of y-axis.
      */
     public abstract TrcSensorData getRawYHeading();
 
     /**
-     * Thia abstract method returns the raw heading of the z-axis.
+     * This abstract method returns the raw heading of the z-axis.
      *
      * @return raw heading of z-axis.
      */
@@ -113,7 +114,7 @@ public abstract class TrcGyro implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options:
+     * @param options specifies the gyro options. Multiple options can be OR'd together.
      *                GYRO_HAS_X_AXIS - supports x-axis.
      *                GYRO_HAS_Y_AXIS - supports y-axis.
      *                GYRO_HAS_Z_AXIS - supports z-axis.
@@ -324,7 +325,7 @@ public abstract class TrcGyro implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options:
+     * @param options specifies the gyro options. Multiple options can be OR'd together.
      *                GYRO_HAS_X_AXIS - supports x-axis.
      *                GYRO_HAS_Y_AXIS - supports y-axis.
      *                GYRO_HAS_Z_AXIS - supports z-axis.

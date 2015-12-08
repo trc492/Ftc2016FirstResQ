@@ -18,6 +18,16 @@ public abstract class TrcMotorController
     public abstract void setPower(double power);
 
     /**
+     * This method enables/disables motor brake mode. In motor brake mode, setPower(0) would
+     * stop the motor very abruptly by shorting the motor wires together using the generated
+     * back EMF to s5op the motor. When brakMode is false (i.e. float mode), the motor wires
+     * are just disconnected from the motor controller so the motor will stop gradually.
+     *
+     * @param brakeMode specifies true to enable brake mode, false otherwise.
+     */
+    public abstract void setBrakeMode(boolean brakeMode);
+
+    /**
      * This method inverts the motor direction.
      *
      * @param inverted specifies true to invert motor direction, false otherwise.

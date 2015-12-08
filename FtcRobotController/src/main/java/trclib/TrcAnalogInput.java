@@ -2,10 +2,12 @@ package trclib;
 
 /**
  * This class implements a platform independent AnalogInput. Typically, this
- * class is extended by a platform dependent AnalogInput class. The platform
- * dependent AnalogINput class must implement the abstract methods required
- * by this class. The abstract methods allow this class to get raw data from
- * the sensor.
+ * class is extended by a platform dependent sensor class that produces value
+ * data. The sensor doesn't have to be connected to the AnalogInput port. It
+ * could be connected to an I2C port as long as it produces a value data.
+ * The platform dependent sensor class must implement the abstract methods
+ * required by this class. The abstract methods allow this class to get raw
+ * data from the sensor.
  * Depending on the options specified in the constructor, this class creates a
  * calibrator, a data processor and an integrator. If it needs data integration,
  * it can set the INTEGRATE or the DOUBLE_INTEGRATE options. If it supports its
@@ -16,21 +18,25 @@ package trclib;
 public abstract class TrcAnalogInput implements TrcSensorData.DataProvider
 {
     /**
-     * Thia abstract method returns the raw data from the sensor.
+     * This abstract method returns the raw data from the sensor.
      *
      * @return raw data.
      */
     public abstract TrcSensorData getRawData();
 
     /**
-     * Thia abstract method returns the raw integrated data from the sensor.
+     * This abstract method returns the raw integrated data from the sensor
+     * if the sensor supports it. Otherwise, it may return zero or throw
+     * an UnsupportedOperationException.
      *
      * @return raw integrated data.
      */
     public abstract TrcSensorData getRawIntegratedData();
 
     /**
-     * Thia abstract method returns the raw double integrated data from the sensor.
+     * This abstract method returns the raw double integrated data from
+     * the sensor if the sensor supports it. Otherwise, it may return zero
+     * or throw an UnsupportedOperationException.
      *
      * @return raw double integrated data.
      */
@@ -71,7 +77,7 @@ public abstract class TrcAnalogInput implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the AnalogInput options:
+     * @param options specifies the AnalogInput options. Multiple options can be OR'd together.
      *                ANALOGINPUT_INTEGRATE - do integration on sensor data.
      *                ANALOGINPUT_DOUBLE_INTEGRATE - do double integration on sensor data.
      *                ANALOGINPUT_DO_CALIBRATION - do calibration on the sensor.
@@ -135,7 +141,7 @@ public abstract class TrcAnalogInput implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the AnalogInput options:
+     * @param options specifies the AnalogInput options. Multiple options can be OR'd together.
      *                ANALOGINPUT_INTEGRATE - do integration on sensor data.
      *                ANALOGINPUT_DOUBLE_INTEGRATE - do double integration on sensor data.
      *                ANALOGINPUT_DO_CALIBRATION - do calibration on the sensor.

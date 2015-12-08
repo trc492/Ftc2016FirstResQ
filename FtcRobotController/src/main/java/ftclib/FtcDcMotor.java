@@ -27,6 +27,7 @@ public class FtcDcMotor extends TrcMotorController
     private DcMotor motor;
     private int zeroEncoderValue;
     private int positionSensorSign = 1;
+    private boolean brakeMode = true;
 
     /**
      * Constructor: Create an instance of the object.
@@ -131,8 +132,37 @@ public class FtcDcMotor extends TrcMotorController
             power = 0.0;
         }
 
-        motor.setPower(power);
-    }   //set
+        if (power != 0.0 || brakeMode)
+        {
+            motor.setPower(power);
+        }
+        else
+        {
+            motor.setPowerFloat();
+        }
+    }   //setPower
+
+    /**
+     * This method enables/disables motor brake mode. In motor brake mode, setPower(0) would
+     * stop the motor very abruptly by shorting the motor wires together using the generated
+     * back EMF to s5op the motor. When brakMode is false (i.e. float mode), the motor wires
+     * are just disconnected from the motor controller so the motor will stop gradually.
+     *
+     * @param brakeMode specifies true to enable brake mode, false otherwise.
+     */
+    public void setBrakeMode(boolean brakeMode)
+    {
+        final String funcName = "setBrakeMode";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "brakeMode=%s", Boolean.toString(brakeMode));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.brakeMode = brakeMode;
+    }   //setBrakeMode
 
     /**
      * This method inverts the motor direction.

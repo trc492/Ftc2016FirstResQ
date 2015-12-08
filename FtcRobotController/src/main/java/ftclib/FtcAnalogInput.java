@@ -10,7 +10,7 @@ import trclib.TrcFilter;
 import trclib.TrcSensorData;
 
 /**
- * This class implements a platform dependent AnalogINput sensor
+ * This class implements a platform dependent AnalogInput sensor
  * extending TrcAnalogInput. It provides implementation of the
  * abstract methods in TrcAnalogInput.
  */
