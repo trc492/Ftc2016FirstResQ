@@ -149,8 +149,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     {
                         robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
                     }
-                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
-//                    robot.hangingHook.extend();
+                    robot.hangingHook.extend();
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
@@ -162,8 +161,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
                     robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
-                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
-//                    robot.hangingHook.retract();
+                    robot.hangingHook.retract();
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //

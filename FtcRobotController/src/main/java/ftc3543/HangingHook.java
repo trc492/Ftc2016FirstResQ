@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.ServoController;
 
 import ftclib.FtcServo;
 import hallib.HalDashboard;
-import hallib.HalDbgLog;
 import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
@@ -63,20 +62,22 @@ public class HangingHook implements TrcTaskMgr.Task
         }
     }
 
-    public void extend()
+    public void setPosition(double pos)
     {
         cancel();
-        servoPos = RobotInfo.HANGINGHOOK_EXTEND_POSITION;
+        servoPos = pos;
         sm.start(State.ENABLE_CONTROLLER);
         setTaskEnabled(true);
     }
 
+    public void extend()
+    {
+        setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
+    }
+
     public void retract()
     {
-        cancel();
-        servoPos = RobotInfo.HANGINGHOOK_RETRACT_POSITION;
-        sm.start(State.ENABLE_CONTROLLER);
-        setTaskEnabled(true);
+        setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
     }
 
     //
