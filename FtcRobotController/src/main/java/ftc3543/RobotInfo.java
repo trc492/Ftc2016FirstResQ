@@ -49,8 +49,8 @@ public class RobotInfo
     public static final double ELEVATOR_MAX_HEIGHT              = 23.5;
     public static final double ELEVATOR_INCHES_PER_CLICK        = (23.5/9700.0);
     public static final double ELEVATOR_CAL_POWER               = -0.2;
-    public static final double BRAKE_OFF_POSITION               = 0.0;
-    public static final double BRAKE_ON_POSITION                = 0.35;
+    public static final double BRAKE_OFF_POSITION               = 0.1;
+    public static final double BRAKE_ON_POSITION                = 0.25;
 
     //
     // Slider subsystem.
