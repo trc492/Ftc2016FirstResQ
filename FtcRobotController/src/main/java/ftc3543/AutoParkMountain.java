@@ -71,7 +71,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     // Move forward towards the mountain.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 24.0: 36.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 76.0,
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
@@ -96,7 +96,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     // to climb up the mountain
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 60.0: 90.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 70.0,
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);

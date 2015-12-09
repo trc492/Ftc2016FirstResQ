@@ -61,6 +61,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     // HangingHook subsystem.
     //
     public FtcServo hangingHook;
+//    public HangingHook hangingHook;
     //
     // ClimberRelease subsystem.
     //
@@ -86,7 +87,7 @@ public class FtcRobot implements TrcPidController.PidInput,
 //        maxSonarSensor.setScale(RobotInfo.SONAR_SCALE_TO_INCHES);
         legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
         legoSonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
-        prevSonarValue = sonarSensor.getData().value;
+        prevSonarValue = legoSonarSensor.getData().value;
         sonarSensor = legoSonarSensor;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
@@ -160,6 +161,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         hangingHook = new FtcServo("hangingHook");
         hangingHook.setInverted(true);
         hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
+//        hangingHook = new HangingHook("hangingHook");
+//        hangingHook.retract();
+
         //
         // ClimberRelease subsystem.
         //
@@ -173,7 +177,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         leftButtonPusher = new FtcServo("leftPusher");
         rightButtonPusher = new FtcServo("rightPusher");
-        rightButtonPusher.setInverted(true);
+        leftButtonPusher.setInverted(true);
         leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
         rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
     }   //FtcRobot

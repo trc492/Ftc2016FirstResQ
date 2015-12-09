@@ -2,6 +2,7 @@ package ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 
 import trclib.TrcServo;
 import trclib.TrcDbgTrace;
@@ -49,6 +50,25 @@ public class FtcServo extends TrcServo
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcServo
+
+    /**
+     * This method returns the servo controller object that this servo is plugged into.
+     *
+     * @return servo controller object.
+     */
+    public ServoController getController()
+    {
+        final String funcName = "getController";
+        ServoController controller = servo.getController();
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, controller.toString());
+        }
+
+        return controller;
+    }   //getController
 
     //
     // Implements TrcServo abstract methods.

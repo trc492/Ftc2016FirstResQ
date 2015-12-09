@@ -120,6 +120,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
                 case DEPOSIT_CLIMBERS:
                     robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
+//                    robot.hangingHook.extend();
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
@@ -131,6 +132,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     // We are done.
                     //
                     robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
+//                    robot.hangingHook.retract();
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
