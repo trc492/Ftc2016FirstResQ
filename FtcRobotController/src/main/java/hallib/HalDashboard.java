@@ -70,7 +70,7 @@ public class HalDashboard
      * whether the constructor call was initiated by loading a
      * new opMode or from the robot code somewhere.
      */
-    public HalDashboard()
+    private HalDashboard()
     {
         this(FtcOpMode.getInstance().telemetry);
     }    //HalDashboard
@@ -84,6 +84,11 @@ public class HalDashboard
      */
     public static HalDashboard getInstance()
     {
+        if (instance == null)
+        {
+            instance = new HalDashboard();
+        }
+
         return instance;
     }   //getInstance
 

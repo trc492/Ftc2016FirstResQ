@@ -76,6 +76,10 @@ public abstract class FtcOpMode extends LinearOpMode
     {
         super();
         instance = this;
+        //
+        // Create task manager. There is only one global instance of task manager.
+        //
+        TrcTaskMgr taskMgr = new TrcTaskMgr();
     }   //FtcOpMode
 
     /**
@@ -140,6 +144,8 @@ public abstract class FtcOpMode extends LinearOpMode
     public void runOpMode() throws InterruptedException
     {
         final String funcName = "runOpMode";
+        TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
+        HalDashboard dashboard = HalDashboard.getInstance();
 
         if (debugEnabled)
         {
@@ -151,7 +157,7 @@ public abstract class FtcOpMode extends LinearOpMode
         }
         //
         // Determine run mode.
-        // Note that it means the OpMode must have "FtcAuto", "FtcTeleOp" and "FtcTest"
+        // Note that it means the OpMode must have "FtcAuto", "FtcTeleOp" or "FtcTest"
         // in its name.
         //
         String opModeFullName = this.toString();
@@ -187,13 +193,6 @@ public abstract class FtcOpMode extends LinearOpMode
         {
             dbgTrace.traceInfo(funcName, "runMode=%s", runMode.toString());
         }
-
-        //
-        // Create task manager and dashboard. There is only one
-        // global instance of each.
-        //
-        TrcTaskMgr taskMgr = new TrcTaskMgr();
-        HalDashboard dashboard = new HalDashboard();
 
         //
         // robotInit contains code to initialize the robot.
