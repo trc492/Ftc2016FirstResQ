@@ -89,9 +89,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 75.0: 90.0,
-                            0.0,
-                            false, event, 0.0);
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 75.0: 90.0, 0.0,
+                            false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE);
                     break;
@@ -102,7 +101,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
-                    robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(20.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;
@@ -112,9 +111,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     //
                     robot.pidDrive.setTarget(
-                            0.0,
-                            alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
-                            false, event, 0.0);
+                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
+                            false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FOLLOW_LINE);
                     break;
@@ -127,7 +125,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDriveLineFollow.setTarget(
-                            RobotInfo.BEACON_DISTANCE, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
+                            RobotInfo.BEACON_DISTANCE, RobotInfo.LINE_THRESHOLD,
+                            false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.PUSH_BUTTON);
                     break;
@@ -185,9 +184,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         // Run to the opponent side and bump them if necessary.
                         //
                         robot.pidDrive.setTarget(
-                                -35.0,
-                                alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
-                                false, event, 0.0);
+                                -35.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
+                                false, event);
                         sm.addEvent(event);
                         sm.waitForEvents(State.DONE);
                     }
@@ -197,9 +195,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         // Turn to face the floor goal.
                         //
                         robot.pidDrive.setTarget(
-                                0.0,
-                                alliance == FtcAuto.Alliance.RED_ALLIANCE? 90.0: -90.0,
-                                false, event, 0.0);
+                                0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? 90.0: -90.0,
+                                false, event);
                         sm.addEvent(event);
                         sm.waitForEvents(State.PARK_FLOOR_GOAL);
                     }
@@ -209,7 +206,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Go into the floor goal.
                     //
-                    robot.pidDrive.setTarget(-24.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(-24.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;

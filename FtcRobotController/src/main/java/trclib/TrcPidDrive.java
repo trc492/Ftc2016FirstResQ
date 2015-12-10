@@ -118,6 +118,16 @@ public class TrcPidDrive implements TrcTaskMgr.Task
     }   //setTarget
 
     public void setTarget(
+            double xTarget,
+            double yTarget,
+            double turnTarget,
+            boolean holdTarget,
+            TrcEvent event)
+    {
+        setTarget(xTarget, yTarget, turnTarget, holdTarget, event, 0.0);
+    }   //setTarget
+
+    public void setTarget(
             double yTarget,
             double turnTarget,
             boolean holdTarget,
@@ -131,6 +141,21 @@ public class TrcPidDrive implements TrcTaskMgr.Task
                 holdTarget,
                 event,
                 timeout);
+    }   //setTarget
+
+    public void setTarget(
+            double yTarget,
+            double turnTarget,
+            boolean holdTarget,
+            TrcEvent event)
+    {
+        setTarget(
+                0.0,
+                yTarget,
+                turnTarget,
+                holdTarget,
+                event,
+                0.0);
     }   //setTarget
 
     public void setHeadingTarget(

@@ -272,7 +272,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // Drive the given distance.
                     //
-                    robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(distance, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
@@ -307,7 +307,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // Turn the given degrees.
                     //
-                    robot.pidDrive.setTarget(0.0, degrees, false, event, 0.0);
+                    robot.pidDrive.setTarget(0.0, degrees, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
@@ -353,7 +353,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
                     robot.pidCtrlSonar.setOutputRange(-0.5, 0.5);
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
-                    robot.pidDrive.setTarget(24.0, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(24.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;
@@ -365,12 +365,12 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     if (alliance == Alliance.RED_ALLIANCE)
                     {
                         robot.pidCtrlLight.setInverted(true);
-                        robot.pidDrive.setTarget(0.0, -90.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, -90.0, false, event);
                     }
                     else
                     {
                         robot.pidCtrlLight.setInverted(false);
-                        robot.pidDrive.setTarget(0.0, 90.0, false, event, 0.0);
+                        robot.pidDrive.setTarget(0.0, 90.0, false, event);
                     }
                     sm.addEvent(event);
                     sm.waitForEvents(State.FOLLOW_LINE);
@@ -382,7 +382,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     robot.lightTrigger.setEnabled(false);
                     robot.pidDriveLineFollow.setTarget(
-                            wallDistance, RobotInfo.LINE_THRESHOLD, false, event, 0.0);
+                            wallDistance, RobotInfo.LINE_THRESHOLD, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;

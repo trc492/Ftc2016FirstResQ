@@ -65,7 +65,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     //
                     // Drive the set distance.
                     //
-                    robot.pidDrive.setTarget(distance, 0.0, false, event, 0.0);
+                    robot.pidDrive.setTarget(distance, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
