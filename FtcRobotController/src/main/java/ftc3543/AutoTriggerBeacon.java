@@ -51,9 +51,16 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "TriggerBeacon: %s, %s, delay=%.0f",
-                                alliance.toString(), startPos.toString(), delay);
-        dashboard.displayPrintf(2, "\toption: %s", option.toString());
+        dashboard.displayPrintf(1, "TriggerBeacon: %s, %s,delay=%.0f,option=%s",
+                                alliance.toString(), startPos.toString(), delay, option.toString());
+        dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
+                                robot.colorSensor.red(),
+                                robot.colorSensor.green(),
+                                robot.colorSensor.blue(),
+                                robot.colorSensor.alpha(),
+                                robot.colorSensor.argb());
+        robot.pidCtrlSonar.displayPidInfo(3);
+        robot.pidCtrlLight.displayPidInfo(5);
 
         if (sm.isReady())
         {
@@ -82,7 +89,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 45.0: 60.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 75.0: 90.0,
                             0.0,
                             false, event, 0.0);
                     sm.addEvent(event);
@@ -94,7 +101,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Drive forward slowly until we reach the line.
                     //
                     robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(20.0, 0.0, false, event, 0.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
@@ -104,7 +111,6 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Turn slowly to find the edge of the line.
                     //
-                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(
                             0.0,
                             alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
@@ -115,13 +121,13 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
                 case FOLLOW_LINE:
                     //
-                    // Follow the line until the beacon is in front.
+                    // Follow the line until we are in front of the beacon .
                     //
                     robot.lightTrigger.setEnabled(false);
                     robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDriveLineFollow.setTarget(
-                            6.0, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
+                            RobotInfo.BEACON_DISTANCE, RobotInfo.LINE_THRESHOLD, false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.PUSH_BUTTON);
                     break;
@@ -149,7 +155,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     {
                         robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
                     }
-                    robot.hangingHook.extend();
+                    robot.hangingHook.setPosition(
+                            RobotInfo.HANGINGHOOK_EXTEND_POSITION,
+                            RobotInfo.HANGINGHOOK_HOLD_TIME);
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
@@ -161,7 +169,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
                     robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
-                    robot.hangingHook.retract();
+                    robot.hangingHook.setPosition(
+                            RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+                            RobotInfo.HANGINGHOOK_HOLD_TIME);
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //

@@ -195,7 +195,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         dashboard.displayPrintf(12, "Gyro: Rate=%.1f,Heading=%.1f",
                                 robot.gyro.getZRotationRate().value,
                                 robot.gyro.getZHeading().value);
-        dashboard.displayPrintf(13, "Color: R=%d,G=%d,B=%d,A=%d,H=%x",
+        dashboard.displayPrintf(13, "RGBAH: %d,%d,%d,%d,%x",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),

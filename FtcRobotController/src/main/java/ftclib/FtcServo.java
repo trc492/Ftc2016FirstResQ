@@ -4,20 +4,40 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
+import trclib.TrcEvent;
+import trclib.TrcRobot;
 import trclib.TrcServo;
 import trclib.TrcDbgTrace;
+import trclib.TrcStateMachine;
+import trclib.TrcTaskMgr;
+import trclib.TrcTimer;
 
 /**
  * This class implements a platform dependent servo extending TrcServo.
  * It provides implementation of the abstract methods in TrcServo.
  */
-public class FtcServo extends TrcServo
+public class FtcServo extends TrcServo implements TrcTaskMgr.Task
 {
+    private enum State
+    {
+        ENABLE_CONTROLLER,
+        SET_POSITION,
+        DISABLE_CONTROLLER,
+        DONE
+    }   //enum State
+
     private static final String moduleName = "FtcServo";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private String instanceName;
     private Servo servo;
+    private ServoController controller;
+    private TrcTimer timer;
+    private TrcEvent event;
+    private TrcStateMachine sm;
+    private double servoPos;
+    private double servoHoldTime;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -38,7 +58,14 @@ public class FtcServo extends TrcServo
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
+        this.instanceName = instanceName;
         servo = hardwareMap.servo.get(instanceName);
+        controller = servo.getController();
+        timer = new TrcTimer(instanceName);
+        event = new TrcEvent(instanceName);
+        sm = new TrcStateMachine(instanceName);
+        servoPos = 0.0;
+        servoHoldTime = 0.0;
     }   //FtcServo
 
     /**
@@ -59,7 +86,6 @@ public class FtcServo extends TrcServo
     public ServoController getController()
     {
         final String funcName = "getController";
-        ServoController controller = servo.getController();
 
         if (debugEnabled)
         {
@@ -69,6 +95,59 @@ public class FtcServo extends TrcServo
 
         return controller;
     }   //getController
+
+    /**
+     * This method cancels the timer and stops the state machine if it is running.
+     */
+    public void cancel()
+    {
+        if (sm.isEnabled())
+        {
+            timer.cancel();
+            sm.stop();
+            setTaskEnabled(false);
+        }
+    }
+
+    /**
+     * This method enables/disables the periodic task that runs the state machine.
+     *
+     * @param enabled specifies true to enable the state machine task, false otherwise.
+     */
+    public void setTaskEnabled(boolean enabled)
+    {
+        if (enabled)
+        {
+            TrcTaskMgr.getInstance().registerTask(
+                    instanceName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+        }
+        else
+        {
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+        }
+    }
+
+    /**
+     * This method sets the servo position but will cut power to the servo when done.
+     * Since servo motors can't really take a lot of loads, it would stress out and
+     * may burn out the servo it is held against a heavy load for extended period of
+     * time. This method allows us to set the position and only hold it long enough
+     * for it to reach target position and then we will cut the servo controller
+     * power off. Note that by doing so, all servos on the same controller will go
+     * limp.
+     *
+     * @param pos specifies the target position.
+     * @param holdTime specifies the time in seconds to wait before disabling servo
+     *                 controller.
+     */
+    public void setPosition(double pos, double holdTime)
+    {
+        cancel();
+        servoPos = pos;
+        servoHoldTime = holdTime;
+        sm.start(State.ENABLE_CONTROLLER);
+        setTaskEnabled(true);
+    }   //setPosition
 
     //
     // Implements TrcServo abstract methods.
@@ -155,5 +234,68 @@ public class FtcServo extends TrcServo
 
         return position;
     }   //getPosition
+
+    //
+    // Implements TrcTaskMgr.Task
+    //
+
+    public void startTask(TrcRobot.RunMode runMode)
+    {
+    }   //startTask
+
+    public void stopTask(TrcRobot.RunMode runMode)
+    {
+    }   //stopTask
+
+    public void prePeriodicTask(TrcRobot.RunMode runMode)
+    {
+    }   //prePeriodicTask
+
+    /**
+     * This method is called periodically to run a state machine that will enable
+     * the servo controller, set the servo position, wait for the specified hold
+     * time, and finally disable the servo controller.
+     *
+     * @param runMode specifies the competition mode that is running.
+     */
+    public void postPeriodicTask(TrcRobot.RunMode runMode)
+    {
+        if (sm.isReady())
+        {
+            State state = (State)sm.getState();
+            switch (state)
+            {
+                case ENABLE_CONTROLLER:
+                    controller.pwmEnable();
+                    sm.setState(State.SET_POSITION);
+                    break;
+
+                case SET_POSITION:
+                    servo.setPosition(servoPos);
+                    timer.set(servoHoldTime, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.DISABLE_CONTROLLER);
+                    break;
+
+                case DISABLE_CONTROLLER:
+                    controller.pwmDisable();
+                    sm.setState(State.DONE);
+                    break;
+
+                case DONE:
+                default:
+                    sm.stop();
+                    setTaskEnabled(false);
+            }
+        }
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //preContinuousTask
+
+    public void postContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //postContinuousTask
 
 }   //class FtcServo

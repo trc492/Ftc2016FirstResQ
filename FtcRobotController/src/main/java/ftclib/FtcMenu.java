@@ -481,6 +481,7 @@ public class FtcMenu
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "=%x", buttons);
         }
+
         return buttons;
     }   //getMenuButtons
 

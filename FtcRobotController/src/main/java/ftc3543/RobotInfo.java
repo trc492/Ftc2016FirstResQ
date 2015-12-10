@@ -20,6 +20,7 @@ public class RobotInfo
     public static final double TURN_TOLERANCE                   = 2.0;
     public static final double TURN_SETTLING                    = 0.2;
 
+    public static final double BEACON_DISTANCE                  = 2.0;
     public static final double LINE_THRESHOLD                   = ((10.0 + 60.0)/2.0);
     public static final double LINEFOLLOW_KP                    = 0.02;
     public static final double LINEFOLLOW_KI                    = 0.0;
@@ -28,11 +29,11 @@ public class RobotInfo
     public static final double LINEFOLLOW_TOLERANCE             = 2.0;
     public static final double LINEFOLLOW_SETTLING              = 0.2;
 
-    public static final double SONAR_KP                         = 0.10;
+    public static final double SONAR_KP                         = 0.25;
     public static final double SONAR_KI                         = 0.0;
     public static final double SONAR_KD                         = 0.0;
     public static final double SONAR_KF                         = 0.0;
-    public static final double SONAR_TOLERANCE                  = 2.0;
+    public static final double SONAR_TOLERANCE                  = 0.2;
     public static final double SONAR_SETTLING                   = 0.2;
     public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
     public static final double SONAR_SCALE_TO_INCHES            = (512.0/(5.0/1024));
@@ -87,6 +88,6 @@ public class RobotInfo
     //
     public static final double HANGINGHOOK_RETRACT_POSITION     = 0.1;
     public static final double HANGINGHOOK_EXTEND_POSITION      = 0.8;
-    public static final double HANGINGHOOK_MOVE_TIME            = 5.0;
+    public static final double HANGINGHOOK_HOLD_TIME            = 3.0;
 
 }   //class RobotInfo

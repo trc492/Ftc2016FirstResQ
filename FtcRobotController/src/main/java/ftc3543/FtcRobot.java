@@ -60,7 +60,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // HangingHook subsystem.
     //
-    public HangingHook hangingHook;
+    public FtcServo hangingHook;
     //
     // ClimberRelease subsystem.
     //
@@ -157,8 +157,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // HangingHook subsystem.
         //
-        hangingHook = new HangingHook("hangingHook");
-        hangingHook.retract();
+        hangingHook = new FtcServo("hangingHook");
+        hangingHook.setInverted(true);
+        hangingHook.setPosition(
+                RobotInfo.HANGINGHOOK_RETRACT_POSITION, RobotInfo.HANGINGHOOK_HOLD_TIME);
 
         //
         // ClimberRelease subsystem.

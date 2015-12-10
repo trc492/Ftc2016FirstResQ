@@ -202,14 +202,18 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                 case FtcGamepad.GAMEPAD_DPAD_UP:
                     if (pressed)
                     {
-                        robot.hangingHook.extend();
+                        robot.hangingHook.setPosition(
+                                RobotInfo.HANGINGHOOK_EXTEND_POSITION,
+                                RobotInfo.HANGINGHOOK_HOLD_TIME);
                     }
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_DOWN:
                     if (pressed)
                     {
-                        robot.hangingHook.retract();
+                        robot.hangingHook.setPosition(
+                                RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+                                RobotInfo.HANGINGHOOK_HOLD_TIME);
                     }
                     break;
 
