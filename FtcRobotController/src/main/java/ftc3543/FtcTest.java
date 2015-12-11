@@ -36,7 +36,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
-
+    //
+    // Menu choices.
+    //
     private Test test = Test.SENSOR_TESTS;
     private double driveTime = 0.0;
     private double driveDistance = 0.0;
@@ -346,7 +348,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
             {
                 case START:
                     //
-                    // Drive forward until we found the line.
+                    // Drive forward until we reached 24 inches or found the line.
+                    // Enable light trigger so that detecting the line will stop the drive.
+                    // Limit all PID controllers to half power so we go slowly and hopefully
+                    // not passing the line that much.
                     //
                     robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
@@ -360,15 +365,23 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
                 case TURN_TO_LINE:
                     //
-                    // Turn slowly to find the line again.
+                    // We have past the line, turn slowly to find the line again.
                     //
                     if (alliance == Alliance.RED_ALLIANCE)
                     {
+                        //
+                        // Turn left to find the line and set to follow the
+                        // right edge of the line.
+                        //
                         robot.pidCtrlLight.setInverted(true);
                         robot.pidDrive.setTarget(0.0, -90.0, false, event);
                     }
                     else
                     {
+                        //
+                        // Turn right to find the line and set to follow the
+                        // left edge of the line.
+                        //
                         robot.pidCtrlLight.setInverted(false);
                         robot.pidDrive.setTarget(0.0, 90.0, false, event);
                     }
@@ -378,7 +391,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
                 case FOLLOW_LINE:
                     //
-                    // Follow the line until the touch switch is activated.
+                    // Disable light trigger.
+                    // Follow the line until we are at the given distance from
+                    // the wall.
                     //
                     robot.lightTrigger.setEnabled(false);
                     robot.pidDriveLineFollow.setTarget(
