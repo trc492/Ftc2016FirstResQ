@@ -65,6 +65,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         if (sm.isReady())
         {
             State state = (State)sm.getState();
+            dashboard.displayPrintf(7, "State=%s", state != null? state.toString(): "STOPPED!");
 
             switch (state)
             {
@@ -89,7 +90,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 75.0: 90.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 70.0: 90.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE);
@@ -101,7 +102,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
-                    robot.pidDrive.setTarget(20.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(25.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;
@@ -142,21 +143,27 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);;
                     robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);;
                     int redValue = robot.colorSensor.red();
-                    int blueValue = robot.colorSensor.blue();
                     int greenValue = robot.colorSensor.green();
-                    boolean isRed = redValue > 0 && blueValue == 0 && greenValue == 0;
-                    boolean isBlue = blueValue > 0 && redValue == 0 && greenValue == 0;
-                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed)
+                    int blueValue = robot.colorSensor.blue();
+                    boolean isRed = redValue > blueValue && redValue > greenValue;
+                    boolean isBlue = blueValue > redValue && blueValue > greenValue;
+                    FtcOpMode.getOpModeTraceInstance().traceInfo(
+                            "TriggerBeacon", "[%d,%d,%d]isRed=%s,isBlue=%s",
+                            redValue, greenValue, blueValue,
+                            isRed? "true": "false",
+                            isBlue? "true": "false");
+                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed ||
+                        alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
                     {
                         robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_RIGHT);
                     }
-                    else if (alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
+                    else if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isBlue ||
+                             alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isRed)
                     {
                         robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
                     }
-                    robot.hangingHook.setPosition(
-                            RobotInfo.HANGINGHOOK_EXTEND_POSITION,
-                            RobotInfo.HANGINGHOOK_HOLD_TIME);
+
+                    robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
@@ -168,9 +175,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
                     robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
-                    robot.hangingHook.setPosition(
-                            RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-                            RobotInfo.HANGINGHOOK_HOLD_TIME);
+                    robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //

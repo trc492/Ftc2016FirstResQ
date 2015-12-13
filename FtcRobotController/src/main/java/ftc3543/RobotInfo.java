@@ -88,6 +88,5 @@ public class RobotInfo
     //
     public static final double HANGINGHOOK_RETRACT_POSITION     = 0.1;
     public static final double HANGINGHOOK_EXTEND_POSITION      = 0.8;
-    public static final double HANGINGHOOK_HOLD_TIME            = 3.0;
 
 }   //class RobotInfo

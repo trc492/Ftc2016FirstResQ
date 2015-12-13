@@ -12,6 +12,7 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
     private static final double SERVO_CONTINUOUS_FWD_MAX = 1.0;
     private static final double SERVO_CONTINUOUS_REV_MAX = 0.0;
 
+    private String instanceName;
     private TrcServo servo1 = null;
     private TrcServo servo2 = null;
     private boolean continuousServo = false;
@@ -26,28 +27,49 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
     private TrcDigitalInput lowerLimitSwitch = null;
     private TrcDigitalInput upperLimitSwitch = null;
 
-    public TrcEnhancedServo(TrcServo servo)
+    private void commonInit(
+            String instanceName,
+            TrcServo servo1, TrcServo servo2,
+            TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch)
     {
-        if (servo1 == null)
+        if (debugEnabled)
+        {
+            dbgTrace = new TrcDbgTrace(
+                    moduleName + "." + instanceName,
+                    false,
+                    TrcDbgTrace.TraceLevel.API,
+                    TrcDbgTrace.MsgLevel.INFO);
+        }
+
+        this.instanceName = instanceName;
+        this.servo1 = servo1;
+        this.servo2 = servo2;
+        this.lowerLimitSwitch = lowerLimitSwitch;
+        this.upperLimitSwitch = upperLimitSwitch;
+    }   //commonInit
+
+    public TrcEnhancedServo(String instanceName, TrcServo servo)
+    {
+        if (servo == null)
         {
             throw new NullPointerException("servo cannot be null.");
         }
 
-        this.servo1 = servo;
+        commonInit(instanceName, servo, null, null, null);
     }   //TrcEnhancedServo
 
-    public TrcEnhancedServo(TrcServo servo1, TrcServo servo2)
+    public TrcEnhancedServo(String instanceName, TrcServo servo1, TrcServo servo2)
     {
         if (servo1 == null || servo2 == null)
         {
             throw new NullPointerException("servo1/servo2 cannot be null.");
         }
 
-        this.servo1 = servo1;
-        this.servo2 = servo2;
+        commonInit(instanceName, servo1, servo2, null, null);
     }   //TrcEnhancedServo
 
     public TrcEnhancedServo(
+            String instanceName,
             TrcServo servo, TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch)
     {
         if (servo1 == null)
@@ -55,11 +77,14 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
             throw new NullPointerException("servo cannot be null.");
         }
 
-        this.servo1 = servo;
+        commonInit(instanceName, servo, null, lowerLimitSwitch, upperLimitSwitch);
         continuousServo = true;
-        this.lowerLimitSwitch = lowerLimitSwitch;
-        this.upperLimitSwitch = upperLimitSwitch;
     }   //TrcEnhancedServo
+
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
 
     public void stop()
     {

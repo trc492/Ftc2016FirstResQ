@@ -36,8 +36,8 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
     private TrcTimer timer;
     private TrcEvent event;
     private TrcStateMachine sm;
-    private double servoPos;
-    private double servoHoldTime;
+    private double servoPos = 0.0;
+    private double servoOnTime = 0.0;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -64,8 +64,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
         timer = new TrcTimer(instanceName);
         event = new TrcEvent(instanceName);
         sm = new TrcStateMachine(instanceName);
-        servoPos = 0.0;
-        servoHoldTime = 0.0;
     }   //FtcServo
 
     /**
@@ -130,24 +128,24 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
     /**
      * This method sets the servo position but will cut power to the servo when done.
      * Since servo motors can't really take a lot of loads, it would stress out and
-     * may burn out the servo it is held against a heavy load for extended period of
-     * time. This method allows us to set the position and only hold it long enough
+     * may burn out the servo if it is held against a heavy load for extended period
+     * of time. This method allows us to set the position and only hold it long enough
      * for it to reach target position and then we will cut the servo controller
      * power off. Note that by doing so, all servos on the same controller will go
      * limp.
      *
      * @param pos specifies the target position.
-     * @param holdTime specifies the time in seconds to wait before disabling servo
-     *                 controller.
+     * @param onTime specifies the time in seconds to wait before disabling servo
+     *               controller.
      */
-    public void setPosition(double pos, double holdTime)
+    public void setPositionWithOnTime(double pos, double onTime)
     {
         cancel();
         servoPos = pos;
-        servoHoldTime = holdTime;
+        servoOnTime = onTime;
         sm.start(State.ENABLE_CONTROLLER);
         setTaskEnabled(true);
-    }   //setPosition
+    }   //setPositionWithOnTime
 
     //
     // Implements TrcServo abstract methods.
@@ -272,7 +270,7 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
 
                 case SET_POSITION:
                     servo.setPosition(servoPos);
-                    timer.set(servoHoldTime, event);
+                    timer.set(servoOnTime, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DISABLE_CONTROLLER);
                     break;

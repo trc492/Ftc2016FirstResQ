@@ -84,6 +84,25 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         dashboard.displayPrintf(6, "lowerLimit=%d,upperLimit=%d",
                                 robot.slider.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.slider.isUpperLimitSwitchPressed()? 1: 0);
+        /*
+        //
+        // HangingHook subsystem.
+        //
+        double leftTrigger = operatorGamepad.getLeftTrigger(true);
+        double rightTrigger = operatorGamepad.getRightTrigger(true);
+        if (leftTrigger > 0.0)
+        {
+            robot.hangingHook.setPosition(
+                    RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+                    leftTrigger*RobotInfo.HANGINGHOOK_STEP_RATE);
+        }
+        else if (rightTrigger > 0.0)
+        {
+            robot.hangingHook.setPosition(
+                    RobotInfo.HANGINGHOOK_EXTEND_POSITION,
+                    leftTrigger*RobotInfo.HANGINGHOOK_STEP_RATE);
+        }
+        */
     }   //runPeriodic
 
     @Override
@@ -202,18 +221,14 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                 case FtcGamepad.GAMEPAD_DPAD_UP:
                     if (pressed)
                     {
-                        robot.hangingHook.setPosition(
-                                RobotInfo.HANGINGHOOK_EXTEND_POSITION,
-                                RobotInfo.HANGINGHOOK_HOLD_TIME);
+                        robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
                     }
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_DOWN:
                     if (pressed)
                     {
-                        robot.hangingHook.setPosition(
-                                RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-                                RobotInfo.HANGINGHOOK_HOLD_TIME);
+                        robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
                     }
                     break;
 
