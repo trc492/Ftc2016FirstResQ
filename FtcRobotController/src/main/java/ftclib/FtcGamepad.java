@@ -102,18 +102,44 @@ public class FtcGamepad implements TrcTaskMgr.Task
      *
      * @param instanceName specifies the instance name.
      * @param gamepad specifies the gamepad associated with this instance.
+     */
+    public FtcGamepad(final String instanceName, Gamepad gamepad)
+    {
+        this(instanceName, gamepad, null);
+    }   //FtcGamepad
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param gamepad specifies the gamepad associated with this instance.
+     * @param deadbandThreshold specifies the deadband of the gamepad analog sticks.
      * @param buttonHandler specifies the object that will handle the button events.
      *                      If none provided, it is set to null.
+     */
+    public FtcGamepad(
+            final String instanceName,
+            Gamepad gamepad,
+            final double deadbandThreshold,
+            ButtonHandler buttonHandler)
+    {
+        this(instanceName, gamepad, buttonHandler);
+        gamepad.setJoystickDeadzone((float)deadbandThreshold);
+    }   //FtcGamepad
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param gamepad specifies the gamepad associated with this instance.
      * @param deadbandThreshold specifies the deadband of the gamepad analog sticks.
      */
     public FtcGamepad(
             final String instanceName,
             Gamepad gamepad,
-            ButtonHandler buttonHandler,
             final double deadbandThreshold)
     {
-        this(instanceName, gamepad, buttonHandler);
-        gamepad.setJoystickDeadzone((float) deadbandThreshold);
+        this(instanceName, gamepad, deadbandThreshold, null);
     }   //FtcGamepad
 
     /**

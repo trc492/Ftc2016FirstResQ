@@ -27,14 +27,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private double turnSpeed;
 
     public TrcDriveBase(
-            TrcMotorController leftMotor,
-            TrcMotorController rightMotor,
-            TrcGyro gyro)
-    {
-        this(null, leftMotor, null, rightMotor, gyro);
-    }   //TrcDriveBase
-
-    public TrcDriveBase(
             TrcMotorController leftFrontMotor,
             TrcMotorController leftRearMotor,
             TrcMotorController rightFrontMotor,
@@ -76,6 +68,28 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
                 moduleName,
                 this,
                 TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+    }   //TrcDriveBase
+
+    public TrcDriveBase(
+            TrcMotorController leftFrontMotor,
+            TrcMotorController leftRearMotor,
+            TrcMotorController rightFrontMotor,
+            TrcMotorController rightRearMotor)
+    {
+        this(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor, null);
+    }   //TrcDriveBase
+
+    public TrcDriveBase(
+            TrcMotorController leftMotor,
+            TrcMotorController rightMotor,
+            TrcGyro gyro)
+    {
+        this(null, leftMotor, null, rightMotor, gyro);
+    }   //TrcDriveBase
+
+    public TrcDriveBase(TrcMotorController leftMotor, TrcMotorController rightMotor)
+    {
+        this(null, leftMotor, null, rightMotor, null);
     }   //TrcDriveBase
 
     public void resetPosition()

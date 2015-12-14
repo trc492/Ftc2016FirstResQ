@@ -483,6 +483,20 @@ public class HalRobotDrive
     }   //mecanumDrive_Cartesian
 
     /**
+     * This method implements mecanum drive where x controls how fast the robot will
+     * go in the x direction, and y controls how fast the robot will go in the y direction.
+     * Rotation controls how fast the robot rotates.
+     *
+     * @param x specifies the x power.
+     * @param y specifies the y power.
+     * @param rotation specifies the rotating power.
+     */
+    public void mecanumDrive_Cartesian(double x, double y, double rotation)
+    {
+        mecanumDrive_Cartesian(x, y, rotation, 0.0);
+    }   //mecanumDrive_Cartesian
+
+    /**
      * This method implements mecanum drive where magnitude controls how fast the robot
      * will go in the given direction and how fast it will robote.
      *
