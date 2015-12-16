@@ -1,8 +1,11 @@
 package ftc3543;
 
+import android.hardware.Sensor;
+
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import ftclib.FtcAndroidSensor;
 import ftclib.FtcDcMotor;
 import ftclib.FtcMRGyro;
 import ftclib.FtcOpMode;
@@ -32,6 +35,9 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
     public double prevSonarValue;
+    public FtcAndroidSensor compass;
+    public FtcAndroidSensor accel;
+    public FtcAndroidSensor ambientLight;
     //
     // DriveBase subsystem.
     //
@@ -91,6 +97,12 @@ public class FtcRobot implements TrcPidController.PidInput,
         sonarSensor = legoSonarSensor;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        compass = new FtcAndroidSensor("compass", Sensor.TYPE_MAGNETIC_FIELD, 3);
+        compass.setEnabled(true, 10000);
+        accel = new FtcAndroidSensor("accelerometer", Sensor.TYPE_ACCELEROMETER, 3);
+        accel.setEnabled(true, 10000);
+        ambientLight = new FtcAndroidSensor("ambientLight", Sensor.TYPE_LIGHT, 1);
+        ambientLight.setEnabled(true, 10000);
         //
         // DriveBase subsystem.
         //

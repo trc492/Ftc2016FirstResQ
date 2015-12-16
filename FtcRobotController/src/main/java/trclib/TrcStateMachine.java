@@ -192,7 +192,7 @@ public class TrcStateMachine
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.TASK);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
         //
@@ -256,7 +256,7 @@ public class TrcStateMachine
         if (debugEnabled)
         {
             dbgTrace.traceExit(
-                    funcName, TrcDbgTrace.TraceLevel.TASK,
+                    funcName, TrcDbgTrace.TraceLevel.API,
                     "=%s",
                     Boolean.toString(enabled && ready));
         }

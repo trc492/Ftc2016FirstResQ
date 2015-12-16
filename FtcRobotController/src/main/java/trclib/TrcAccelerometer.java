@@ -5,81 +5,76 @@ package trclib;
  * class is extended by a platform dependent accelerometer class. The platform
  * dependent accelerometer class must implement the abstract methods required
  * by this class. The abstract methods allow this class to get raw data for each
- * accelerometer axis.
- * Depending on the options specified in the constructor, this class creates a
- * calibrator, a data processor and an integrator.
- * The platform dependent accelerometer can specify how many axes it supports
- * by setting the HAS_AXIS options. If it does not provide velocity or distance
- * data, it can set the INTEGRATE and DOUBLE_INTEGRATE options and let the
- * built-in integrator handle it. If it supports its own calibration, it can
- * override the calibrate() and isCalibrating() methods to call its own. Otherwise,
- * it can set the DO_CALIBRATION option
- * to enable the built-in calibrator.
+ * accelerometer axis. Depending on the options specified in the constructor,
+ * this class may create an integrator. The platform dependent accelerometer
+ * can specify how many axes it supports by setting the HAS_AXIS options. If it
+ * does not provide velocity or distance data, it can set the INTEGRATE and
+ * DOUBLE_INTEGRATE options and let the built-in integrator handle it.
  */
-public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
+public abstract class TrcAccelerometer extends TrcSensor
 {
     /**
      * This abstract method returns the raw acceleration of the x-axis.
      *
      * @return raw acceleration of x-axis.
      */
-    public abstract TrcSensorData getRawXAcceleration();
+    public abstract SensorData getRawXAcceleration();
 
     /**
      * This abstract method returns the raw acceleration of the y-axis.
      *
      * @return raw acceleration of y-axis.
      */
-    public abstract TrcSensorData getRawYAcceleration();
+    public abstract SensorData getRawYAcceleration();
 
     /**
      * This abstract method returns the raw acceleration of the z-axis.
      *
      * @return raw acceleration of z-axis.
      */
-    public abstract TrcSensorData getRawZAcceleration();
+    public abstract SensorData getRawZAcceleration();
 
     /**
      * This abstract method returns the raw velocity of the x-axis.
      *
      * @return raw velocity of x-axis.
      */
-    public abstract TrcSensorData getRawXVelocity();
+    public abstract SensorData getRawXVelocity();
 
     /**
      * This abstract method returns the raw velocity of the y-axis.
      *
      * @return raw velocity of y-axis.
      */
-    public abstract TrcSensorData getRawYVelocity();
+    public abstract SensorData getRawYVelocity();
 
     /**
      * This abstract method returns the raw velocity of the z-axis.
      *
      * @return raw velocity of z-axis.
      */
-    public abstract TrcSensorData getRawZVelocity();
+    public abstract SensorData getRawZVelocity();
 
     /**
      * This abstract method returns the raw distance of the x-axis.
      *
      * @return raw distance of x-axis.
      */
-    public abstract TrcSensorData getRawXDistance();
+    public abstract SensorData getRawXDistance();
 
     /**
      * This abstract method returns the raw distance of the y-axis.
      *
      * @return raw distance of y-axis.
      */
-    public abstract TrcSensorData getRawYDistance();
+    public abstract SensorData getRawYDistance();
 
     /**
      * This abstract method returns the raw distance of the z-axis.
      *
      * @return raw distance of z-axis.
      */
-    public abstract TrcSensorData getRawZDistance();
+    public abstract SensorData getRawZDistance();
 
     //
     // Accelerometer options.
@@ -87,60 +82,30 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
     public static final int ACCEL_HAS_X_AXIS            = (1 << 0);
     public static final int ACCEL_HAS_Y_AXIS            = (1 << 1);
     public static final int ACCEL_HAS_Z_AXIS            = (1 << 2);
-    public static final int ACCEL_INTEGRATE_X           = (1 << 3);
-    public static final int ACCEL_INTEGRATE_Y           = (1 << 4);
-    public static final int ACCEL_INTEGRATE_Z           = (1 << 5);
-    public static final int ACCEL_DOUBLE_INTEGRATE_X    = (1 << 6);
-    public static final int ACCEL_DOUBLE_INTEGRATE_Y    = (1 << 7);
-    public static final int ACCEL_DOUBLE_INTEGRATE_Z    = (1 << 8);
-    public static final int ACCEL_DO_CALIBRATION        = (1 << 9);
-
-    //
-    // Data names that the data provider must provide data for.
-    //
-    private static final String DATANAME_RAW_XACCEL         = "rawXAccel";
-    private static final String DATANAME_RAW_YACCEL         = "rawYAccel";
-    private static final String DATANAME_RAW_ZACCEL         = "rawZAccel";
-    private static final String DATANAME_PROCESSED_XACCEL   = "processedXAccel";
-    private static final String DATANAME_PROCESSED_YACCEL   = "processedYAccel";
-    private static final String DATANAME_PROCESSED_ZACCEL   = "processedZAccel";
-
-    //
-    // Built-in calibrator parameters.
-    //
-    private static final int NUM_CAL_SAMPLES            = 100;
-    private static final long CAL_INTERVAL              = 10;   //in msec.
+    public static final int ACCEL_INTEGRATE             = (1 << 3);
+    public static final int ACCEL_DOUBLE_INTEGRATE      = (1 << 4);
 
     private static final String moduleName = "TrcAccelerometer";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private final String instanceName;
+    private TrcDataIntegrator dataIntegrator = null;
     private int xIndex = -1;
     private int yIndex = -1;
     private int zIndex = -1;
-    private final String instanceName;
-    private int options;
-    private TrcDataProcessor dataProcessor = null;
-    private TrcDataIntegrator dataIntegrator = null;
-    private TrcDataCalibrator calibrator = null;
-    private double[] zeroOffsets = null;
-    private double[] deadbands = null;
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options. Multiple options can be OR'd together.
+     * @param numAxes specifies the number of axes of the gyro.
+     * @param options specifies the accelerometer options. Multiple options can be OR'd together.
      *                ACCEL_HAS_X_AXIS - supports x-axis.
      *                ACCEL_HAS_Y_AXIS - supports y-axis.
      *                ACCEL_HAS_Z_AXIS - supports z-axis.
-     *                ACCEL_INTEGRATE_X - do integration on x-axis to get x velocity.
-     *                ACCEL_INTEGRATE_Y - do integration on y-axis to get y velocity.
-     *                ACCEL_INTEGRATE_Z - do integration on z-axis to get z velocity.
-     *                ACCEL_DOUBLE_INTEGRATE_X - do double integration on x-axis to get x distance.
-     *                ACCEL_DOUBLE_INTEGRATE_Y - do double integration on y-axis to get y distance.
-     *                ACCEL_DOUBLE_INTEGRATE_Z - do double integration on z-axis to get z distance.
-     *                ACCEL_DO_CALIBRATION - do calibration on the accelerometer.
+     *                ACCEL_INTEGRATE - do integration on all axes to get velocities.
+     *                ACCEL_DOUBLE_INTEGRATE - do double integration on all axes to get distances.
      * @param filters specifies an array of filter objects one for each supported axis.
      *                It is assumed that the order of the filters in the array is x, y
      *                and then z. If an axis is specified in the options but no filter
@@ -148,8 +113,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *                should be set to null. If no filter is used at all, filters can
      *                be set to null.
      */
-    public TrcAccelerometer(final String instanceName, final int options, TrcFilter[] filters)
+    public TrcAccelerometer(final String instanceName, int numAxes, int options, TrcFilter[] filters)
     {
+        super(instanceName, numAxes, filters);
+
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName,
@@ -161,142 +128,40 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
         //
         // Count the number of axes and set up the indices for each axis.
         //
-        int numAxes = 0;
-
+        int axisCount = 0;
         if ((options & ACCEL_HAS_X_AXIS) != 0)
         {
-            xIndex = numAxes;
-            numAxes++;
+            xIndex = axisCount;
+            axisCount++;
         }
 
         if ((options & ACCEL_HAS_Y_AXIS) != 0)
         {
-            yIndex = numAxes;
-            numAxes++;
+            yIndex = axisCount;
+            axisCount++;
         }
 
         if ((options & ACCEL_HAS_Z_AXIS) != 0)
         {
-            zIndex = numAxes;
-            numAxes++;
+            zIndex = axisCount;
+            axisCount++;
         }
 
-        //
-        // Make sure we have at least one axis.
-        //
-        if (numAxes == 0)
-        {
-            throw new IllegalArgumentException("options must specify at least one axis.");
-        }
-
-        //
-        // If no filters are provided, create an array of null filters.
-        //
-        if (filters == null)
-        {
-            filters = new TrcFilter[numAxes];
-        }
-
-        //
-        // Make sure the filter array must have numAxes elements.
-        // Even if we don't filter on some axes, we still must have numAxes elements
-        // but the elements of those axes can be null.
-        //
-        if (filters.length != numAxes)
+        if (axisCount != numAxes)
         {
             throw new IllegalArgumentException(
-                    String.format("filters must be an array of %d elements.", numAxes));
+                    "numAxes doesn't match the number of axes in options");
         }
 
         this.instanceName = instanceName;
-        this.options = options;
 
         //
-        // Create and initialize the array of data providers, one for each axis.
-        // This class is the data provider for all.
+        // Create the data integrator.
         //
-        TrcSensorData.DataProvider[] dataProviders = new TrcSensorData.DataProvider[numAxes];
-
-        if (xIndex != -1)
+        if ((options & ACCEL_INTEGRATE) != 0)
         {
-            dataProviders[xIndex] = this;
-        }
-
-        if (yIndex != -1)
-        {
-            dataProviders[yIndex] = this;
-        }
-
-        if (zIndex != -1)
-        {
-            dataProviders[zIndex] = this;
-        }
-
-        //
-        // Create the data processor with the given filter array.
-        //
-        dataProcessor = new TrcDataProcessor(instanceName, filters);
-
-        //
-        // Create the data integrator. Data integrator needs data providers to
-        // provide processed acceleration data for each axis.
-        //
-        if ((options & (ACCEL_INTEGRATE_X | ACCEL_INTEGRATE_Y | ACCEL_INTEGRATE_Z |
-                        ACCEL_DOUBLE_INTEGRATE_X | ACCEL_DOUBLE_INTEGRATE_Y |
-                        ACCEL_DOUBLE_INTEGRATE_Z)) != 0)
-        {
-            String[] dataNames = new String[numAxes];
-
-            if ((xIndex != -1) && (options & (ACCEL_INTEGRATE_X | ACCEL_DOUBLE_INTEGRATE_X)) != 0)
-            {
-                dataNames[xIndex] = DATANAME_PROCESSED_XACCEL;
-            }
-
-            if ((yIndex != -1) && (options & (ACCEL_INTEGRATE_Y | ACCEL_DOUBLE_INTEGRATE_Y)) != 0)
-            {
-                dataNames[yIndex] = DATANAME_PROCESSED_YACCEL;
-            }
-
-            if ((zIndex != -1) && (options & (ACCEL_INTEGRATE_Z | ACCEL_DOUBLE_INTEGRATE_Z)) != 0)
-            {
-                dataNames[zIndex] = DATANAME_PROCESSED_ZACCEL;
-            }
-
             dataIntegrator = new TrcDataIntegrator(
-                    instanceName,
-                    dataProviders,
-                    dataNames,
-                    (options & (ACCEL_DOUBLE_INTEGRATE_X |
-                                ACCEL_DOUBLE_INTEGRATE_Y |
-                                ACCEL_DOUBLE_INTEGRATE_Z)) != 0);
-        }
-
-        //
-        // Create the data calibrator. Data calibrator needs data providers to
-        // provide raw rate data for each axis.
-        //
-        if ((options & ACCEL_DO_CALIBRATION) != 0)
-        {
-            String[] dataNames = new String[numAxes];
-            zeroOffsets = new double[numAxes];
-            deadbands = new double[numAxes];
-
-            if (xIndex != -1)
-            {
-                dataNames[xIndex] = DATANAME_RAW_XACCEL;
-            }
-
-            if (yIndex != -1)
-            {
-                dataNames[yIndex] = DATANAME_RAW_YACCEL;
-            }
-
-            if (zIndex != -1)
-            {
-                dataNames[zIndex] = DATANAME_RAW_ZACCEL;
-            }
-
-            calibrator = new TrcDataCalibrator(instanceName, dataProviders, dataNames);
+                    instanceName, this, (options & ACCEL_DOUBLE_INTEGRATE) != 0);
         }
     }   //TrcAccelerometer
 
@@ -304,21 +169,17 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param options specifies the gyro options. Multiple options can be OR'd together.
+     * @param numAxes specifies the number of axes of the gyro.
+     * @param options specifies the accelerometer options. Multiple options can be OR'd together.
      *                ACCEL_HAS_X_AXIS - supports x-axis.
      *                ACCEL_HAS_Y_AXIS - supports y-axis.
      *                ACCEL_HAS_Z_AXIS - supports z-axis.
-     *                ACCEL_INTEGRATE_X - do integration on x-axis to get x velocity.
-     *                ACCEL_INTEGRATE_Y - do integration on y-axis to get y velocity.
-     *                ACCEL_INTEGRATE_Z - do integration on z-axis to get z velocity.
-     *                ACCEL_DOUBLE_INTEGRATE_X - do double integration on x-axis to get x distance.
-     *                ACCEL_DOUBLE_INTEGRATE_Y - do double integration on y-axis to get y distance.
-     *                ACCEL_DOUBLE_INTEGRATE_Z - do double integration on z-axis to get z distance.
-     *                ACCEL_DO_CALIBRATION - do calibration on the accelerometer.
+     *                ACCEL_INTEGRATE - do integration on all axes to get velocities.
+     *                ACCEL_DOUBLE_INTEGRATE - do double integration on all axes to get distances.
      */
-    public TrcAccelerometer(final String instanceName, final int options)
+    public TrcAccelerometer(final String instanceName, int numAxes, int options)
     {
-        this(instanceName, options, null);
+        this(instanceName, numAxes, options, null);
     }   //TrcAccelerometer
 
     /**
@@ -355,11 +216,6 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (enabled)
-        {
-            calibrate();
-        }
-
         //
         // Enable/disable integrator.
         //
@@ -386,7 +242,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setInverted(xIndex, inverted);
+        setInverted(xIndex, inverted);
     }   //setXInverted
 
     /**
@@ -406,7 +262,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setInverted(yIndex, inverted);
+        setInverted(yIndex, inverted);
     }   //setYInverted
 
     /**
@@ -426,7 +282,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setInverted(zIndex, inverted);
+        setInverted(zIndex, inverted);
     }   //setZInverted
 
     /**
@@ -444,7 +300,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setScale(xIndex, scale);
+        setScale(xIndex, scale);
     }   //setXScale
 
     /**
@@ -462,7 +318,7 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setScale(yIndex, scale);
+        setScale(yIndex, scale);
     }   //setYScale
 
     /**
@@ -480,56 +336,18 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        dataProcessor.setScale(zIndex, scale);
+        setScale(zIndex, scale);
     }   //setZScale
-
-    /**
-     * This method calls the built-in calibrator to calibrates the accelerometer.
-     *
-     * @param numCalSamples specifies the number of calibration samples to take.
-     * @param calInterval specifies the interval in msec between samples.
-     */
-    public void calibrate(int numCalSamples, long calInterval)
-    {
-        final String funcName = "calibrate";
-
-        if (calibrator != null)
-        {
-            calibrator.calibrate(numCalSamples, calInterval, zeroOffsets, deadbands);
-
-            if ((options & ACCEL_HAS_X_AXIS) != 0)
-            {
-                dataProcessor.setCalibrationData(xIndex, zeroOffsets[xIndex], deadbands[xIndex]);
-            }
-
-            if ((options & ACCEL_HAS_Y_AXIS) != 0)
-            {
-                dataProcessor.setCalibrationData(yIndex, zeroOffsets[yIndex], deadbands[yIndex]);
-            }
-
-            if ((options & ACCEL_HAS_Z_AXIS) != 0)
-            {
-                dataProcessor.setCalibrationData(zIndex, zeroOffsets[zIndex], deadbands[zIndex]);
-            }
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "numSamples=%d,calInterval=%d", numCalSamples, calInterval);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //calibrate
 
     /**
      * This method returns the acceleration on the x-axis.
      *
      * @return X acceleration.
      */
-    public TrcSensorData getXAcceleration()
+    public SensorData getXAcceleration()
     {
         final String funcName = "getXAcceleration";
-        TrcSensorData data = getSensorData(DATANAME_PROCESSED_XACCEL);
+        SensorData data = getData(xIndex);
 
         if (debugEnabled)
         {
@@ -546,10 +364,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Y acceleration.
      */
-    public TrcSensorData getYAcceleration()
+    public SensorData getYAcceleration()
     {
         final String funcName = "getYAcceleration";
-        TrcSensorData data = getSensorData(DATANAME_PROCESSED_YACCEL);
+        SensorData data = getData(yIndex);
 
         if (debugEnabled)
         {
@@ -566,10 +384,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Z acceleration.
      */
-    public TrcSensorData getZAcceleration()
+    public SensorData getZAcceleration()
     {
         final String funcName = "getZAcceleration";
-        TrcSensorData data = getSensorData(DATANAME_PROCESSED_ZACCEL);
+        SensorData data = getData(zIndex);
 
         if (debugEnabled)
         {
@@ -588,10 +406,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return X velocity.
      */
-    public TrcSensorData getXVelocity()
+    public SensorData getXVelocity()
     {
         final String funcName = "getXVelocity";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -619,10 +437,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Y velocity.
      */
-    public TrcSensorData getYVelocity()
+    public SensorData getYVelocity()
     {
         final String funcName = "getYVelocity";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -650,10 +468,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Z velocity.
      */
-    public TrcSensorData getZVelocity()
+    public SensorData getZVelocity()
     {
         final String funcName = "getZVelocity";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -681,10 +499,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return X distance.
      */
-    public TrcSensorData getXDistance()
+    public SensorData getXDistance()
     {
         final String funcName = "getXDistance";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -712,10 +530,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Y distance.
      */
-    public TrcSensorData getYDistance()
+    public SensorData getYDistance()
     {
         final String funcName = "getYDistance";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -743,10 +561,10 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
      *
      * @return Z distance.
      */
-    public TrcSensorData getZDistance()
+    public SensorData getZDistance()
     {
         final String funcName = "getZDistance";
-        TrcSensorData data = null;
+        SensorData data = null;
 
         if (dataIntegrator != null)
         {
@@ -770,38 +588,6 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
     //
     // The following methods can be overridden by a platform dependent accelerometer class.
     //
-
-    /**
-     * This method calls the built-in calibrator to calibrates the accelerometer.
-     * This method can be overridden by the platform dependent accelerometer to
-     * provide its own calibration.
-     */
-    public void calibrate()
-    {
-        calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
-    }   //calibrate
-
-    /**
-     * This method always returns false because the built-in calibrator is synchronous.
-     *
-     * @return false.
-     */
-    public boolean isCalibrating()
-    {
-        final String funcName = "isCalibrating";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=false");
-        }
-
-        //
-        // The built-in calibrator is synchronous, so we always return false.
-        //
-
-        return false;
-    }   //isCalibrating
 
     /**
      * This method resets the integrator on the x-axis.
@@ -861,59 +647,42 @@ public abstract class TrcAccelerometer implements TrcSensorData.DataProvider
     }   //resetZIntegrator
 
     //
-    // Implements TrcSensorData.DataProvider interface.
+    // Implements TrcSensor abstract methods.
     //
 
     /**
-     * This method returns the sensor data idnetified by the given dataName. The
-     * possible data returned can be raw acceleration, processed acceleration for
-     * each axis.
+     * This abstract method returns the raw sensor data for the specified axis.
      *
-     * @param dataName specifies the data names to identify what sensor data to get.
-     * @return sensor data.
+     * @param index specifies the axis index.
+     * @return raw data for the specified axis.
      */
     @Override
-    public TrcSensorData getSensorData(String dataName)
+    public SensorData getRawData(int index)
     {
-        final String funcName = "getSensorData";
-        TrcSensorData data = null;
+        final String funcName = "getRawData";
+        SensorData data = null;
 
-        if (dataName.equals(DATANAME_RAW_XACCEL))
+        if (index == xIndex)
         {
             data = getRawXAcceleration();
         }
-        else if (dataName.equals(DATANAME_RAW_YACCEL))
+        else if (index == yIndex)
         {
             data = getRawYAcceleration();
         }
-        else if (dataName.equals(DATANAME_RAW_ZACCEL))
+        else if (index == zIndex)
         {
             data = getRawZAcceleration();
-        }
-        else if (dataName.equals(DATANAME_PROCESSED_XACCEL))
-        {
-            data = getRawXAcceleration();
-            data.value = dataProcessor.processData(xIndex, data.value);
-        }
-        else if (dataName.equals(DATANAME_PROCESSED_YACCEL))
-        {
-            data = getRawYAcceleration();
-            data.value = dataProcessor.processData(yIndex, data.value);
-        }
-        else if (dataName.equals(DATANAME_PROCESSED_ZACCEL))
-        {
-            data = getRawZAcceleration();
-            data.value = dataProcessor.processData(zIndex, data.value);
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK, "index=%d", index);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
+                               "=(timestamp=%.3f,value=%f", data.timestamp, data.value);
         }
 
         return data;
-    }   //getSensorData
+    }   //getRawData
 
 }   //class TrcAccelerometer

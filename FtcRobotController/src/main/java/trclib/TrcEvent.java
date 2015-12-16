@@ -31,6 +31,21 @@ public class TrcEvent
         this.canceled = false;
     }   //TrcEvent
 
+    public String toString()
+    {
+        final String funcName = "getName";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(
+                    funcName, TrcDbgTrace.TraceLevel.API,
+                    "=%s", instanceName);
+        }
+
+        return instanceName;
+    }   //toString
+
     public void set(boolean signaled)
     {
         final String funcName = "set";
@@ -118,20 +133,5 @@ public class TrcEvent
 
         return canceled;
     }   //isCanceled
-
-    public String toString()
-    {
-        final String funcName = "getName";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(
-                    funcName, TrcDbgTrace.TraceLevel.API,
-                    "=%s", instanceName);
-        }
-
-        return instanceName;
-    }   //toString
 
 }   //class TrcEvent

@@ -7,7 +7,6 @@ import hallib.HalUtil;
 import trclib.TrcAnalogInput;
 import trclib.TrcDbgTrace;
 import trclib.TrcFilter;
-import trclib.TrcSensorData;
 
 /**
  * This class implements a platform dependent AnalogInput sensor
@@ -73,10 +72,10 @@ public class FtcAnalogInput extends TrcAnalogInput
     //
 
     @Override
-    public TrcSensorData getRawData()
+    public SensorData getRawData()
     {
         final String funcName = "getRawData";
-        TrcSensorData data = new TrcSensorData(
+        SensorData data = new SensorData(
                 HalUtil.getCurrentTime(), sensor.getValue());
 
         if (debugEnabled)
@@ -95,7 +94,7 @@ public class FtcAnalogInput extends TrcAnalogInput
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawIntegratedData()
+    public SensorData getRawIntegratedData()
     {
         throw new UnsupportedOperationException("This sensor does not support integrated data.");
     }   //getRawIntegratedData
@@ -106,7 +105,7 @@ public class FtcAnalogInput extends TrcAnalogInput
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawDoubleIntegratedData()
+    public SensorData getRawDoubleIntegratedData()
     {
         throw new UnsupportedOperationException(
                 "This sensor does not support double integrated data.");

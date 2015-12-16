@@ -7,7 +7,6 @@ import hallib.HalUtil;
 import trclib.TrcAccelerometer;
 import trclib.TrcDbgTrace;
 import trclib.TrcFilter;
-import trclib.TrcSensorData;
 
 /**
  * This class implements the platform dependent accelerometer extending
@@ -37,10 +36,9 @@ public class FtcAccelerometer extends TrcAccelerometer
     public FtcAccelerometer(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName,
+              3,
               ACCEL_HAS_X_AXIS | ACCEL_HAS_Y_AXIS | ACCEL_HAS_Z_AXIS |
-              ACCEL_INTEGRATE_X | ACCEL_INTEGRATE_Y | ACCEL_INTEGRATE_Z |
-              ACCEL_DOUBLE_INTEGRATE_X | ACCEL_DOUBLE_INTEGRATE_Y | ACCEL_DOUBLE_INTEGRATE_Z |
-              ACCEL_DO_CALIBRATION,
+              ACCEL_INTEGRATE | ACCEL_DOUBLE_INTEGRATE,
               filters);
 
         if (debugEnabled)
@@ -89,11 +87,11 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @return raw x acceleration.
      */
     @Override
-    public TrcSensorData getRawXAcceleration()
+    public SensorData getRawXAcceleration()
     {
         final String funcName = "getRawXAcceleration";
         AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), accelData.x);
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.x);
 
         if (debugEnabled)
         {
@@ -111,11 +109,11 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @return raw y acceleration.
      */
     @Override
-    public TrcSensorData getRawYAcceleration()
+    public SensorData getRawYAcceleration()
     {
         final String funcName = "getRawYAcceleration";
         AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), accelData.y);
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.y);
 
         if (debugEnabled)
         {
@@ -133,11 +131,11 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @return raw z acceleration.
      */
     @Override
-    public TrcSensorData getRawZAcceleration()
+    public SensorData getRawZAcceleration()
     {
         final String funcName = "getRawZAcceleration";
         AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), accelData.z);
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.z);
 
         if (debugEnabled)
         {
@@ -155,7 +153,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawXVelocity()
+    public SensorData getRawXVelocity()
     {
         final String funcName = "getRawXVelocity";
 
@@ -175,7 +173,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawYVelocity()
+    public SensorData getRawYVelocity()
     {
         final String funcName = "getRawYVelocity";
 
@@ -195,7 +193,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawZVelocity()
+    public SensorData getRawZVelocity()
     {
         final String funcName = "getRawZVelocity";
 
@@ -215,7 +213,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawXDistance()
+    public SensorData getRawXDistance()
     {
         final String funcName = "getRawXDistance";
 
@@ -235,7 +233,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawYDistance()
+    public SensorData getRawYDistance()
     {
         final String funcName = "getRawYDistance";
 
@@ -255,7 +253,7 @@ public class FtcAccelerometer extends TrcAccelerometer
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawZDistance()
+    public SensorData getRawZDistance()
     {
         final String funcName = "getRawZDistance";
 

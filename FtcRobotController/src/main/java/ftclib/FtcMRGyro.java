@@ -7,7 +7,6 @@ import hallib.HalUtil;
 import trclib.TrcDbgTrace;
 import trclib.TrcFilter;
 import trclib.TrcGyro;
-import trclib.TrcSensorData;
 
 /**
  * This class implements the Modern Robotics gyro extending TrcGyro.
@@ -37,7 +36,8 @@ public class FtcMRGyro extends TrcGyro
     public FtcMRGyro(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName,
-              GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS | GYRO_UNWRAP_ZHEADING,
+              3,
+              GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS | GYRO_UNWRAP_HEADING,
               filters);
 
         if (debugEnabled)
@@ -53,6 +53,11 @@ public class FtcMRGyro extends TrcGyro
         // Set the wrap-around range of the Z heading.
         //
         setZValueRange(0.0, 360.0);
+        gyro.calibrate();
+        while (gyro.isCalibrating())
+        {
+            HalUtil.sleep(10);
+        }
         setEnabled(true);
     }   //FtcMRGyro
 
@@ -128,8 +133,6 @@ public class FtcMRGyro extends TrcGyro
     {
         final String funcName = "resetXIntegrator";
 
-        gyro.notSupported();
-
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
@@ -144,8 +147,6 @@ public class FtcMRGyro extends TrcGyro
     public void resetYIntegrator()
     {
         final String funcName = "resetYIntegrator";
-
-        gyro.notSupported();
 
         if (debugEnabled)
         {
@@ -181,10 +182,10 @@ public class FtcMRGyro extends TrcGyro
      * @return raw x rotation rate.
      */
     @Override
-    public TrcSensorData getRawXRate()
+    public SensorData getRawXRate()
     {
         final String funcName = "getRawXRate";
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), gyro.rawX());
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawX());
 
         if (debugEnabled)
         {
@@ -202,10 +203,10 @@ public class FtcMRGyro extends TrcGyro
      * @return raw y rotation rate.
      */
     @Override
-    public TrcSensorData getRawYRate()
+    public SensorData getRawYRate()
     {
         final String funcName = "getRawYRate";
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), gyro.rawY());
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawY());
 
         if (debugEnabled)
         {
@@ -223,10 +224,10 @@ public class FtcMRGyro extends TrcGyro
      * @return raw z rotation rate.
      */
     @Override
-    public TrcSensorData getRawZRate()
+    public SensorData getRawZRate()
     {
         final String funcName = "getRawZRate";
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), gyro.rawZ());
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawZ());
 
         if (debugEnabled)
         {
@@ -241,43 +242,43 @@ public class FtcMRGyro extends TrcGyro
     /**
      * This method returns the raw heading of the x-axis which is not supported.
      *
-     * @return null.
+     * @return zero data.
      */
     @Override
-    public TrcSensorData getRawXHeading()
+    public SensorData getRawXHeading()
     {
         final String funcName = "getRawXHeading";
-
-        gyro.notSupported();
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), 0.0);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
-        return null;
+        return data;
     }   //getRawXHeading
 
     /**
      * This method returns the raw heading of the y-axis which is not supported.
      *
-     * @return null.
+     * @return zero data.
      */
     @Override
-    public TrcSensorData getRawYHeading()
+    public SensorData getRawYHeading()
     {
         final String funcName = "getRawYHeading";
-
-        gyro.notSupported();
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), 0.0);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
-        return null;
+        return data;
     }   //getRawYHeading
 
     /**
@@ -286,10 +287,10 @@ public class FtcMRGyro extends TrcGyro
      * @return raw z heading.
      */
     @Override
-    public TrcSensorData getRawZHeading()
+    public SensorData getRawZHeading()
     {
         final String funcName = "getRawZHeading";
-        TrcSensorData data = new TrcSensorData(HalUtil.getCurrentTime(), gyro.getHeading());
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.getHeading());
 
         if (debugEnabled)
         {

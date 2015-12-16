@@ -7,7 +7,6 @@ import hallib.HalUtil;
 import trclib.TrcAnalogInput;
 import trclib.TrcDbgTrace;
 import trclib.TrcFilter;
-import trclib.TrcSensorData;
 
 /**
  * This class implements the Modern Robotics Optical Distance sensor
@@ -78,11 +77,10 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
      * @return raw sensor data.
      */
     @Override
-    public TrcSensorData getRawData()
+    public SensorData getRawData()
     {
         final String funcName = "getRawData";
-        TrcSensorData data = new TrcSensorData(
-                HalUtil.getCurrentTime(), sensor.getLightDetectedRaw());
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), sensor.getLightDetectedRaw());
 
         if (debugEnabled)
         {
@@ -100,7 +98,7 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawIntegratedData()
+    public SensorData getRawIntegratedData()
     {
         throw new UnsupportedOperationException("This sensor does not support integrated data.");
     }   //getRawIntegratedData
@@ -111,7 +109,7 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
      * @throws UnsupportedOperationException exception.
      */
     @Override
-    public TrcSensorData getRawDoubleIntegratedData()
+    public SensorData getRawDoubleIntegratedData()
     {
         throw new UnsupportedOperationException(
                 "This sensor does not support double integrated data.");

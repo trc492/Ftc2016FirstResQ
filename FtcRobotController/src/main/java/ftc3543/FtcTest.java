@@ -197,15 +197,22 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         dashboard.displayPrintf(12, "Gyro: Rate=%.1f,Heading=%.1f",
                                 robot.gyro.getZRotationRate().value,
                                 robot.gyro.getZHeading().value);
-        dashboard.displayPrintf(13, "RGBAH: %d,%d,%d,%d,%x",
+        dashboard.displayPrintf(13, "RGBAH=[%d,%d,%d,%d,%x],Light=%.0f,Sonar=%.1f",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
-                                robot.colorSensor.argb());
-        dashboard.displayPrintf(14, "Light=%.0f,Sonar=%.1f",
+                                robot.colorSensor.argb(),
                                 robot.lightSensor.getData().value,
                                 robot.sonarSensor.getData().value);
+        dashboard.displayPrintf(14, "compass=[%.2f,%.2f,%.2f], accel=[%.2f,%.2f,%.2f]",
+                                robot.compass.getData(0).value,
+                                robot.compass.getData(1).value,
+                                robot.compass.getData(2).value,
+                                robot.accel.getData(0).value,
+                                robot.accel.getData(1).value,
+                                robot.accel.getData(2).value);
+//        dashboard.displayPrintf(14, "ambient=%.2f", robot.ambientLight.getData(0).value);
         dashboard.displayPrintf(15, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0,

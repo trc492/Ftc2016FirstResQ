@@ -24,25 +24,20 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
     private TrcDbgTrace dbgTrace = null;
 
     private final String instanceName;
-    private TrcSensorData.DataProvider[] dataProviders = null;
-    private String[] dataNames = null;
-    private double[] valueRangeLows = null;
-    private double[] valueRangeHighs = null;
-    private TrcSensorData[] prevData = null;
-    private int[] numCrossovers = null;
+    private TrcSensor sensor;
+    private int numAxes;
+    private double[] valueRangeLows;
+    private double[] valueRangeHighs;
+    private TrcSensor.SensorData[] prevData;
+    private int[] numCrossovers;
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param dataProviders specifies an array of data provider objects.
-     * @param dataNames specifies an array of data names to be used to identify the data when
-     *                  calling the data provider.
+     * @param sensor specifies the sensor object that needs data unwrapping.
      */
-    public TrcDataUnwrapper(
-            final String instanceName,
-            TrcSensorData.DataProvider[] dataProviders,
-            String[] dataNames)
+    public TrcDataUnwrapper(final String instanceName, TrcSensor sensor)
     {
         if (debugEnabled)
         {
@@ -53,36 +48,22 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        if (dataProviders == null || dataNames == null)
+        if (sensor == null)
         {
-            throw new NullPointerException("dataProviders/dataNames cannot be null.");
-        }
-        else if (dataProviders.length <= 0)
-        {
-            throw new IllegalArgumentException(
-                    "dataProviders array must have at least one element.");
-        }
-        else if (dataProviders.length != dataNames.length)
-        {
-            throw new IllegalArgumentException(
-                    "dataProviders/dataNames arrays must have same number of elements.");
+            throw new NullPointerException("sensor cannot be null.");
         }
 
         this.instanceName = instanceName;
-        this.dataProviders = dataProviders;
-        this.dataNames = dataNames;
+        this.sensor = sensor;
+        numAxes = sensor.getNumAxes();
 
-        valueRangeLows = new double[dataProviders.length];
-        valueRangeHighs = new double[dataProviders.length];
-        prevData = new TrcSensorData[dataProviders.length];
-        numCrossovers = new int[dataProviders.length];
+        valueRangeLows = new double[numAxes];
+        valueRangeHighs = new double[numAxes];
+        prevData = new TrcSensor.SensorData[numAxes];
+        numCrossovers = new int[numAxes];
 
-        for (int i = 0; i < dataProviders.length; i++)
+        for (int i = 0; i < numAxes; i++)
         {
-            if (dataProviders[i] == null)
-            {
-                throw new NullPointerException("Elements in dataProviders cannot be null.");
-            }
             valueRangeLows[i] = 0.0;
             valueRangeHighs[i] = 0.0;
             prevData[i] = null;
@@ -133,7 +114,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
     /**
      * This method resets the indexed unwrapper.
      *
-     * @param index specifies the index.
+     * @param index specifies the axis index.
      */
     public void reset(int index)
     {
@@ -145,7 +126,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        prevData[index] = dataProviders[index].getSensorData(dataNames[index]);
+        prevData[index] = sensor.getData(index);
         numCrossovers[index] = 0;
     }   //reset
 
@@ -162,20 +143,16 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        for (int i = 0; i < dataProviders.length; i++)
+        for (int i = 0; i < numAxes; i++)
         {
-            if (dataNames[i] != null)
-            {
-                prevData[i] = dataProviders[i].getSensorData(dataNames[i]);
-                numCrossovers[i] = 0;
-            }
+            reset(i);
         }
     }   //reset
 
     /**
      * This method sets the value range of the indexed unwrapper.
      *
-     * @param index specifes the index.
+     * @param index specifes the axis index.
      * @param valueRangeLow specifies the low value of the range.
      * @param valueRangeHigh specifies the high value of the range.
      */
@@ -203,13 +180,13 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
     /**
      * This method returns the indexed unwrapped data.
      *
-     * @param index specifies the index.
+     * @param index specifies the axis index.
      * @return unwrapped data.
      */
-    public TrcSensorData getUnwrappedData(int index)
+    public TrcSensor.SensorData getUnwrappedData(int index)
     {
         final String funcName = "getUnwrappedData";
-        TrcSensorData data = dataProviders[index].getSensorData(dataNames[index]);
+        TrcSensor.SensorData data = sensor.getData(index);
 
         data.value = (valueRangeHighs[index] - valueRangeLows[index])*numCrossovers[index] +
                      (data.value - valueRangeLows[index]);
@@ -260,26 +237,22 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
-        for (int i = 0; i < dataProviders.length; i++)
+        for (int i = 0; i < numAxes; i++)
         {
-            if (dataNames[i] != null)
+            TrcSensor.SensorData currData = sensor.getData(i);
+            if (Math.abs(currData.value - prevData[i].value) >
+                (valueRangeHighs[i] - valueRangeLows[i])/2.0)
             {
-                TrcSensorData currData = dataProviders[i].getSensorData(dataNames[i]);
-                if (Math.abs(currData.value - prevData[i].value) >
-                    (valueRangeHighs[i] - valueRangeLows[i])/2.0)
+                if (currData.value > prevData[i].value)
                 {
-                    if (currData.value > prevData[i].value)
-                    {
-                        numCrossovers[i]--;
-                    }
-                    else
-                    {
-                        numCrossovers[i]++;
-                    }
+                    numCrossovers[i]--;
                 }
-
-                prevData[i] = currData;
+                else
+                {
+                    numCrossovers[i]++;
+                }
             }
+            prevData[i] = currData;
         }
 
         if (debugEnabled)

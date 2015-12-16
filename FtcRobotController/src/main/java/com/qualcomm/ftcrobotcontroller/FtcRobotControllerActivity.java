@@ -60,7 +60,10 @@ import com.qualcomm.ftccommon.FtcRobotControllerService.FtcRobotControllerBinder
 import com.qualcomm.ftccommon.LaunchActivityConstantsList;
 import com.qualcomm.ftccommon.Restarter;
 import com.qualcomm.ftccommon.UpdateUI;
+
 import ftc3543.FtcOpModeRegister;
+import ftclib.FtcOpMode;
+
 import com.qualcomm.hardware.HardwareFactory;
 import com.qualcomm.robotcore.hardware.configuration.Utility;
 import com.qualcomm.robotcore.util.Dimmer;
@@ -136,8 +139,16 @@ public class FtcRobotControllerActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    FtcOpMode.setContext(this);
     setContentView(R.layout.activity_ftc_controller);
+    /*
+    if (savedInstanceState == null)
+    {
+      getFragmentManager().beginTransaction()
+                          .replace(R.id.container, Camera2BasicFragment.newInstance())
+                          .commit();
+    }
+    */
 
     utility = new Utility(this);
     context = this;
