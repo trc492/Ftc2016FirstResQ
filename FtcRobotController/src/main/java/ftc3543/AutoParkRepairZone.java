@@ -2,6 +2,7 @@ package ftc3543;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
+import trclib.TrcDbgTrace;
 import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
@@ -20,8 +21,11 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
+    private static final String moduleName = "AutoParkRepairZone";
+
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTraceInstance();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
@@ -44,7 +48,18 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "ParkRepairZone: %s, %s, delay=%.0f",
+        if (robot.pidDrive.isEnabled())
+        {
+            robot.pidCtrlDrive.printPidInfo(tracer);
+            robot.pidCtrlTurn.printPidInfo(tracer);
+        }
+        else if (robot.pidDriveLineFollow.isEnabled())
+        {
+            robot.pidCtrlSonar.printPidInfo(tracer);
+            robot.pidCtrlLight.printPidInfo(tracer);
+        }
+
+        dashboard.displayPrintf(1, moduleName + ": %s, %s, delay=%.0f",
                                 alliance.toString(), startPos.toString(), delay);
         dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
                                 robot.colorSensor.red(),
@@ -58,7 +73,8 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
         if (sm.isReady())
         {
             State state = (State)sm.getState();
-            dashboard.displayPrintf(7, "State=%s", state != null? state.toString(): "STOPPED!");
+            tracer.traceInfo(moduleName, "State: %s", state.toString());
+            dashboard.displayPrintf(7, "State=%s", state.toString());
 
             switch (state)
             {

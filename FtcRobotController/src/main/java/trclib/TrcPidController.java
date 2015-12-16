@@ -79,18 +79,28 @@ public class TrcPidController
                 minOutput, output, maxOutput);
     }   //displayPidInfo
 
-    public void printPidInfo()
+    public void printPidInfo(TrcDbgTrace tracer)
     {
         final String funcName = "printPidInfo";
 
-        if (debugEnabled)
+        if (tracer == null)
         {
-            dbgTrace.traceInfo(
+            tracer = dbgTrace;
+        }
+
+        if (tracer != null)
+        {
+            tracer.traceInfo(
                     funcName,
                     "Target=%6.1f, Input=%6.1f, Error=%6.1f, Output=%6.3f(%6.3f/%5.3f)",
                     setPoint, pidInput.getInput(this), prevError, output,
                     minOutput, maxOutput);
         }
+    }   //printPidInfo
+
+    public void printPidInfo()
+    {
+        printPidInfo(null);
     }   //printPidInfo
 
     public void setInverted(boolean inverted)

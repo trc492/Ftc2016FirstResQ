@@ -130,6 +130,16 @@ public abstract class FtcOpMode extends LinearOpMode
         opModeTrace.setDbgTraceConfig(traceEnabled, traceLevel, msgLevel);
     }   //setOpModeTraceConfig
 
+    /**
+     * This method returns the name of the active OpMode.
+     *
+     * @return active OpMode name.
+     */
+    public static String getOpModeName()
+    {
+        return opModeName;
+    }   //getOpModeName
+
     //
     // Implements LinearOpMode
     //

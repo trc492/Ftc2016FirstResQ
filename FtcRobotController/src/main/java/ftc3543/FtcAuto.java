@@ -3,6 +3,7 @@ package ftc3543;
 import ftclib.FtcMenu;
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
+import hallib.HalUtil;
 import trclib.TrcRobot;
 
 public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
@@ -93,17 +94,27 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 autoStrategy = null;
                 break;
         }
+
+        getOpModeTraceInstance().traceInfo(
+                getOpModeName(),
+                "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, beaconOption=%s",
+                strategy.toString(), alliance.toString(), startPos.toString(), delay,
+                beaconOption.toString());
     }   //robotInit
 
     @Override
     public void startMode()
     {
         dashboard.clearDisplay();
+        FtcOpMode.getOpModeTraceInstance().traceInfo(
+                getOpModeName(), "Starting: %.3f", HalUtil.getCurrentTime());
     }   //startMode
 
     @Override
     public void stopMode()
     {
+        FtcOpMode.getOpModeTraceInstance().traceInfo(
+                getOpModeName(), "Stopping: %.3f", HalUtil.getCurrentTime());
     }   //stopMode
 
     @Override

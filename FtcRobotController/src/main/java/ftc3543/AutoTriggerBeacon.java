@@ -2,6 +2,7 @@ package ftc3543;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
+import trclib.TrcDbgTrace;
 import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
@@ -22,8 +23,11 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
+    private static final String moduleName = "AutoTriggerBeacon";
+
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTraceInstance();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
@@ -51,7 +55,18 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     public void autoPeriodic()
     {
-        dashboard.displayPrintf(1, "TriggerBeacon: %s, %s,delay=%.0f,option=%s",
+        if (robot.pidDrive.isEnabled())
+        {
+            robot.pidCtrlDrive.printPidInfo(tracer);
+            robot.pidCtrlTurn.printPidInfo(tracer);
+        }
+        else if (robot.pidDriveLineFollow.isEnabled())
+        {
+            robot.pidCtrlSonar.printPidInfo(tracer);
+            robot.pidCtrlLight.printPidInfo(tracer);
+        }
+
+        dashboard.displayPrintf(1, moduleName + ": %s, %s,delay=%.0f,option=%s",
                                 alliance.toString(), startPos.toString(), delay, option.toString());
         dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
                                 robot.colorSensor.red(),
@@ -65,7 +80,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         if (sm.isReady())
         {
             State state = (State)sm.getState();
-            dashboard.displayPrintf(7, "State=%s", state != null? state.toString(): "STOPPED!");
+            tracer.traceInfo(moduleName, "State: %s", state.toString());
+            dashboard.displayPrintf(7, "State=%s", state.toString());
 
             switch (state)
             {
@@ -147,7 +163,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     int blueValue = robot.colorSensor.blue();
                     boolean isRed = redValue > blueValue && redValue > greenValue;
                     boolean isBlue = blueValue > redValue && blueValue > greenValue;
-                    FtcOpMode.getOpModeTraceInstance().traceInfo(
+                    tracer.traceInfo(
                             "TriggerBeacon", "[%d,%d,%d]isRed=%s,isBlue=%s",
                             redValue, greenValue, blueValue,
                             isRed? "true": "false",
