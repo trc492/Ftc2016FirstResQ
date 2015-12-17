@@ -28,7 +28,7 @@ public class HalDashboard
 
     public static final int MAX_NUM_TEXTLINES = 16;
 
-    private static final String displayKeyFormat = "[%02d]";
+    private static final String displayKeyFormat = "%02d";
     private static Telemetry telemetry = null;
     private static HalDashboard instance = null;
     private static String[] display = new String[MAX_NUM_TEXTLINES];
