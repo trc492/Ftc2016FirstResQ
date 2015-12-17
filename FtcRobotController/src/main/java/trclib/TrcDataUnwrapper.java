@@ -1,5 +1,7 @@
 package trclib;
 
+import ftclib.FtcOpMode;
+
 /**
  * This class unwraps data for sensors that have one or more axes. Some value
  * sensors such as the Modern Robotics gyro returns the heading values between
@@ -25,6 +27,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
 
     private final String instanceName;
     private TrcSensor sensor;
+    private Object dataType;
     private int numAxes;
     private double[] valueRangeLows;
     private double[] valueRangeHighs;
@@ -36,8 +39,9 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
      *
      * @param instanceName specifies the instance name.
      * @param sensor specifies the sensor object that needs data unwrapping.
+     * @param dataType specifies the data type to be unwrapped.
      */
-    public TrcDataUnwrapper(final String instanceName, TrcSensor sensor)
+    public TrcDataUnwrapper(final String instanceName, TrcSensor sensor, Object dataType)
     {
         if (debugEnabled)
         {
@@ -55,6 +59,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
 
         this.instanceName = instanceName;
         this.sensor = sensor;
+        this.dataType = dataType;
         numAxes = sensor.getNumAxes();
 
         valueRangeLows = new double[numAxes];
@@ -126,7 +131,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        prevData[index] = sensor.getData(index);
+        prevData[index] = sensor.getData(index, dataType);
         numCrossovers[index] = 0;
     }   //reset
 
@@ -186,7 +191,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
     public TrcSensor.SensorData getUnwrappedData(int index)
     {
         final String funcName = "getUnwrappedData";
-        TrcSensor.SensorData data = sensor.getData(index);
+        TrcSensor.SensorData data = sensor.getData(index, dataType);
 
         data.value = (valueRangeHighs[index] - valueRangeLows[index])*numCrossovers[index] +
                      (data.value - valueRangeLows[index]);
@@ -239,7 +244,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
 
         for (int i = 0; i < numAxes; i++)
         {
-            TrcSensor.SensorData currData = sensor.getData(i);
+            TrcSensor.SensorData currData = sensor.getData(i, dataType);
             if (Math.abs(currData.value - prevData[i].value) >
                 (valueRangeHighs[i] - valueRangeLows[i])/2.0)
             {

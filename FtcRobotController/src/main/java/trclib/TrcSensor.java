@@ -9,7 +9,7 @@ import hallib.HalUtil;
  * methods required by this class. The abstract methods allow this class to get
  * raw data for each axis. If the platform dependent sensor class doesn't provide
  * its own calibration, this class provides a generic calibrator that can be
- * called to commpute the zero offset and noise deadband for each axis.
+ * called to compute the zero offset and noise deadband for each axis.
  */
 public abstract class TrcSensor
 {
@@ -38,12 +38,13 @@ public abstract class TrcSensor
     }   //class SensorData
 
     /**
-     * This abstract method returns the raw sensor data of the apecified axis index.
+     * This abstract method returns the raw sensor data of the specified axis index and type.
      *
      * @param index specifies the axis index.
-     * @return raw sensor data of the specified axis index.
+     * @param dataType specifies the data type object.
+     * @return raw sensor data of the specified axis index and type.
      */
-    public abstract SensorData getRawData(int index);
+    public abstract SensorData getRawData(int index, Object dataType);
 
     //
     // Built-in calibrator parameters.
@@ -205,19 +206,20 @@ public abstract class TrcSensor
     }   //setScale
 
     /**
-     * This method returns the processed data for the specified axis.
-     * The data will go through a filter if a filter is supplied for
-     * the axis. The calibration data will be applied to the sensor
-     * data if applicable. The sign and scale will also be applied.
+     * This method returns the processed data for the specified axis and type.
+     * The data will go through a filter if a filter is supplied for the axis.
+     * The calibration data will be applied to the sensor data if applicable.
+     * The sign and scale will also be applied.
      *
      * @param index specifies the axis index.
+     * @param dataType specifies the data type object.
      * @return processed sensor data for the axis.
      */
-    public SensorData getData(int index)
+    public SensorData getData(int index, Object dataType)
     {
         final String funcName = "getData";
 
-        SensorData data = getRawData(index);
+        SensorData data = getRawData(index, dataType);
         //
         // Apply filter if necessary.
         //
@@ -251,8 +253,9 @@ public abstract class TrcSensor
      *
      * @param numCalSamples specifies the number of calibration sample to take.
      * @param calInterval specifies the interval between each calibration sample in msec.
+     * @param dataType specifies the data type needed calibration.
      */
-    public void calibrate(int numCalSamples, long calInterval)
+    public void calibrate(int numCalSamples, long calInterval, Object dataType)
     {
         final String funcName = "calibrate";
         double[] minValues = new double[numAxes];
@@ -261,7 +264,7 @@ public abstract class TrcSensor
 
         for (int i = 0; i < numAxes; i++)
         {
-            double value = getRawData(i).value;
+            double value = getRawData(i, dataType).value;
             minValues[i] = value;
             maxValues[i] = value;
             sums[i] = 0.0;
@@ -271,7 +274,7 @@ public abstract class TrcSensor
         {
             for (int i = 0; i < numAxes; i++)
             {
-                double value = getRawData(i).value;
+                double value = getRawData(i, dataType).value;
                 sums[i] += value;
 
                 if (value < minValues[i])
@@ -308,10 +311,12 @@ public abstract class TrcSensor
      * This method calls the built-in calibrator to calibrates the gyro.
      * This method can be overridden by the platform dependent gyro to
      * provide its own calibration.
+     *
+     * @param dataType specifies the data type needed calibration.
      */
-    public void calibrate()
+    public void calibrate(Object dataType)
     {
-        calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL);
+        calibrate(NUM_CAL_SAMPLES, CAL_INTERVAL, dataType);
     }   //calibrate
 
     /**

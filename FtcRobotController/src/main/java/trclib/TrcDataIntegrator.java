@@ -17,6 +17,7 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
 
     private final String instanceName;
     private TrcSensor sensor;
+    private Object dataType;
     private int numAxes;
     private TrcSensor.SensorData[] inputData;
     private TrcSensor.SensorData[] integratedData;
@@ -28,11 +29,13 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
      *
      * @param instanceName specifies the instance name.
      * @param sensor specifies the sensor object that needs integration.
+     * @param dataType specifies the data type to be integrated.
      * @param doubleIntegration specifies true to do double integration, false otherwise.
      */
     public TrcDataIntegrator(
             final String instanceName,
             TrcSensor sensor,
+            Object dataType,
             boolean doubleIntegration)
     {
         if (debugEnabled)
@@ -51,6 +54,7 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
 
         this.instanceName = instanceName;
         this.sensor = sensor;
+        this.dataType = dataType;
         numAxes = sensor.getNumAxes();
 
         inputData = new TrcSensor.SensorData[numAxes];
@@ -74,10 +78,11 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
      *
      * @param instanceName specifies the instance name.
      * @param sensor specifies the sensor object that needs integration.
+     * @param dataType specifies the data type to be integrated.
      */
-    public TrcDataIntegrator(final String instanceName, TrcSensor sensor)
+    public TrcDataIntegrator(final String instanceName, TrcSensor sensor, Object dataType)
     {
-        this(instanceName, sensor, false);
+        this(instanceName, sensor, dataType, false);
     }   //TrcDataProcessor
 
     /**
@@ -275,7 +280,7 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
             //
             // Get sensor data.
             //
-            inputData[i] = sensor.getData(i);
+            inputData[i] = sensor.getData(i, dataType);
             double deltaTime = inputData[i].timestamp - prevTimes[i];
             //
             // Do integration.

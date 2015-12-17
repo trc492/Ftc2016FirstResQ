@@ -35,7 +35,6 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
     public double prevSonarValue;
-    public FtcAndroidSensor compass;
     public FtcAndroidSensor accel;
     public FtcAndroidSensor ambientLight;
     //
@@ -89,6 +88,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         mrGyro = new FtcMRGyro("gyroSensor");
 //        hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
         gyro = mrGyro;
+        gyro.resetZIntegrator();
 //        maxSonarSensor = new FtcAnalogInput("maxSonarSensor");
 //        maxSonarSensor.setScale(RobotInfo.SONAR_SCALE_TO_INCHES);
         legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
@@ -97,8 +97,6 @@ public class FtcRobot implements TrcPidController.PidInput,
         sonarSensor = legoSonarSensor;
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        compass = new FtcAndroidSensor("compass", Sensor.TYPE_MAGNETIC_FIELD, 3);
-        compass.setEnabled(true, 10000);
         accel = new FtcAndroidSensor("accelerometer", Sensor.TYPE_ACCELEROMETER, 3);
         accel.setEnabled(true, 10000);
         ambientLight = new FtcAndroidSensor("ambientLight", Sensor.TYPE_LIGHT, 1);

@@ -71,12 +71,29 @@ public class FtcAnalogInput extends TrcAnalogInput
     // Implements TrcAnalogInput abstract methods.
     //
 
+    /**
+     * This method returns the raw sensor data of the specified type.
+     *
+     * @return raw sensor data of the specified type.
+     */
     @Override
-    public SensorData getRawData()
+    public SensorData getRawData(DataType dataType)
     {
         final String funcName = "getRawData";
-        SensorData data = new SensorData(
-                HalUtil.getCurrentTime(), sensor.getValue());
+        SensorData data = null;
+
+        //
+        // Ultrasonic sensor supports only INPUT_DATA type.
+        //
+        if (dataType == DataType.INPUT_DATA)
+        {
+            data = new SensorData(HalUtil.getCurrentTime(), sensor.getValue());
+        }
+        else
+        {
+            throw new UnsupportedOperationException(
+                    "AnalogInput sensor only support INPUT_DATA type.");
+        }
 
         if (debugEnabled)
         {
@@ -87,28 +104,5 @@ public class FtcAnalogInput extends TrcAnalogInput
 
         return data;
     }   //getRawData
-
-    /**
-     * This method returns the raw integrated data which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawIntegratedData()
-    {
-        throw new UnsupportedOperationException("This sensor does not support integrated data.");
-    }   //getRawIntegratedData
-
-    /**
-     * This method returns the raw integrated data which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawDoubleIntegratedData()
-    {
-        throw new UnsupportedOperationException(
-                "This sensor does not support double integrated data.");
-    }   //getRawDoubleIntegratedData
 
 }   //class FtcAnalogInput

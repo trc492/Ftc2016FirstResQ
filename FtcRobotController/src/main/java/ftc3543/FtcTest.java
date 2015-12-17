@@ -205,14 +205,11 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                                 robot.colorSensor.argb(),
                                 robot.lightSensor.getData().value,
                                 robot.sonarSensor.getData().value);
-        dashboard.displayPrintf(14, "compass=[%.2f,%.2f,%.2f], accel=[%.2f,%.2f,%.2f]",
-                                robot.compass.getData(0).value,
-                                robot.compass.getData(1).value,
-                                robot.compass.getData(2).value,
-                                robot.accel.getData(0).value,
-                                robot.accel.getData(1).value,
-                                robot.accel.getData(2).value);
-//        dashboard.displayPrintf(14, "ambient=%.2f", robot.ambientLight.getData(0).value);
+        dashboard.displayPrintf(14, "accel=[%.2f,%.2f,%.2f], ambient=%.2f",
+                                robot.accel.getData(0, null).value,
+                                robot.accel.getData(1, null).value,
+                                robot.accel.getData(2, null).value,
+                                robot.ambientLight.getData(0, null).value);
         dashboard.displayPrintf(15, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0,

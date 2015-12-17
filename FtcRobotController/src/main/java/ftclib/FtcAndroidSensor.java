@@ -114,13 +114,14 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     //
 
     /**
-     * This method returns the raw sensor data of the specified axis.
+     * This method returns the raw sensor data of the specified axis and type.
      *
      * @param index specifies the axis index.
+     * @param dataType specifies the data type (not used, can be null).
      * @return raw sensor data of the specified axis.
      */
     @Override
-    public SensorData getRawData(int index)
+    public SensorData getRawData(int index, Object dataType)
     {
         final String funcName = "getRawData";
         SensorData data = new SensorData(sensorData[index].timestamp, sensorData[index].value);

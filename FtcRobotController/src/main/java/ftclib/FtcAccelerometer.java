@@ -82,16 +82,27 @@ public class FtcAccelerometer extends TrcAccelerometer
     //
 
     /**
-     * This method returns the raw acceleration of the x-axis.
+     * This method returns the raw data of the specified type for the x-axis.
      *
-     * @return raw x acceleration.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the x-axis.
      */
     @Override
-    public SensorData getRawXAcceleration()
+    public SensorData getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXAcceleration";
-        AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.x);
+        final String funcName = "getRawXData";
+        SensorData data = null;
+
+        if (dataType == DataType.ACCELERATION)
+        {
+            AccelerationSensor.Acceleration accelData = accel.getAcceleration();
+            data = new SensorData(HalUtil.getCurrentTime(), accelData.x);
+        }
+        else
+        {
+            throw new UnsupportedOperationException(
+                    "Accelerometer sensor does not provide velocity or distance data.");
+        }
 
         if (debugEnabled)
         {
@@ -101,19 +112,30 @@ public class FtcAccelerometer extends TrcAccelerometer
         }
 
         return data;
-    }   //getRawXAcceleration
+    }   //getRawXData
 
     /**
-     * This method returns the raw acceleration of the y-axis.
+     * This method returns the raw data of the specified type for the y-axis.
      *
-     * @return raw y acceleration.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the y-axis.
      */
     @Override
-    public SensorData getRawYAcceleration()
+    public SensorData getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYAcceleration";
-        AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.y);
+        final String funcName = "getRawYData";
+        SensorData data = null;
+
+        if (dataType == DataType.ACCELERATION)
+        {
+            AccelerationSensor.Acceleration accelData = accel.getAcceleration();
+            data = new SensorData(HalUtil.getCurrentTime(), accelData.y);
+        }
+        else
+        {
+            throw new UnsupportedOperationException(
+                    "Accelerometer sensor does not provide velocity or distance data.");
+        }
 
         if (debugEnabled)
         {
@@ -123,19 +145,30 @@ public class FtcAccelerometer extends TrcAccelerometer
         }
 
         return data;
-    }   //getRawYAcceleration
+    }   //getRawYData
 
     /**
-     * This method returns the raw acceleration of the z-axis.
+     * This method returns the raw data of the specified type for the z-axis.
      *
-     * @return raw z acceleration.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the z-axis.
      */
     @Override
-    public SensorData getRawZAcceleration()
+    public SensorData getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZAcceleration";
-        AccelerationSensor.Acceleration accelData = accel.getAcceleration();
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), accelData.z);
+        final String funcName = "getRawZData";
+        SensorData data = null;
+
+        if (dataType == DataType.ACCELERATION)
+        {
+            AccelerationSensor.Acceleration accelData = accel.getAcceleration();
+            data = new SensorData(HalUtil.getCurrentTime(), accelData.z);
+        }
+        else
+        {
+            throw new UnsupportedOperationException(
+                    "Accelerometer sensor does not provide velocity or distance data.");
+        }
 
         if (debugEnabled)
         {
@@ -145,126 +178,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         }
 
         return data;
-    }   //getRawZAcceleration
-
-    /**
-     * This method returns the raw velocity on the x-axis which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawXVelocity()
-    {
-        final String funcName = "getRawXVelocity";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support velocity data.");
-    }   //getRawXVelocity
-
-    /**
-     * This method returns the raw velocity on the y-axis which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawYVelocity()
-    {
-        final String funcName = "getRawYVelocity";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support velocity data.");
-    }   //getRawYVelocity
-
-    /**
-     * This method returns the raw velocity on the z-axiswhich is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawZVelocity()
-    {
-        final String funcName = "getRawZVelocity";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support velocity data.");
-    }   //getRawZVelocity
-
-    /**
-     * This method returns the raw distance on the x-axis which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawXDistance()
-    {
-        final String funcName = "getRawXDistance";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support distance data.");
-    }   //getRawXDistance
-
-    /**
-     * This method returns the raw distance on the y-axis which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawYDistance()
-    {
-        final String funcName = "getRawYDistance";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support distance data.");
-    }   //getRawYDistance
-
-    /**
-     * This method returns the raw distance on the z-axis which is not supported.
-     *
-     * @throws UnsupportedOperationException exception.
-     */
-    @Override
-    public SensorData getRawZDistance()
-    {
-        final String funcName = "getRawZDistance";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException(
-                "This sensor does not support distance data.");
-    }   //getRawZDistance
+    }   //getRawZData
 
 }   //class FtcAccelerometer

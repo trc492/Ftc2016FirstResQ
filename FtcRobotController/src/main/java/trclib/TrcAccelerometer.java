@@ -13,68 +13,39 @@ package trclib;
  */
 public abstract class TrcAccelerometer extends TrcSensor
 {
-    /**
-     * This abstract method returns the raw acceleration of the x-axis.
-     *
-     * @return raw acceleration of x-axis.
-     */
-    public abstract SensorData getRawXAcceleration();
+    //
+    // Accelerometer data types.
+    //
+    public enum DataType
+    {
+        ACCELERATION,
+        VELOCITY,
+        DISTANCE
+    }   //enum DataType
 
     /**
-     * This abstract method returns the raw acceleration of the y-axis.
+     * This abstract method returns the raw data of the specified type for the x-axis.
      *
-     * @return raw acceleration of y-axis.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the x-axis.
      */
-    public abstract SensorData getRawYAcceleration();
+    public abstract SensorData getRawXData(DataType dataType);
 
     /**
-     * This abstract method returns the raw acceleration of the z-axis.
+     * This abstract method returns the raw data of the specified type for the y-axis.
      *
-     * @return raw acceleration of z-axis.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the y-axis.
      */
-    public abstract SensorData getRawZAcceleration();
+    public abstract SensorData getRawYData(DataType dataType);
 
     /**
-     * This abstract method returns the raw velocity of the x-axis.
+     * This abstract method returns the raw data of the specified type for the z-axis.
      *
-     * @return raw velocity of x-axis.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the z-axis.
      */
-    public abstract SensorData getRawXVelocity();
-
-    /**
-     * This abstract method returns the raw velocity of the y-axis.
-     *
-     * @return raw velocity of y-axis.
-     */
-    public abstract SensorData getRawYVelocity();
-
-    /**
-     * This abstract method returns the raw velocity of the z-axis.
-     *
-     * @return raw velocity of z-axis.
-     */
-    public abstract SensorData getRawZVelocity();
-
-    /**
-     * This abstract method returns the raw distance of the x-axis.
-     *
-     * @return raw distance of x-axis.
-     */
-    public abstract SensorData getRawXDistance();
-
-    /**
-     * This abstract method returns the raw distance of the y-axis.
-     *
-     * @return raw distance of y-axis.
-     */
-    public abstract SensorData getRawYDistance();
-
-    /**
-     * This abstract method returns the raw distance of the z-axis.
-     *
-     * @return raw distance of z-axis.
-     */
-    public abstract SensorData getRawZDistance();
+    public abstract SensorData getRawZData(DataType dataType);
 
     //
     // Accelerometer options.
@@ -347,7 +318,7 @@ public abstract class TrcAccelerometer extends TrcSensor
     public SensorData getXAcceleration()
     {
         final String funcName = "getXAcceleration";
-        SensorData data = getData(xIndex);
+        SensorData data = getData(xIndex, DataType.ACCELERATION);
 
         if (debugEnabled)
         {
@@ -367,7 +338,7 @@ public abstract class TrcAccelerometer extends TrcSensor
     public SensorData getYAcceleration()
     {
         final String funcName = "getYAcceleration";
-        SensorData data = getData(yIndex);
+        SensorData data = getData(yIndex, DataType.ACCELERATION);
 
         if (debugEnabled)
         {
@@ -387,7 +358,7 @@ public abstract class TrcAccelerometer extends TrcSensor
     public SensorData getZAcceleration()
     {
         final String funcName = "getZAcceleration";
-        SensorData data = getData(zIndex);
+        SensorData data = getData(zIndex, DataType.ACCELERATION);
 
         if (debugEnabled)
         {
@@ -417,7 +388,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawXVelocity();
+            data = getRawXData(DataType.VELOCITY);
         }
 
         if (debugEnabled)
@@ -448,7 +419,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawYVelocity();
+            data = getRawYData(DataType.VELOCITY);
         }
 
         if (debugEnabled)
@@ -479,7 +450,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawZVelocity();
+            data = getRawZData(DataType.VELOCITY);
         }
 
         if (debugEnabled)
@@ -510,7 +481,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawXDistance();
+            data = getRawXData(DataType.DISTANCE);
         }
 
         if (debugEnabled)
@@ -541,7 +512,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawYDistance();
+            data = getRawYData(DataType.DISTANCE);
         }
 
         if (debugEnabled)
@@ -572,7 +543,7 @@ public abstract class TrcAccelerometer extends TrcSensor
         }
         else
         {
-            data = getRawZDistance();
+            data = getRawZData(DataType.DISTANCE);
         }
 
         if (debugEnabled)
@@ -651,28 +622,29 @@ public abstract class TrcAccelerometer extends TrcSensor
     //
 
     /**
-     * This abstract method returns the raw sensor data for the specified axis.
+     * This abstract method returns the raw sensor data for the specified axis and type.
      *
      * @param index specifies the axis index.
+     * @param dataType specifies the data type.
      * @return raw data for the specified axis.
      */
     @Override
-    public SensorData getRawData(int index)
+    public SensorData getRawData(int index, Object dataType)
     {
         final String funcName = "getRawData";
         SensorData data = null;
 
         if (index == xIndex)
         {
-            data = getRawXAcceleration();
+            data = getRawXData((DataType)dataType);
         }
         else if (index == yIndex)
         {
-            data = getRawYAcceleration();
+            data = getRawYData((DataType)dataType);
         }
         else if (index == zIndex)
         {
-            data = getRawZAcceleration();
+            data = getRawZData((DataType)dataType);
         }
 
         if (debugEnabled)

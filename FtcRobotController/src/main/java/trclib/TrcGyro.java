@@ -15,47 +15,38 @@ package trclib;
  */
 public abstract class TrcGyro extends TrcSensor
 {
-    /**
-     * This abstract method returns the raw rotation rate of the x-axis.
-     *
-     * @return raw rotation rate of x-axis.
-     */
-    public abstract SensorData getRawXRate();
+    //
+    // Gyro data types.
+    //
+    public enum DataType
+    {
+        ROTATION_RATE,
+        HEADING
+    }   //enum DataType
 
     /**
-     * This abstract method returns the raw rotation rate of the y-axis.
+     * This abstract method returns the raw data with the specified type of the x-axis.
      *
-     * @return raw rotation rate of y-axis.
+     * @param dataType specifies the data type.
+     * @return raw data with the specified type of the x-axis.
      */
-    public abstract SensorData getRawYRate();
+    public abstract SensorData getRawXData(DataType dataType);
 
     /**
-     * This abstract method returns the raw rotation rate of the z-axis.
+     * This abstract method returns the raw data with the specified type of the y-axis.
      *
-     * @return raw rotation rate of z-axis.
+     * @param dataType specifies the data type.
+     * @return raw data with the specified type of the y-axis.
      */
-    public abstract SensorData getRawZRate();
+    public abstract SensorData getRawYData(DataType dataType);
 
     /**
-     * This abstract method returns the raw heading of the x-axis.
+     * This abstract method returns the raw data with the specified type of the z-axis.
      *
-     * @return raw heading of x-axis.
+     * @param dataType specifies the data type.
+     * @return raw data with the specified type of the z-axis.
      */
-    public abstract SensorData getRawXHeading();
-
-    /**
-     * This abstract method returns the raw heading of the y-axis.
-     *
-     * @return raw heading of y-axis.
-     */
-    public abstract SensorData getRawYHeading();
-
-    /**
-     * This abstract method returns the raw heading of the z-axis.
-     *
-     * @return raw heading of z-axis.
-     */
-    public abstract SensorData getRawZHeading();
+    public abstract SensorData getRawZData(DataType dataType);
 
     //
     // Gyro options.
@@ -154,7 +145,8 @@ public abstract class TrcGyro extends TrcSensor
         //
         if ((options & GYRO_INTEGRATE) != 0)
         {
-            dataIntegrator = new TrcDataIntegrator(instanceName, this, false);
+            dataIntegrator = new TrcDataIntegrator(
+                    instanceName, this, DataType.ROTATION_RATE, false);
         }
 
         //
@@ -162,7 +154,7 @@ public abstract class TrcGyro extends TrcSensor
         //
         if ((options & GYRO_UNWRAP_HEADING) != 0)
         {
-            dataUnwrapper = new TrcDataUnwrapper(instanceName, this);
+            dataUnwrapper = new TrcDataUnwrapper(instanceName, this, DataType.HEADING);
         }
     }   //TrcGyro
 
@@ -489,7 +481,7 @@ public abstract class TrcGyro extends TrcSensor
     public SensorData getXRotationRate()
     {
         final String funcName = "getXRotationRate";
-        SensorData data = getData(xIndex);
+        SensorData data = getData(xIndex, DataType.ROTATION_RATE);
 
         if (debugEnabled)
         {
@@ -509,7 +501,7 @@ public abstract class TrcGyro extends TrcSensor
     public SensorData getYRotationRate()
     {
         final String funcName = "getYRotationRate";
-        SensorData data = getData(yIndex);
+        SensorData data = getData(yIndex, DataType.ROTATION_RATE);
 
         if (debugEnabled)
         {
@@ -529,7 +521,7 @@ public abstract class TrcGyro extends TrcSensor
     public SensorData getZRotationRate()
     {
         final String funcName = "getZRotationRate";
-        SensorData data = getData(zIndex);
+        SensorData data = getData(zIndex, DataType.ROTATION_RATE);
 
         if (debugEnabled)
         {
@@ -564,7 +556,7 @@ public abstract class TrcGyro extends TrcSensor
         }
         else
         {
-            data = getRawXHeading();
+            data = getRawXData(DataType.HEADING);
         }
 
         if (debugEnabled)
@@ -600,7 +592,7 @@ public abstract class TrcGyro extends TrcSensor
         }
         else
         {
-            data = getRawYHeading();
+            data = getRawYData(DataType.HEADING);
         }
 
         if (debugEnabled)
@@ -636,7 +628,7 @@ public abstract class TrcGyro extends TrcSensor
         }
         else
         {
-            data = getRawZHeading();
+            data = getRawZData(DataType.HEADING);
         }
 
         if (debugEnabled)
@@ -715,28 +707,29 @@ public abstract class TrcGyro extends TrcSensor
     //
 
     /**
-     * This abstract method returns the raw sensor data for the specified axis.
+     * This abstract method returns the raw sensor data for the specified axis and type.
      *
      * @param index specifies the axis index.
-     * @return raw data for the specified axis.
+     * @param dataType specifies the data type.
+     * @return raw data for the specified axis and type.
      */
     @Override
-    public SensorData getRawData(int index)
+    public SensorData getRawData(int index, Object dataType)
     {
         final String funcName = "getRawData";
         SensorData data = null;
 
         if (index == xIndex)
         {
-            data = getRawXRate();
+            data = getRawXData((DataType)dataType);
         }
         else if (index == yIndex)
         {
-            data = getRawYRate();
+            data = getRawYData((DataType)dataType);
         }
         else if (index == zIndex)
         {
-            data = getRawZRate();
+            data = getRawZData((DataType)dataType);
         }
 
         if (debugEnabled)

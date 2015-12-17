@@ -14,30 +14,23 @@ package trclib;
  */
 public abstract class TrcAnalogInput extends TrcSensor
 {
-    /**
-     * This abstract method returns the raw data from the sensor.
-     *
-     * @return raw data.
-     */
-    public abstract SensorData getRawData();
+    //
+    // AnalogInput data type.
+    //
+    public enum DataType
+    {
+        INPUT_DATA,
+        INTEGRATED_DATA,
+        DOUBLE_INTEGRATED_DATA
+    }   //enum DataType
 
     /**
-     * This abstract method returns the raw integrated data from the sensor
-     * if the sensor supports it. Otherwise, it may return zero or throw
-     * an UnsupportedOperationException.
+     * This abstract method returns the raw data with the specified type.
      *
-     * @return raw integrated data.
+     * @param dataType specifies the data type.
+     * @return raw data with the specified type.
      */
-    public abstract SensorData getRawIntegratedData();
-
-    /**
-     * This abstract method returns the raw double integrated data from
-     * the sensor if the sensor supports it. Otherwise, it may return zero
-     * or throw an UnsupportedOperationException.
-     *
-     * @return raw double integrated data.
-     */
-    public abstract SensorData getRawDoubleIntegratedData();
+    public abstract SensorData getRawData(DataType dataType);
 
     //
     // AnalogInput options.
@@ -82,7 +75,8 @@ public abstract class TrcAnalogInput extends TrcSensor
         if ((options & ANALOGINPUT_INTEGRATE) != 0)
         {
             dataIntegrator = new TrcDataIntegrator(
-                    instanceName, this, (options & ANALOGINPUT_DOUBLE_INTEGRATE) != 0);
+                    instanceName, this, DataType.INPUT_DATA,
+                    (options & ANALOGINPUT_DOUBLE_INTEGRATE) != 0);
         }
     }   //TrcAnalogInput
 
@@ -193,12 +187,12 @@ public abstract class TrcAnalogInput extends TrcSensor
     /**
      * This method returns the processed sensor data.
      *
-     * @return sensor data.
+     * @return processed data.
      */
     public TrcSensor.SensorData getData()
     {
         final String funcName = "getData";
-        TrcSensor.SensorData data = getData(0);;
+        TrcSensor.SensorData data = getData(0, DataType.INPUT_DATA);;
 
         if (debugEnabled)
         {
@@ -224,6 +218,10 @@ public abstract class TrcAnalogInput extends TrcSensor
         {
             data = dataIntegrator.getIntegratedData(0);
         }
+        else
+        {
+            data = getRawData(DataType.DOUBLE_INTEGRATED_DATA);
+        }
 
         if (debugEnabled)
         {
@@ -248,6 +246,10 @@ public abstract class TrcAnalogInput extends TrcSensor
         if (dataIntegrator != null)
         {
             data = dataIntegrator.getDoubleIntegratedData(0);
+        }
+        else
+        {
+            data = getRawData(DataType.DOUBLE_INTEGRATED_DATA);
         }
 
         if (debugEnabled)
@@ -288,20 +290,21 @@ public abstract class TrcAnalogInput extends TrcSensor
     //
 
     /**
-     * This abstract method returns the raw sensor data for the specified axis.
+     * This abstract method returns the raw sensor data for the specified axis and type.
      *
      * @param index specifies the axis index.
+     * @param dataType specifies the data type.
      * @return raw data for the specified axis.
      */
     @Override
-    public SensorData getRawData(int index)
+    public SensorData getRawData(int index, Object dataType)
     {
         final String funcName = "getRawData";
         SensorData data = null;
 
         if (index == 0)
         {
-            data = getRawData();
+            data = getRawData((DataType)dataType);
         }
 
         if (debugEnabled)

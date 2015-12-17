@@ -45,7 +45,7 @@ public class FtcHiTechnicGyro extends TrcGyro
         }
 
         gyro = hardwareMap.gyroSensor.get(instanceName);
-        calibrate();
+        calibrate(DataType.ROTATION_RATE);
         setEnabled(true);
     }   //FtcHiTechnicGyro
 
@@ -78,14 +78,16 @@ public class FtcHiTechnicGyro extends TrcGyro
     //
 
     /**
-     * This method returns the raw rotation rate of the x-axis which is not supported.
+     * This method returns the raw data of the specified type for the x-axis
+     * which is not supported.
      *
+     * @param dataType specifies the data type.
      * @return throws UnsupportedOperation exception.
      */
     @Override
-    public SensorData getRawXRate()
+    public SensorData getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXRate";
+        final String funcName = "getRawXData";
 
         if (debugEnabled)
         {
@@ -93,18 +95,20 @@ public class FtcHiTechnicGyro extends TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
         }
 
-        throw new UnsupportedOperationException("HiTechnic gyro does not have an x-axis.");
-    }   //getRawXRate
+        throw new UnsupportedOperationException("HiTechnic gyro does not support x-axis.");
+    }   //getRawXData
 
     /**
-     * This method returns the raw rotation rate of the y-axis which is not supported.
+     * This method returns the raw data of the specified type for the y-axis
+     * which is not supported.
      *
+     * @param dataType specifies the data type.
      * @return throws UnsupportedOperation exception.
      */
     @Override
-    public SensorData getRawYRate()
+    public SensorData getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYRate";
+        final String funcName = "getRawYData";
 
         if (debugEnabled)
         {
@@ -112,19 +116,29 @@ public class FtcHiTechnicGyro extends TrcGyro
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
         }
 
-        throw new UnsupportedOperationException("HiTechnic gyro does not have an y-axis.");
-    }   //getRawYRate
+        throw new UnsupportedOperationException("HiTechnic gyro does not support y-axis.");
+    }   //getRawYData
 
     /**
-     * This method returns the raw rotation rate of the z-axis.
+     * This method returns the raw data of the specified type for the z-axis.
      *
-     * @return raw z rotation rate.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the z-axis.
      */
     @Override
-    public SensorData getRawZRate()
+    public SensorData getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZRate";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.getRotation());
+        final String funcName = "getRawZData";
+        double value = 0.0;
+
+        //
+        // HiTechnic gyro supports only rotation rate.
+        //
+        if (dataType == DataType.ROTATION_RATE)
+        {
+            value = gyro.getRotation();
+        }
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), value);
 
         if (debugEnabled)
         {
@@ -134,63 +148,6 @@ public class FtcHiTechnicGyro extends TrcGyro
         }
 
         return data;
-    }   //getRawZRate
-
-    /**
-     * This method returns the raw heading of the x-axis which is not supported.
-     *
-     * @return throws UnsupportedOperation exception.
-     */
-    @Override
-    public SensorData getRawXHeading()
-    {
-        final String funcName = "getRawXHeading";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException("HiTechnic gyro does not support heading data.");
-    }   //getRawXHeading
-
-    /**
-     * This method returns the raw heading of the y-axis which is not supported.
-     *
-     * @return throws UnsupportedOperation exception.
-     */
-    @Override
-    public SensorData getRawYHeading()
-    {
-        final String funcName = "getRawYHeading";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException("HiTechnic gyro does not support heading data.");
-    }   //getRawYHeading
-
-    /**
-     * This method returns the raw heading of the z-axis which is not supported.
-     *
-     * @return throws UnsupportedOperation exception.
-     */
-    @Override
-    public SensorData getRawZHeading()
-    {
-        final String funcName = "getRawZHeading";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-        }
-
-        throw new UnsupportedOperationException("HiTechnic gyro does not support heading data.");
-    }   //getRawZHeading
+    }   //getRawZData
 
 }   //class FtcHiTechnicGyro

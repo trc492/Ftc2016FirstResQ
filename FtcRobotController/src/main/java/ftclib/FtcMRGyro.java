@@ -91,9 +91,11 @@ public class FtcMRGyro extends TrcGyro
 
     /**
      * This method overrides the TrcGyro's built-in calibrator and calls its own.
+     *
+     * @param dataType specifies the data type to be calibrated.
      */
     @Override
-    public void calibrate()
+    public void calibrate(Object dataType)
     {
         final String funcName = "calibrate";
 
@@ -101,7 +103,8 @@ public class FtcMRGyro extends TrcGyro
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "dataType=%s", dataType.toString());
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //calibrate
@@ -177,15 +180,25 @@ public class FtcMRGyro extends TrcGyro
     //
 
     /**
-     * This method returns the raw rotation rate of the x-axis.
+     * This method returns the raw data of the specified type for the x-axis.
      *
-     * @return raw x rotation rate.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the x-axis.
      */
     @Override
-    public SensorData getRawXRate()
+    public SensorData getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXRate";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawX());
+        final String funcName = "getRawXData";
+        double value = 0.0;
+
+        //
+        // MR gyro supports only rotation rate for the x-axis.
+        //
+        if (dataType == DataType.ROTATION_RATE)
+        {
+            value = gyro.rawX();
+        }
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), value);
 
         if (debugEnabled)
         {
@@ -195,18 +208,28 @@ public class FtcMRGyro extends TrcGyro
         }
 
         return data;
-    }   //getRawXRate
+    }   //getRawXData
 
     /**
-     * This method returns the raw rotation rate of the y-axis.
+     * This method returns the raw data of the specified type for the y-axis.
      *
-     * @return raw y rotation rate.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the y-axis.
      */
     @Override
-    public SensorData getRawYRate()
+    public SensorData getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYRate";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawY());
+        final String funcName = "getRawYData";
+        double value = 0.0;
+
+        //
+        // MR gyro supports only rotation rate for the x-axis.
+        //
+        if (dataType == DataType.ROTATION_RATE)
+        {
+            value = gyro.rawY();
+        }
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), value);
 
         if (debugEnabled)
         {
@@ -216,18 +239,29 @@ public class FtcMRGyro extends TrcGyro
         }
 
         return data;
-    }   //getRawYRate
+    }   //getRawYData
 
     /**
-     * This method returns the raw rotation rate of the z-axis.
+     * This method returns the raw data of the specified type for the z-axis.
      *
-     * @return raw z rotation rate.
+     * @param dataType specifies the data type.
+     * @return raw data of the specified type for the z-axis.
      */
     @Override
-    public SensorData getRawZRate()
+    public SensorData getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZRate";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.rawZ());
+        final String funcName = "getRawZData";
+        double value = 0.0;
+
+        if (dataType == DataType.ROTATION_RATE)
+        {
+            value = gyro.rawZ();
+        }
+        else if (dataType == DataType.HEADING)
+        {
+            value = gyro.getHeading();
+        }
+        SensorData data = new SensorData(HalUtil.getCurrentTime(), value);
 
         if (debugEnabled)
         {
@@ -237,69 +271,6 @@ public class FtcMRGyro extends TrcGyro
         }
 
         return data;
-    }   //getRawZRate
-
-    /**
-     * This method returns the raw heading of the x-axis which is not supported.
-     *
-     * @return zero data.
-     */
-    @Override
-    public SensorData getRawXHeading()
-    {
-        final String funcName = "getRawXHeading";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), 0.0);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
-        }
-
-        return data;
-    }   //getRawXHeading
-
-    /**
-     * This method returns the raw heading of the y-axis which is not supported.
-     *
-     * @return zero data.
-     */
-    @Override
-    public SensorData getRawYHeading()
-    {
-        final String funcName = "getRawYHeading";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), 0.0);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
-        }
-
-        return data;
-    }   //getRawYHeading
-
-    /**
-     * This method returns the raw heading of the z-axis.
-     *
-     * @return raw z heading.
-     */
-    @Override
-    public SensorData getRawZHeading()
-    {
-        final String funcName = "getRawZHeading";
-        SensorData data = new SensorData(HalUtil.getCurrentTime(), gyro.getHeading());
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
-        }
-
-        return data;
-    }   //getRawZHeading
+    }   //getRawZData
 
 }   //class FtcMRGyro
