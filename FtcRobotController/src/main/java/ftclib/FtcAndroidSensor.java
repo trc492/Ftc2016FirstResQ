@@ -110,7 +110,7 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     }   //setEnabled
 
     //
-    // Implements TrcAnalogInput abstract methods.
+    // Implements TrcSensor abstract methods.
     //
 
     /**
