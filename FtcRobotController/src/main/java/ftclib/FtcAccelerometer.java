@@ -50,7 +50,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         }
 
         accel = hardwareMap.accelerationSensor.get(instanceName);
-        setEnabled(true);
     }   //FtcAccelerometer
 
     /**
@@ -76,6 +75,14 @@ public class FtcAccelerometer extends TrcAccelerometer
     {
         this(instanceName, null);
     }   //FtcAccelerometer
+
+    /**
+     * This method calibrates the sensor.
+     */
+    public void calibrate()
+    {
+        calibrate(DataType.ACCELERATION);
+    }   //calibrate
 
     //
     // Implements TrcAccelerometer abstract methods.

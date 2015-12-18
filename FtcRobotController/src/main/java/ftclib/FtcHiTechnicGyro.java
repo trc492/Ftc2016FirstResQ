@@ -45,8 +45,6 @@ public class FtcHiTechnicGyro extends TrcGyro
         }
 
         gyro = hardwareMap.gyroSensor.get(instanceName);
-        calibrate(DataType.ROTATION_RATE);
-        setEnabled(true);
     }   //FtcHiTechnicGyro
 
     /**
@@ -72,6 +70,14 @@ public class FtcHiTechnicGyro extends TrcGyro
     {
         this(instanceName, null);
     }   //FtcHiTechnicGyro
+
+    /**
+     * This method calibrates the sensor.
+     */
+    public void calibrate()
+    {
+        calibrate(DataType.ROTATION_RATE);
+    }   //calibrate
 
     //
     // Implements TrcGyro abstract methods.

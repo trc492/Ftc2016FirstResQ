@@ -188,29 +188,25 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         // Drive the robot around to sample different locations of the field.
         //
         dashboard.displayPrintf(9, "Sensor Tests:");
-        dashboard.displayPrintf(10, "Enc: lf=%.0f,rf=%.0f",
+        dashboard.displayPrintf(10, "Enc:lf=%.0f,rf=%.0f",
                                 robot.leftFrontWheel.getPosition(),
                                 robot.rightFrontWheel.getPosition());
-        dashboard.displayPrintf(11, "Enc: lr=%.0f,rr=%.0f",
+        dashboard.displayPrintf(11, "Enc:lr=%.0f,rr=%.0f",
                                 robot.leftRearWheel.getPosition(),
                                 robot.rightRearWheel.getPosition());
-        dashboard.displayPrintf(12, "Gyro: Rate=%.1f,Heading=%.1f",
+        dashboard.displayPrintf(12, "Gyro:Rate=%.1f,Heading=%.1f",
                                 robot.gyro.getZRotationRate().value,
                                 robot.gyro.getZHeading().value);
-        dashboard.displayPrintf(13, "RGBAH=[%d,%d,%d,%d,%x],Light=%.0f,Sonar=%.1f",
+        dashboard.displayPrintf(13, "RGBAH=[%d,%d,%d,%d,%x]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
                                 robot.colorSensor.blue(),
                                 robot.colorSensor.alpha(),
-                                robot.colorSensor.argb(),
+                                robot.colorSensor.argb());
+        dashboard.displayPrintf(14, "Light=%.0f,Sonar=%.1f",
                                 robot.lightSensor.getData().value,
                                 robot.sonarSensor.getData().value);
-        dashboard.displayPrintf(14, "accel=[%.2f,%.2f,%.2f], ambient=%.2f",
-                                robot.accel.getData(0, null).value,
-                                robot.accel.getData(1, null).value,
-                                robot.accel.getData(2, null).value,
-                                robot.ambientLight.getData(0, null).value);
-        dashboard.displayPrintf(15, "ElevatorLimit=%d,%d SliderLimit=%d,%d",
+        dashboard.displayPrintf(15, "ElevatorLimit[%d,%d] SliderLimit[%d,%d]",
                                 robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.elevator.isUpperLimitSwitchPressed()? 1: 0,
                                 robot.slider.isLowerLimitSwitchPressed()? 1: 0,

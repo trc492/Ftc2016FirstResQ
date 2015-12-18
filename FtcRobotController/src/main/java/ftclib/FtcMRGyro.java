@@ -53,12 +53,6 @@ public class FtcMRGyro extends TrcGyro
         // Set the wrap-around range of the Z heading.
         //
         setZValueRange(0.0, 360.0);
-        gyro.calibrate();
-        while (gyro.isCalibrating())
-        {
-            HalUtil.sleep(10);
-        }
-        setEnabled(true);
     }   //FtcMRGyro
 
     /**
@@ -85,48 +79,33 @@ public class FtcMRGyro extends TrcGyro
         this(instanceName, null);
     }   //FtcMRGyro
 
-    //
-    // Overriding TrcGyro methods.
-    //
-
     /**
-     * This method overrides the TrcGyro's built-in calibrator and calls its own.
-     *
-     * @param dataType specifies the data type to be calibrated.
+     * This method calibrates the sensor.
      */
-    @Override
-    public void calibrate(Object dataType)
+    public void calibrate()
     {
         final String funcName = "calibrate";
-
-        gyro.calibrate();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "dataType=%s", dataType.toString());
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //calibrate
-
-    /**
-     * This method overrides the TrcGyro's built-in calibrator and calls its own.
-     */
-    @Override
-    public boolean isCalibrating()
-    {
-        final String funcName = "isCalibrating";
-        boolean calibrating = gyro.isCalibrating();
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(calibrating));
         }
 
-        return calibrating;
-    }   //isCalibrating
+        gyro.calibrate();
+        while (gyro.isCalibrating())
+        {
+            HalUtil.sleep(10);
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //calibrate
+
+    //
+    // Overriding TrcGyro methods.
+    //
 
     /**
      * This method overrides the TrcGyro class. It doesn't have an x-integrator.

@@ -126,7 +126,7 @@ public abstract class TrcAnalogInput extends TrcSensor
      *
      * @param enabled specifies true if enabling, false otherwise.
      */
-    protected void setEnabled(boolean enabled)
+    public void setEnabled(boolean enabled)
     {
         final String funcName = "setEnabled";
 

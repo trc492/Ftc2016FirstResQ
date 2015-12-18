@@ -1,21 +1,17 @@
 package ftc3543;
 
-import android.hardware.Sensor;
-
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import ftclib.FtcAndroidSensor;
 import ftclib.FtcDcMotor;
 import ftclib.FtcMRGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
 import ftclib.FtcServo;
 import ftclib.FtcUltrasonicSensor;
-import trclib.TrcAnalogInput;
+import hallib.HalUtil;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
-import trclib.TrcGyro;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
@@ -26,17 +22,11 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // Sensors.
     //
-    public FtcMRGyro mrGyro;
-//    public FtcHiTechnicGyro hitechnicGyro;
-    public TrcGyro gyro;
-//    public FtcAnalogInput maxSonarSensor;
-    public FtcUltrasonicSensor legoSonarSensor;
-    public TrcAnalogInput sonarSensor;
+    public FtcMRGyro gyro;
+    public FtcUltrasonicSensor sonarSensor;
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
     public double prevSonarValue;
-    public FtcAndroidSensor accel;
-    public FtcAndroidSensor ambientLight;
     //
     // DriveBase subsystem.
     //
@@ -85,22 +75,12 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // Initialize sensors.
         //
-        mrGyro = new FtcMRGyro("gyroSensor");
-//        hitechnicGyro = new FtcHiTechnicGyro("hitechnicGyro");
-        gyro = mrGyro;
-        gyro.resetZIntegrator();
-//        maxSonarSensor = new FtcAnalogInput("maxSonarSensor");
-//        maxSonarSensor.setScale(RobotInfo.SONAR_SCALE_TO_INCHES);
-        legoSonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
-        legoSonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
-        prevSonarValue = legoSonarSensor.getData().value;
-        sonarSensor = legoSonarSensor;
+        gyro = new FtcMRGyro("gyroSensor");
+        gyro.calibrate();
+        sonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
+        sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        accel = new FtcAndroidSensor("accelerometer", Sensor.TYPE_ACCELEROMETER, 3);
-        accel.setEnabled(true, 10000);
-        ambientLight = new FtcAndroidSensor("ambientLight", Sensor.TYPE_LIGHT, 1);
-        ambientLight.setEnabled(true, 10000);
         //
         // DriveBase subsystem.
         //
@@ -113,7 +93,6 @@ public class FtcRobot implements TrcPidController.PidInput,
         driveBase = new TrcDriveBase(
                 leftFrontWheel, leftRearWheel, rightFrontWheel, rightRearWheel, gyro);
         driveBase.setYPositionScale(RobotInfo.DRIVE_INCHES_PER_CLICK);
-        driveBase.resetPosition();
         //
         // PID Drive.
         //
@@ -190,6 +169,27 @@ public class FtcRobot implements TrcPidController.PidInput,
         leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
         rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
     }   //FtcRobot
+
+    public void startMode(TrcRobot.RunMode runMode)
+    {
+        FtcOpMode.getOpModeTraceInstance().traceInfo(
+                FtcOpMode.getOpModeName(), "Starting: %.3f", HalUtil.getCurrentTime());
+        gyro.resetZIntegrator();
+        gyro.setEnabled(true);
+        sonarSensor.setEnabled(true);
+        prevSonarValue = sonarSensor.getData().value;
+        lightSensor.setEnabled(true);
+        driveBase.resetPosition();
+    }   //startMode
+
+    public void stopMode(TrcRobot.RunMode runMode)
+    {
+        FtcOpMode.getOpModeTraceInstance().traceInfo(
+                FtcOpMode.getOpModeName(), "Stopping: %.3f", HalUtil.getCurrentTime());
+        gyro.setEnabled(false);
+        sonarSensor.setEnabled(false);
+        lightSensor.setEnabled(false);
+    }   //stopMode
 
     //
     // Implements TrcPidController.PidInput

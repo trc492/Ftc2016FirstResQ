@@ -42,7 +42,6 @@ public class FtcUltrasonicSensor extends TrcAnalogInput
         }
 
         sensor = hardwareMap.ultrasonicSensor.get(instanceName);
-        setEnabled(true);
     }   //FtcUltrasonicSensor
 
     /**
@@ -66,6 +65,14 @@ public class FtcUltrasonicSensor extends TrcAnalogInput
     {
         this(instanceName, null);
     }   //FtcUltrasonicSensor
+
+    /**
+     * This method calibrates the sensor.
+     */
+    public void calibrate()
+    {
+        calibrate(DataType.INPUT_DATA);
+    }   //calibrate
 
     //
     // Implements TrcAnalogInput abstract methods.

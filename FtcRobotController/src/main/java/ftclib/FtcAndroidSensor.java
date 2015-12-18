@@ -24,6 +24,7 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     private Sensor sensor;
     private int numAxes;
     private SensorData[] sensorData;
+    private boolean enabled = false;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -99,6 +100,16 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
      */
     public void setEnabled(boolean enabled, int samplingInterval)
     {
+        final String funcName = "setEnabled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "enabled=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.enabled = enabled;
         if (enabled)
         {
             sensorManager.registerListener(this, sensor, samplingInterval);
@@ -108,6 +119,35 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
             sensorManager.unregisterListener(this);
         }
     }   //setEnabled
+
+    /**
+     * This method enables/disables the sensor data listener.
+     *
+     * @param enabled specifies true to enable data listener, false otherwise.
+     */
+    public void setEnabled(boolean enabled)
+    {
+        setEnabled(enabled, SensorManager.SENSOR_DELAY_GAME);
+    }   //setEnabled
+
+    /**
+     * This method returns true if the Android sensor is enabled.
+     *
+     * @return true if sensor is enabled, false otherwise.
+     */
+    public boolean isEnabled()
+    {
+        final String funcName = "isEnabled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(enabled));
+        }
+
+        return enabled;
+    }   //isEnabled
 
     //
     // Implements TrcSensor abstract methods.
@@ -150,8 +190,14 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy)
     {
-        FtcOpMode.getOpModeTraceInstance().traceInfo("AndroidSensor", "onAccuracyChanged(%s,%d)",
-                                                     sensor.getName(), accuracy);
+        final String funcName = "onAccuracyChanged";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
+                                "sensor=%s,accuracy=%d", sensor.getName(), accuracy);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK);
+        }
     }   //onAccuracyChanged
 
     /**
@@ -163,6 +209,15 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     @Override
     public final void onSensorChanged(SensorEvent event)
     {
+        final String funcName = "onSensorChanged";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
+                                "sensor=%s,event=%s", event.sensor.getName(), event.toString());
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK);
+        }
+
         for (int i = 0; i < numAxes; i++)
         {
             sensorData[i].timestamp = event.timestamp/1000.0;

@@ -48,7 +48,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
         }
 
         sensor = new FtcAndroidSensor(instanceName, Sensor.TYPE_ACCELEROMETER, 3);
-        setEnabled(true);
     }   //FtcAndroidAccel
 
     /**
@@ -60,6 +59,40 @@ public class FtcAndroidAccel extends TrcAccelerometer
     {
         this(instanceName, null);
     }   //FtcAndroidAccel
+
+    /**
+     * This method enables/disables the sensor.
+     *
+     * @param enabled specifies true if enabling, false otherwise.
+     */
+    @Override
+    public void setEnabled(boolean enabled)
+    {
+        sensor.setEnabled(enabled);
+        super.setEnabled(enabled);
+    }   //setEnabled
+
+    /**
+     * This method calibrates the sensor. If the sensor is not enabled,
+     * it must enable it first before starting calibration. It will disable
+     * the sensor if it was disabled before calibration.
+     */
+    public void calibrate()
+    {
+        boolean sensorEnabled = sensor.isEnabled();
+
+        if (!sensorEnabled)
+        {
+            sensor.setEnabled(true);
+        }
+
+        calibrate(DataType.ACCELERATION);
+
+        if (!sensorEnabled)
+        {
+            sensor.setEnabled(false);
+        }
+    }   //calibrate
 
     //
     // Implements TrcAccelerometer abstract methods.

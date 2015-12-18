@@ -42,7 +42,6 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
         }
 
         sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
-        setEnabled(true);
     }   //FtcOpticalDistanceSensor
 
     /**
@@ -66,6 +65,14 @@ public class FtcOpticalDistanceSensor extends TrcAnalogInput
     {
         this(instanceName, null);
     }   //FtcOpticalDistanceSensor
+
+    /**
+     * This method calibrates the sensor.
+     */
+    public void calibrate()
+    {
+        calibrate(DataType.INPUT_DATA);
+    }   //calibrate
 
     //
     // Implements TrcAnalogInput abstract methods.

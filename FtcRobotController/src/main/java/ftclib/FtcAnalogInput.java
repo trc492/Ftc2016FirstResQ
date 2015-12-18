@@ -42,7 +42,6 @@ public class FtcAnalogInput extends TrcAnalogInput
         }
 
         sensor = hardwareMap.analogInput.get(instanceName);
-        setEnabled(true);
     }   //FtcAnalogInput
 
     /**
@@ -66,6 +65,14 @@ public class FtcAnalogInput extends TrcAnalogInput
     {
         this(instanceName, null);
     }   //FtcAnalogInput
+
+    /**
+     * This method calibrates the sensor.
+     */
+    public void calibrate()
+    {
+        calibrate(DataType.INPUT_DATA);
+    }   //calibrate
 
     //
     // Implements TrcAnalogInput abstract methods.
