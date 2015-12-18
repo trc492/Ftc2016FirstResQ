@@ -117,7 +117,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     //
 
     @Override
-    public void gamepadButtonEvent(FtcGamepad gamepad, final int btnMask, final boolean pressed)
+    public void gamepadButtonEvent(FtcGamepad gamepad, int btnMask, boolean pressed)
     {
         dashboard.displayPrintf(7, "%s: %04x->%s",
                 gamepad.toString(), btnMask, pressed? "Pressed": "Released");

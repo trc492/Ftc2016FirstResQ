@@ -42,10 +42,7 @@ public class FtcGamepad implements TrcTaskMgr.Task
          * @param btnMask specifies the button ID that generates the event
          * @param pressed specifies true if the button is pressed, false otherwise.
          */
-        public void gamepadButtonEvent(
-                FtcGamepad gamepad,
-                final int btnMask,
-                final boolean pressed);
+        public void gamepadButtonEvent(FtcGamepad gamepad, int btnMask, boolean pressed);
     }   //interface ButonHandler
 
     private static final String moduleName = "FtcGamepad";
