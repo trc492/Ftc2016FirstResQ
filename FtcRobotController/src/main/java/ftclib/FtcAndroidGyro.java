@@ -3,20 +3,19 @@ package ftclib;
 import android.hardware.Sensor;
 
 import hallib.HalUtil;
-import trclib.TrcAccelerometer;
 import trclib.TrcDbgTrace;
 import trclib.TrcFilter;
+import trclib.TrcGyro;
 
 /**
- * This class implements the Android accelerometer extending
- * TrcAccelerometer. It provides implementation of the abstract methods
- * in TrcAccelerometer. It supports 3 axes: x, y and z. It provides
- * acceleration data for all 3 axes. However, it doesn't provide any
- * velocity or distance data.
+ * This class implements the Android gyro extending TrcGyro.
+ * It provides implementation of the abstract methods in TrcGyro.
+ * It supports 3 axes: x, y and z. It provides rotation data
+ * for all 3 axes. However, it doesn't provide any heading data.
  */
-public class FtcAndroidAccel extends TrcAccelerometer
+public class FtcAndroidGyro extends TrcGyro
 {
-    private static final String moduleName = "FtcAndroidAccel";
+    private static final String moduleName = "FtcAndroidGyro";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
@@ -31,13 +30,10 @@ public class FtcAndroidAccel extends TrcAccelerometer
      *                the array should have 3 elements. If no filters are
      *                used, it can be set to null.
      */
-    public FtcAndroidAccel(String instanceName, TrcFilter[] filters)
+    public FtcAndroidGyro(String instanceName, TrcFilter[] filters)
     {
         super(instanceName,
-              3,
-              ACCEL_HAS_X_AXIS | ACCEL_HAS_Y_AXIS | ACCEL_HAS_Z_AXIS |
-              ACCEL_INTEGRATE | ACCEL_DOUBLE_INTEGRATE,
-              filters);
+              3, GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS | GYRO_INTEGRATE, filters);
 
         if (debugEnabled)
         {
@@ -47,18 +43,18 @@ public class FtcAndroidAccel extends TrcAccelerometer
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
-        sensor = new FtcAndroidSensor(instanceName, Sensor.TYPE_LINEAR_ACCELERATION, 3);
-    }   //FtcAndroidAccel
+        sensor = new FtcAndroidSensor(instanceName, Sensor.TYPE_GYROSCOPE, 3);
+    }   //FtcAndroidGyro
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
      */
-    public FtcAndroidAccel(String instanceName)
+    public FtcAndroidGyro(String instanceName)
     {
         this(instanceName, null);
-    }   //FtcAndroidAccel
+    }   //FtcAndroidGyro
 
     /**
      * This method enables/disables the sensor.
@@ -86,7 +82,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
             sensor.setEnabled(true);
         }
 
-        calibrate(DataType.ACCELERATION);
+        calibrate(DataType.ROTATION_RATE);
 
         if (!sensorEnabled)
         {
@@ -110,14 +106,14 @@ public class FtcAndroidAccel extends TrcAccelerometer
         final String funcName = "getRawXData";
         SensorData data = null;
 
-        if (dataType == DataType.ACCELERATION)
+        if (dataType == DataType.ROTATION_RATE)
         {
             data = new SensorData(HalUtil.getCurrentTime(), sensor.getRawData(0, dataType).value);
         }
         else
         {
             throw new UnsupportedOperationException(
-                    "AndroidAccel sensor does not provide velocity or distance data.");
+                    "AndroidGyro sensor does not provide heading data.");
         }
 
         if (debugEnabled)
@@ -142,14 +138,14 @@ public class FtcAndroidAccel extends TrcAccelerometer
         final String funcName = "getRawYData";
         SensorData data = null;
 
-        if (dataType == DataType.ACCELERATION)
+        if (dataType == DataType.ROTATION_RATE)
         {
             data = new SensorData(HalUtil.getCurrentTime(), sensor.getRawData(1, dataType).value);
         }
         else
         {
             throw new UnsupportedOperationException(
-                    "AndroidAccel sensor does not provide velocity or distance data.");
+                    "AndroidGyro sensor does not provide heading data.");
         }
 
         if (debugEnabled)
@@ -174,14 +170,14 @@ public class FtcAndroidAccel extends TrcAccelerometer
         final String funcName = "getRawZData";
         SensorData data = null;
 
-        if (dataType == DataType.ACCELERATION)
+        if (dataType == DataType.ROTATION_RATE)
         {
             data = new SensorData(HalUtil.getCurrentTime(), sensor.getRawData(2, dataType).value);
         }
         else
         {
             throw new UnsupportedOperationException(
-                    "AndroidAccel sensor does not provide velocity or distance data.");
+                    "AndroidGyro sensor does not provide heading data.");
         }
 
         if (debugEnabled)
@@ -194,4 +190,4 @@ public class FtcAndroidAccel extends TrcAccelerometer
         return data;
     }   //getRawZData
 
-}   //class FtcAndroidAccel
+}   //class FtcAndroidGyro
