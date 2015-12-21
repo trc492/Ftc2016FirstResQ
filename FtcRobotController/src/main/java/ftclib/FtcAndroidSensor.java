@@ -220,7 +220,7 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
 
         for (int i = 0; i < numAxes; i++)
         {
-            sensorData[i].timestamp = event.timestamp/1000.0;
+            sensorData[i].timestamp = event.timestamp/1000000000.0;
             sensorData[i].value = event.values[i];
         }
     }   //onSensorChanged

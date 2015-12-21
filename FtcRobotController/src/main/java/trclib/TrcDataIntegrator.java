@@ -23,6 +23,7 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
     private TrcSensor.SensorData[] integratedData;
     private TrcSensor.SensorData[] doubleIntegratedData;
     private double[] prevTimes;
+    private boolean unwindIntegratedData = false;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -94,6 +95,18 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
     {
         return instanceName;
     }   //toString
+
+    /**
+     * This method allows the caller to unwind the integrated data if the
+     * data point of all axes are zero.
+     *
+     * @param unwindData specifies true to reset integrated data if all inputs are zero,
+     *                   false otherwise.
+     */
+    public void setUnwindIntegratedData(boolean unwindData)
+    {
+        unwindIntegratedData = unwindData;
+    }   //setUnwindIntegratedData
 
     /**
      * This method enables the data integrator. The data integrator is not
@@ -275,27 +288,44 @@ public class TrcDataIntegrator implements TrcTaskMgr.Task
                     "mode=%s", runMode.toString());
         }
 
+        boolean allZeroAxis = true;
+        double[] deltaTime = new double[inputData.length];
         for (int i = 0; i < inputData.length; i++)
         {
             //
             // Get sensor data.
             //
             inputData[i] = sensor.getData(i, dataType);
-            double deltaTime = inputData[i].timestamp - prevTimes[i];
+            deltaTime[i] = inputData[i].timestamp - prevTimes[i];
+            if (inputData[i].value != 0.0)
+            {
+                allZeroAxis = false;
+            }
             //
             // Do integration.
             //
             integratedData[i].timestamp = inputData[i].timestamp;
-            integratedData[i].value += inputData[i].value*deltaTime;
-            //
-            // Do double integration if necessary.
-            //
-            if (doubleIntegratedData != null)
+            integratedData[i].value += inputData[i].value*deltaTime[i];
+            prevTimes[i] = inputData[i].timestamp;
+        }
+
+        //
+        // Do double integration if necessary.
+        //
+        if (doubleIntegratedData != null)
+        {
+            for (int i = 0; i < inputData.length; i++)
             {
                 doubleIntegratedData[i].timestamp = inputData[i].timestamp;
-                doubleIntegratedData[i].value = integratedData[i].value*deltaTime;
+                if (allZeroAxis)
+                {
+                    integratedData[i].value = 0.0;
+                }
+                else
+                {
+                    doubleIntegratedData[i].value += integratedData[i].value*deltaTime[i];
+                }
             }
-            prevTimes[i] = inputData[i].timestamp;
         }
 
         if (debugEnabled)

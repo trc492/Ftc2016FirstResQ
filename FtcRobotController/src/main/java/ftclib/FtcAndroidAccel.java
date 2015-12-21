@@ -1,6 +1,8 @@
 package ftclib;
 
 import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.os.Trace;
 
 import hallib.HalUtil;
 import trclib.TrcAccelerometer;
@@ -21,6 +23,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
     private TrcDbgTrace dbgTrace = null;
 
     private FtcAndroidSensor sensor = null;
+    private int samplingPeriod = SensorManager.SENSOR_DELAY_GAME;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -51,6 +54,25 @@ public class FtcAndroidAccel extends TrcAccelerometer
     }   //FtcAndroidAccel
 
     /**
+     * This method sets the sampling period of the Android accelerometer sensor.
+     *
+     * @param period specifies the period with SensorManager.SENSOR_DELAY_* constants,
+     *               or the number of microseconds.
+     */
+    public void setSamplingPeriod(int period)
+    {
+        final String funcName = "setSamplingPeriod";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "period=%d", period);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        samplingPeriod = period;
+    }   //setSamplingPeriod
+
+    /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
@@ -68,7 +90,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
     @Override
     public void setEnabled(boolean enabled)
     {
-        sensor.setEnabled(enabled);
+        sensor.setEnabled(enabled, samplingPeriod);
         super.setEnabled(enabled);
     }   //setEnabled
 

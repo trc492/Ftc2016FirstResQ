@@ -19,6 +19,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         FOLLOW_LINE,
         PUSH_BUTTON,
         RETRACT,
+        MOVE_SOMEWHERE,
         PARK_FLOOR_GOAL,
         DONE
     }   //enum State
@@ -199,7 +200,18 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         //
                         sm.setState(State.DONE);
                     }
-                    else if (option == FtcAuto.BeaconOption.DEFENSE)
+                    else
+                    {
+                        robot.pidDrive.setTarget(
+                                -8.0, 0.0, false, event);
+                        sm.addEvent(event);
+                        sm.waitForEvents(State.MOVE_SOMEWHERE);
+
+                    }
+                    break;
+
+                case MOVE_SOMEWHERE:
+                    if (option == FtcAuto.BeaconOption.DEFENSE)
                     {
                         //
                         // Run to the opponent side and bump them if necessary.
@@ -227,7 +239,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Go into the floor goal.
                     //
-                    robot.pidDrive.setTarget(-24.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(-25.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;

@@ -47,6 +47,16 @@ public abstract class TrcSensor
     public abstract SensorData getRawData(int index, Object dataType);
 
     //
+    // Sensor data processing options.
+    //
+    public static final int PROCESSOPTION_APPLY_FILTER      = (1 << 0);
+    public static final int PROCESSOPTION_APPLY_ZEROOFFSET  = (1 << 1);
+    public static final int PROCESSOPTION_APPLY_DEADBAND    = (1 << 2);
+    public static final int PROCESSOPTION_APPLY_ALL         = (PROCESSOPTION_APPLY_FILTER |
+                                                               PROCESSOPTION_APPLY_ZEROOFFSET |
+                                                               PROCESSOPTION_APPLY_DEADBAND);
+
+    //
     // Built-in calibrator parameters.
     //
     private static final int NUM_CAL_SAMPLES    = 100;
@@ -63,6 +73,7 @@ public abstract class TrcSensor
     private double[] deadbands = null;
     private int signs[] = null;
     private double scales[] = null;
+    private int processOptions = PROCESSOPTION_APPLY_ALL;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -206,6 +217,27 @@ public abstract class TrcSensor
     }   //setScale
 
     /**
+     * This method sets the process options of the sensor data.
+     *
+     * @param options specifies the process options.
+     *                PROCESSOPTION_APPLY_FILTER - apply filter to sensor data.
+     *                PROCESSOPTION_APPLY_ZEROOFFSET - apply zero offset to eliminate bias.
+     *                PROCESSOPTION_APPLY_DEADBAND - apply deadband to further lower noise.
+     */
+    public void setProcessOptions(int options)
+    {
+        final String funcName = "setProcessOptions";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "options=%x", options);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.processOptions = options;
+    }   //setProcessOptions
+
+    /**
      * This method returns the processed data for the specified axis and type.
      * The data will go through a filter if a filter is supplied for the axis.
      * The calibration data will be applied to the sensor data if applicable.
@@ -223,14 +255,24 @@ public abstract class TrcSensor
         //
         // Apply filter if necessary.
         //
-        if (filters[index] != null)
+        if (filters[index] != null && ((processOptions & PROCESSOPTION_APPLY_FILTER) != 0))
         {
             data.value = filters[index].filterData(data.value);
         }
         //
-        // Apply calibration data.
+        // Apply zeroOffset.
         //
-        data.value = TrcUtil.applyDeadband(data.value - zeroOffsets[index], deadbands[index]);
+        if ((processOptions & PROCESSOPTION_APPLY_ZEROOFFSET) != 0)
+        {
+            data.value -= zeroOffsets[index];
+        }
+        //
+        // Apply deadband.
+        //
+        if ((processOptions & PROCESSOPTION_APPLY_DEADBAND) != 0)
+        {
+            data.value = TrcUtil.applyDeadband(data.value, deadbands[index]);
+        }
         //
         // Change sign and scale data if necessary.
         //

@@ -129,11 +129,15 @@ public abstract class TrcAccelerometer extends TrcSensor
         //
         // Create the data integrator.
         //
-        if ((options & ACCEL_INTEGRATE) != 0)
+        if ((options & (ACCEL_INTEGRATE | ACCEL_DOUBLE_INTEGRATE)) != 0)
         {
             dataIntegrator = new TrcDataIntegrator(
                     instanceName, this, DataType.ACCELERATION,
                     (options & ACCEL_DOUBLE_INTEGRATE) != 0);
+            if ((options & ACCEL_DOUBLE_INTEGRATE) != 0)
+            {
+                dataIntegrator.setUnwindIntegratedData(true);
+            }
         }
     }   //TrcAccelerometer
 
