@@ -21,7 +21,8 @@ public class RobotInfo
     public static final double TURN_SETTLING                    = 0.2;
 
     public static final double BEACON_DISTANCE                  = 2.0;
-    public static final double LINE_THRESHOLD                   = ((20.0 + 130.0)/2.0);
+    public static final double LIGHT_THRESHOLD                  = ((20.0 + 130.0)/2.0);
+    public static final double LIGHT_DEADBAND                   = 10.0;
     public static final double LINEFOLLOW_KP                    = 0.02;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;

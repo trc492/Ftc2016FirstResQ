@@ -135,7 +135,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
                     robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDriveLineFollow.setTarget(
-                            RobotInfo.BEACON_DISTANCE, RobotInfo.LINE_THRESHOLD,
+                            RobotInfo.BEACON_DISTANCE, RobotInfo.LIGHT_THRESHOLD,
                             false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DEPOSIT_CLIMBERS);

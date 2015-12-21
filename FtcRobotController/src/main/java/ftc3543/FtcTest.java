@@ -397,7 +397,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     robot.lightTrigger.setEnabled(false);
                     robot.pidDriveLineFollow.setTarget(
-                            wallDistance, RobotInfo.LINE_THRESHOLD, false, event);
+                            wallDistance, RobotInfo.LIGHT_THRESHOLD, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;

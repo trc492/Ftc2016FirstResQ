@@ -133,7 +133,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         // Triggers.
         //
         lightTrigger = new TrcAnalogTrigger(
-                "lightTrigger", lightSensor, RobotInfo.LINE_THRESHOLD, this);
+                "lightTrigger", lightSensor, RobotInfo.LIGHT_THRESHOLD, this);
         //
         // Slider subsystem.
         //
@@ -228,6 +228,11 @@ public class FtcRobot implements TrcPidController.PidInput,
         else if (pidCtrl == pidCtrlLight)
         {
             input = lightSensor.getData().value;
+
+            if (Math.abs(input) - RobotInfo.LIGHT_THRESHOLD < RobotInfo.LIGHT_DEADBAND)
+            {
+                input = RobotInfo.LIGHT_THRESHOLD;
+            }
         }
 
         return input;
