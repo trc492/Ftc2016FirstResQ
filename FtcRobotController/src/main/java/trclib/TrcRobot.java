@@ -13,7 +13,7 @@ public class TrcRobot
 
     public interface AutoStrategy
     {
-        public void autoPeriodic();
+        public void autoPeriodic(double elapsedTime);
     }   //interface AutoStrategy
 
 }   //class TrcRobot

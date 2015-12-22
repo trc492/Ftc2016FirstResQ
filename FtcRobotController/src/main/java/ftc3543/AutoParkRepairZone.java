@@ -25,7 +25,7 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
 
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
-    private TrcDbgTrace tracer = FtcOpMode.getOpModeTraceInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTracerInstance();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
@@ -46,7 +46,8 @@ public class AutoParkRepairZone implements TrcRobot.AutoStrategy
         sm.start(State.DO_DELAY);
     }
 
-    public void autoPeriodic()
+    @Override
+    public void autoPeriodic(double elapsedTime)
     {
         if (robot.pidDrive.isEnabled())
         {

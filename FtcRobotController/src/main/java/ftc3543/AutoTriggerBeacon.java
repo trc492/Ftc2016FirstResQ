@@ -20,6 +20,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         PUSH_BUTTON,
         RETRACT,
         MOVE_SOMEWHERE,
+        GO_BUMP,
         PARK_FLOOR_GOAL,
         DONE
     }   //enum State
@@ -28,7 +29,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
-    private TrcDbgTrace tracer = FtcOpMode.getOpModeTraceInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTracerInstance();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
@@ -54,8 +55,12 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         sm.start(State.DO_DELAY);
     }
 
-    public void autoPeriodic()
+    @Override
+    public void autoPeriodic(double elapsedTime)
     {
+        //
+        // Do trace logging and debug tracing.
+        //
         if (robot.pidDrive.isEnabled())
         {
             robot.pidCtrlDrive.printPidInfo(tracer);
@@ -96,6 +101,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     }
                     else
                     {
+                        //
+                        // Set timer for delay time.
+                        //
                         timer.set(delay, event);
                         sm.addEvent(event);
                         sm.waitForEvents(State.MOVE_FORWARD);
@@ -116,6 +124,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                 case FIND_LINE:
                     //
                     // Drive forward slowly until we reach the line.
+                    // If line is detected, it will interrupt PID drive.
                     //
                     robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
@@ -127,6 +136,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                 case TURN_TO_LINE:
                     //
                     // Turn slowly to find the edge of the line.
+                    // If line is detected, it will interrupt PID turn.
                     //
                     robot.pidDrive.setTarget(
                             0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
@@ -169,6 +179,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                             redValue, greenValue, blueValue,
                             isRed? "true": "false",
                             isBlue? "true": "false");
+                    //
+                    // Determine which button to push and do it.
+                    //
                     if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed ||
                         alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
                     {
@@ -179,8 +192,14 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     {
                         robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
                     }
-
+                    //
+                    // Deposit the climbers into the bin.
+                    //
                     robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
+                    //
+                    // It takes sometime for the arm to move and deposit the climber.
+                    // So set a timer to wait for it.
+                    //
                     timer.set(5.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
@@ -202,11 +221,14 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     }
                     else
                     {
+                        //
+                        // We are going to move out of the way.
+                        // First we need to back up a little bit so we have some room to turn.
+                        //
                         robot.pidDrive.setTarget(
                                 -8.0, 0.0, false, event);
                         sm.addEvent(event);
                         sm.waitForEvents(State.MOVE_SOMEWHERE);
-
                     }
                     break;
 
@@ -214,13 +236,13 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     if (option == FtcAuto.BeaconOption.DEFENSE)
                     {
                         //
-                        // Run to the opponent side and bump them if necessary.
+                        // We can only go to the opponent's side after 10 seconds.
+                        // Check it just to be safe.
                         //
-                        robot.pidDrive.setTarget(
-                                -35.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
-                                false, event);
-                        sm.addEvent(event);
-                        sm.waitForEvents(State.DONE);
+                        if (elapsedTime > 10.0)
+                        {
+                            sm.setState(State.GO_BUMP);
+                        }
                     }
                     else if (option == FtcAuto.BeaconOption.PARK_FLOOR_GOAL)
                     {
@@ -233,6 +255,17 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                         sm.addEvent(event);
                         sm.waitForEvents(State.PARK_FLOOR_GOAL);
                     }
+                    break;
+
+                case GO_BUMP:
+                    //
+                    // Run to the opponent side and bump them if necessary.
+                    //
+                    robot.pidDrive.setTarget(
+                            -35.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -45.0: 45.0,
+                            false, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.DONE);
                     break;
 
                 case PARK_FLOOR_GOAL:

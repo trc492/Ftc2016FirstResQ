@@ -58,7 +58,7 @@ public abstract class FtcOpMode extends LinearOpMode
     private TrcDbgTrace dbgTrace = null;
 
     private static Context context = null;
-    private static TrcDbgTrace opModeTrace = null;
+    private static TrcDbgTrace opModeTracer = null;
     private static String opModeName = null;
 
     private final static String OPMODE_AUTO     = "FtcAuto";
@@ -68,7 +68,7 @@ public abstract class FtcOpMode extends LinearOpMode
     private final static long LOOP_PERIOD = 20;
     private TrcRobot.RunMode runMode = TrcRobot.RunMode.INVALID_MODE;
     private static FtcOpMode instance = null;
-    private double startTime = 0.0;
+    private static double startTime = 0.0;
 
     /**
      * Constructor: Creates an instance of the object. It calls the constructor
@@ -105,16 +105,16 @@ public abstract class FtcOpMode extends LinearOpMode
      *
      * @return global opMode trace object.
      */
-    public static TrcDbgTrace getOpModeTraceInstance()
+    public static TrcDbgTrace getOpModeTracerInstance()
     {
-        if (opModeTrace == null)
+        if (opModeTracer == null)
         {
-            opModeTrace = new TrcDbgTrace(
+            opModeTracer = new TrcDbgTrace(
                     opModeName, false, TrcDbgTrace.TraceLevel.API, TrcDbgTrace.MsgLevel.INFO);
         }
 
-        return opModeTrace;
-    }   //getOpModeTraceInstance
+        return opModeTracer;
+    }   //getOpModeTracerInstance
 
     /**
      * This method sets the OpMode trace configuration. The OpMode trace object was
@@ -126,11 +126,11 @@ public abstract class FtcOpMode extends LinearOpMode
      * @param traceLevel specifies the method tracing level.
      * @param msgLevel specifies the message tracing level.
      */
-    public static void setOpModeTraceConfig(
+    public static void setOpModeTracerConfig(
             boolean traceEnabled, TrcDbgTrace.TraceLevel traceLevel, TrcDbgTrace.MsgLevel msgLevel)
     {
-        opModeTrace.setDbgTraceConfig(traceEnabled, traceLevel, msgLevel);
-    }   //setOpModeTraceConfig
+        opModeTracer.setDbgTraceConfig(traceEnabled, traceLevel, msgLevel);
+    }   //setOpModeTracerConfig
 
     /**
      * This method returns the name of the active OpMode.
@@ -161,6 +161,18 @@ public abstract class FtcOpMode extends LinearOpMode
     {
         return context;
     }   //getContext
+
+    /**
+     * This method returns the OpMode start timestamp. This is the time after robotInit() is
+     * called and after waitForStart() has returned (i.e. The "Play" button is pressed on the
+     * Driver Station.
+     *
+     * @return OpMode start timestamp in seconds.
+     */
+    public static double getStartTime()
+    {
+        return startTime;
+    }   //getStartTime
 
     //
     // Implements LinearOpMode

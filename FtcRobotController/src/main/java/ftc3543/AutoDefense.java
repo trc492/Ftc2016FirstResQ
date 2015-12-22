@@ -35,7 +35,8 @@ public class AutoDefense implements TrcRobot.AutoStrategy
         sm.start(State.DO_DELAY);
     }
 
-    public void autoPeriodic()
+    @Override
+    public void autoPeriodic(double elapsedTime)
     {
         dashboard.displayPrintf(1, "Defense: delay=%.0f, distance=%.0f", delay, distance/12.0);
 
