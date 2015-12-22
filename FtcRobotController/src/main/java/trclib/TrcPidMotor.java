@@ -683,12 +683,12 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         if (active)
         {
             taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.STOP_TASK);
-            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
         }
         else
         {
             taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.STOP_TASK);
-            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
         }
         this.active = active;
 
@@ -746,6 +746,14 @@ public class TrcPidMotor implements TrcTaskMgr.Task
      * @param runMode specifies the competition mode that is running.
      */
     public void postPeriodicTask(TrcRobot.RunMode runMode)
+    {
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //preContinuousTask
+
+    public void postContinuousTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "postPeriodic";
 
@@ -819,14 +827,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.TASK);
         }
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //postContinuousTask
 
 }   //class TrcPidMotor

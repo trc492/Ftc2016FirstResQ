@@ -57,11 +57,11 @@ public class TrcDigitalTrigger implements TrcTaskMgr.Task
         TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
         if (enabled)
         {
-            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            taskMgr.registerTask(instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
         else
         {
-            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            taskMgr.unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
     }   //setEnabled
 
@@ -82,7 +82,17 @@ public class TrcDigitalTrigger implements TrcTaskMgr.Task
     @Override
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
-        final String funcName = "prePeriodic";
+    }   //prePeriodicTask
+
+    @Override
+    public void postPeriodicTask(TrcRobot.RunMode runMode)
+    {
+    }   //postPeriodicTask
+
+    @Override
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+        final String funcName = "preContinuousTask";
         boolean currState = digitalInput.isActive();
 
         if (currState != prevState)
@@ -100,16 +110,6 @@ public class TrcDigitalTrigger implements TrcTaskMgr.Task
                         instanceName, Boolean.toString(currState));
             }
         }
-    }   //prePeriodicTask
-
-    @Override
-    public void postPeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //postPeriodicTask
-
-    @Override
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //preContinuousTask
 
     @Override

@@ -303,7 +303,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
             taskMgr.registerTask(
                     instanceName,
                     this,
-                    TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+                    TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
             flags |= PIDDRIVEF_ENABLED;
         }
         else
@@ -313,7 +313,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
                     TrcTaskMgr.TaskType.STOP_TASK);
             taskMgr.unregisterTask(
                     this,
-                    TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+                    TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
             flags &= ~PIDDRIVEF_ENABLED;
         }
 
@@ -355,6 +355,14 @@ public class TrcPidDrive implements TrcTaskMgr.Task
 
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //preContinuousTask
+
+    public void postContinuousTask(TrcRobot.RunMode runMode)
+    {
         final String funcName = "postPeriodic";
 
         if (debugEnabled)
@@ -366,10 +374,10 @@ public class TrcPidDrive implements TrcTaskMgr.Task
 
         double xPower =
                 (((flags & PIDDRIVEF_TURN_ONLY) != 0) || (xPidCtrl == null))?
-                        0.0: xPidCtrl.getOutput();
+                0.0: xPidCtrl.getOutput();
         double yPower =
                 (((flags & PIDDRIVEF_TURN_ONLY) != 0) || (yPidCtrl == null))?
-                        0.0: yPidCtrl.getOutput();
+                0.0: yPidCtrl.getOutput();
         double turnPower = (turnPidCtrl == null)? 0.0: turnPidCtrl.getOutput();
 
         boolean expired =
@@ -418,14 +426,6 @@ public class TrcPidDrive implements TrcTaskMgr.Task
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.TASK);
         }
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //postContinuousTask
 
 }   //class TrcPidDrive

@@ -95,7 +95,7 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
         else if (servoStepping)
         {
             TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.STOP_TASK);
-            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
             servoStepping = false;
         }
     }   //stop
@@ -126,7 +126,7 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
             this.currPosition = servo1.getPosition();
             servoStepping = true;
             TrcTaskMgr.getInstance().registerTask(
-                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
             TrcTaskMgr.getInstance().registerTask(
                     "ServoSteppingTask", this, TrcTaskMgr.TaskType.STOP_TASK);
         }
@@ -174,6 +174,14 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
 
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //preContinuousTask
+
+    public void postContinuousTask(TrcRobot.RunMode runMode)
+    {
         if (runMode != TrcRobot.RunMode.DISABLED_MODE)
         {
             double currTime = HalUtil.getCurrentTime();
@@ -214,14 +222,6 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
                 servo2.setPosition(currPosition);
             }
         }
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //postContinuousTask
 
 }   //class TrcEnhancedServo

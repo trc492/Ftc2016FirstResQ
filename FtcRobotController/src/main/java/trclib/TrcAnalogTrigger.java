@@ -98,11 +98,11 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
         if (enabled)
         {
             TrcTaskMgr.getInstance().registerTask(
-                    instanceName, this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+                    instanceName, this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
         else
         {
-            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
     }   //setEnabled
 
@@ -123,7 +123,17 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     @Override
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
-        final String funcName = "prePeriodic";
+    }   //prePeriodicTask
+
+    @Override
+    public void postPeriodicTask(TrcRobot.RunMode runMode)
+    {
+    }   //postPeriodicTask
+
+    @Override
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+        final String funcName = "preContinuousTask";
         double value = analogInput.getData().value;
 
         Zone zone;
@@ -158,16 +168,6 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
                         instanceName, zone.toString(), value);
             }
         }
-    }   //prePeriodicTask
-
-    @Override
-    public void postPeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //postPeriodicTask
-
-    @Override
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //preContinuousTask
 
     @Override

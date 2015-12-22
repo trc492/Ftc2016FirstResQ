@@ -117,11 +117,11 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
         if (enabled)
         {
             TrcTaskMgr.getInstance().registerTask(
-                    instanceName, this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+                    instanceName, this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
         }
         else
         {
-            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTPERIODIC_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
         }
     }
 
@@ -258,6 +258,14 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
      */
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+    }   //preContinuousTask
+
+    public void postContinuousTask(TrcRobot.RunMode runMode)
+    {
         if (sm.isReady())
         {
             State state = (State)sm.getState();
@@ -286,14 +294,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
                     setTaskEnabled(false);
             }
         }
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
-    }   //preContinuousTask
-
-    public void postContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //postContinuousTask
 
 }   //class FtcServo

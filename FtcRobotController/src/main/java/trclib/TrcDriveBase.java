@@ -67,7 +67,7 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         taskMgr.registerTask(
                 moduleName,
                 this,
-                TrcTaskMgr.TaskType.PREPERIODIC_TASK);
+                TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
     }   //TrcDriveBase
 
     public TrcDriveBase(
@@ -417,7 +417,15 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
-        final String funcName = "prePeriodicTask";
+    }   //prePeriodicTask
+
+    public void postPeriodicTask(TrcRobot.RunMode runMode)
+    {
+    }   //postPeriodicTask
+
+    public void preContinuousTask(TrcRobot.RunMode runMode)
+    {
+        final String funcName = "preContinuousTask";
 
         if (debugEnabled)
         {
@@ -543,14 +551,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         {
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.TASK);
         }
-    }   //prePeriodicTask
-
-    public void postPeriodicTask(TrcRobot.RunMode runMode)
-    {
-    }   //postPeriodicTask
-
-    public void preContinuousTask(TrcRobot.RunMode runMode)
-    {
     }   //preContinuousTask
 
     public void postContinuousTask(TrcRobot.RunMode runMode)

@@ -191,7 +191,8 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
     public TrcSensor.SensorData getUnwrappedData(int index)
     {
         final String funcName = "getUnwrappedData";
-        TrcSensor.SensorData data = sensor.getData(index, dataType);
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(prevData[index].timestamp, prevData[index].value);
 
         data.value = (valueRangeHighs[index] - valueRangeLows[index])*numCrossovers[index] +
                      (data.value - valueRangeLows[index]);
@@ -244,11 +245,11 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
 
         for (int i = 0; i < numAxes; i++)
         {
-            TrcSensor.SensorData currData = sensor.getData(i, dataType);
-            if (Math.abs(currData.value - prevData[i].value) >
+            TrcSensor.SensorData data = sensor.getData(i, dataType);
+            if (Math.abs(data.value - prevData[i].value) >
                 (valueRangeHighs[i] - valueRangeLows[i])/2.0)
             {
-                if (currData.value > prevData[i].value)
+                if (data.value > prevData[i].value)
                 {
                     numCrossovers[i]--;
                 }
@@ -257,7 +258,7 @@ public class TrcDataUnwrapper implements TrcTaskMgr.Task
                     numCrossovers[i]++;
                 }
             }
-            prevData[i] = currData;
+            prevData[i] = data;
         }
 
         if (debugEnabled)
