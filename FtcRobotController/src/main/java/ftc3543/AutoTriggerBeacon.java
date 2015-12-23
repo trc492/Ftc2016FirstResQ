@@ -38,6 +38,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
+    private boolean leftPusherExtended = false;
+    private boolean rightPusherExtended = false;
 
     public AutoTriggerBeacon(
             FtcAuto.Alliance alliance,
@@ -185,12 +187,14 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed ||
                         alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
                     {
-                        robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_RIGHT);
+                        robot.rightButtonPusher.extend();
+                        rightPusherExtended = true;
                     }
                     else if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isBlue ||
                              alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isRed)
                     {
-                        robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_EXTEND_LEFT);
+                        robot.leftButtonPusher.extend();
+                        leftPusherExtended = true;
                     }
                     //
                     // Deposit the climbers into the bin.
@@ -209,8 +213,18 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     //
                     // Release the button pusher and retract the hanging hook.
                     //
-                    robot.leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
-                    robot.rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
+                    if (leftPusherExtended)
+                    {
+                        robot.leftButtonPusher.retract();
+                        leftPusherExtended = false;
+                    }
+
+                    if (rightPusherExtended)
+                    {
+                        robot.rightButtonPusher.retract();
+                        rightPusherExtended = false;
+                    }
+
                     robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {

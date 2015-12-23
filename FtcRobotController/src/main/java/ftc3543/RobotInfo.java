@@ -71,10 +71,8 @@ public class RobotInfo
     //
     // ButtonPusher subsystem.
     //
-    public static final double PUSHER_EXTEND_LEFT               = 1.0;
-    public static final double PUSHER_RETRACT_LEFT              = 0.0;
-    public static final double PUSHER_EXTEND_RIGHT              = 1.0;
-    public static final double PUSHER_RETRACT_RIGHT             = 0.0;
+    public static final double PUSHER_EXTEND_TIME               = 0.75;
+    public static final double PUSHER_RETRACT_TIME              = 0.75;
 
     //
     // ClimberRelease subsystem.

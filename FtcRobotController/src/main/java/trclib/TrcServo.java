@@ -44,6 +44,10 @@ public abstract class TrcServo
      */
     public abstract double getPosition();
 
+    public static final double CONTINUOUS_SERVO_FORWARD_MAX = 1.0;
+    public static final double CONTINUOUS_SERVO_REVERSE_MAX = 0.0;
+    public static final double CONTINUOUS_SERVO_STOP        = 0.5;
+
     private static final double DEF_PHYSICAL_MIN    = 0.0;
     private static final double DEF_PHYSICAL_MAX    = 1.0;
     private static final double DEF_LOGICAL_MIN     = 0.0;

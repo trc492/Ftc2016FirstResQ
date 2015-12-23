@@ -65,8 +65,8 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // ButtonPusher subsystem.
     //
-    public FtcServo leftButtonPusher;
-    public FtcServo rightButtonPusher;
+    public ButtonPusher leftButtonPusher;
+    public ButtonPusher rightButtonPusher;
 
     public FtcRobot(TrcRobot.RunMode runMode)
     {
@@ -163,11 +163,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // ButtonPusher subsystem.
         //
-        leftButtonPusher = new FtcServo("leftPusher");
-        rightButtonPusher = new FtcServo("rightPusher");
-        leftButtonPusher.setInverted(true);
-        leftButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_LEFT);
-        rightButtonPusher.setPosition(RobotInfo.PUSHER_RETRACT_RIGHT);
+        leftButtonPusher = new ButtonPusher("leftPusher", true);
+        rightButtonPusher = new ButtonPusher("rightPusher", false);
     }   //FtcRobot
 
     public void startMode(TrcRobot.RunMode runMode)
