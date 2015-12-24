@@ -141,16 +141,17 @@ public abstract class FtcOpMode extends LinearOpMode
     }   //getOpModeName
 
     /**
-     * This method returns the OpMode start timestamp. This is the time after robotInit() is
-     * called and after waitForStart() has returned (i.e. The "Play" button is pressed on the
-     * Driver Station.
+     * This method returns the elapsed time since competition starts.
+     * This is the elapsed time after robotInit() is called and after
+     * waitForStart() has returned (i.e. The "Play" button is pressed
+     * on the Driver Station.
      *
-     * @return OpMode start timestamp in seconds.
+     * @return OpMode start elapsed time in seconds.
      */
-    public static double getStartTime()
+    public static double getElapsedTime()
     {
-        return startTime;
-    }   //getStartTime
+        return HalUtil.getCurrentTime() - startTime;
+    }   //getElapsedTime
 
     //
     // Implements LinearOpMode

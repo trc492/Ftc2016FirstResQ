@@ -139,14 +139,6 @@ public class FtcRobotControllerActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_ftc_controller);
-    /*
-    if (savedInstanceState == null)
-    {
-      getFragmentManager().beginTransaction()
-                          .replace(R.id.container, Camera2BasicFragment.newInstance())
-                          .commit();
-    }
-    */
 
     utility = new Utility(this);
     context = this;

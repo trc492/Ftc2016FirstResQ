@@ -125,7 +125,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     {
         if (autoStrategy != null)
         {
-            autoStrategy.autoPeriodic(HalUtil.getCurrentTime() - FtcOpMode.getStartTime());
+            autoStrategy.autoPeriodic(FtcOpMode.getElapsedTime());
         }
     }   //runContinuous
 
