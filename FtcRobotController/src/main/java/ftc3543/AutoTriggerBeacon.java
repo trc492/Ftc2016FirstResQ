@@ -29,7 +29,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
 
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
-    private TrcDbgTrace tracer = FtcOpMode.getOpModeTracerInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;

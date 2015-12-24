@@ -169,7 +169,7 @@ public class FtcRobot implements TrcPidController.PidInput,
 
     public void startMode(TrcRobot.RunMode runMode)
     {
-        FtcOpMode.getOpModeTracerInstance().traceInfo(
+        FtcOpMode.getOpModeTracer().traceInfo(
                 FtcOpMode.getOpModeName(), "Starting: %.3f", HalUtil.getCurrentTime());
         gyro.resetZIntegrator();
         gyro.setEnabled(true);
@@ -181,7 +181,7 @@ public class FtcRobot implements TrcPidController.PidInput,
 
     public void stopMode(TrcRobot.RunMode runMode)
     {
-        FtcOpMode.getOpModeTracerInstance().traceInfo(
+        FtcOpMode.getOpModeTracer().traceInfo(
                 FtcOpMode.getOpModeName(), "Stopping: %.3f", HalUtil.getCurrentTime());
         gyro.setEnabled(false);
         sonarSensor.setEnabled(false);

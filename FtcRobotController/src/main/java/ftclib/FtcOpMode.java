@@ -103,7 +103,7 @@ public abstract class FtcOpMode extends LinearOpMode
      *
      * @return global opMode trace object.
      */
-    public static TrcDbgTrace getOpModeTracerInstance()
+    public static TrcDbgTrace getOpModeTracer()
     {
         if (opModeTracer == null)
         {
@@ -112,7 +112,7 @@ public abstract class FtcOpMode extends LinearOpMode
         }
 
         return opModeTracer;
-    }   //getOpModeTracerInstance
+    }   //getOpModeTracer
 
     /**
      * This method sets the OpMode trace configuration. The OpMode trace object was
@@ -168,7 +168,7 @@ public abstract class FtcOpMode extends LinearOpMode
     {
         final String funcName = "runOpMode";
         TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
-        HalDashboard dashboard = HalDashboard.getInstance();
+        HalDashboard dashboard = HalDashboard.getInstance(telemetry);
 
         if (debugEnabled)
         {
