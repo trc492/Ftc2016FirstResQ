@@ -77,7 +77,8 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     public FtcAndroidSensor(
             String instanceName, int sensorType, int numAxes, TrcFilter[] filters)
     {
-        this(FtcOpMode.getContext(), instanceName, sensorType, numAxes, filters);
+        this(FtcOpMode.getInstance().hardwareMap.appContext,
+             instanceName, sensorType, numAxes, filters);
     }   //FtcAndroidSensor
 
     /**

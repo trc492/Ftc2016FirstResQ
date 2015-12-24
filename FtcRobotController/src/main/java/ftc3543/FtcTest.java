@@ -68,7 +68,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     }   //robotInit
 
     @Override
-    public void runPeriodic()
+    public void runContinuous()
     {
         State state = (State)sm.getState();
         dashboard.displayPrintf(

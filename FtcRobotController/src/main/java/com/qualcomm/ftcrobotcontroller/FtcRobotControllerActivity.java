@@ -62,7 +62,6 @@ import com.qualcomm.ftccommon.Restarter;
 import com.qualcomm.ftccommon.UpdateUI;
 
 import ftc3543.FtcOpModeRegister;
-import ftclib.FtcOpMode;
 
 import com.qualcomm.hardware.HardwareFactory;
 import com.qualcomm.robotcore.hardware.configuration.Utility;
@@ -139,7 +138,6 @@ public class FtcRobotControllerActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    FtcOpMode.setContext(this);
     setContentView(R.layout.activity_ftc_controller);
     /*
     if (savedInstanceState == null)

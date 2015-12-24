@@ -1,6 +1,5 @@
 package ftclib;
 
-import android.content.Context;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import hallib.HalDashboard;
@@ -57,7 +56,6 @@ public abstract class FtcOpMode extends LinearOpMode
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private static Context context = null;
     private static TrcDbgTrace opModeTracer = null;
     private static String opModeName = null;
 
@@ -141,26 +139,6 @@ public abstract class FtcOpMode extends LinearOpMode
     {
         return opModeName;
     }   //getOpModeName
-
-    /**
-     * This method sets the activity context.
-     *
-     * @param context specifies the activity context.
-     */
-    public static void setContext(Context context)
-    {
-        FtcOpMode.context = context;
-    }   //setContext
-
-    /**
-     * This method returns the activity context.
-     *
-     * @return activity context.
-     */
-    public static Context getContext()
-    {
-        return context;
-    }   //getContext
 
     /**
      * This method returns the OpMode start timestamp. This is the time after robotInit() is
