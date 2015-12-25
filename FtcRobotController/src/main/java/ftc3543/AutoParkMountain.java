@@ -37,16 +37,16 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
         this.alliance = alliance;
         this.startPos = startPos;
         this.delay = delay;
-        event = new TrcEvent("ParkMountainEvent");
-        timer = new TrcTimer("ParkMountainTimer");
-        sm = new TrcStateMachine("autoParkMountain");
+        event = new TrcEvent(moduleName);
+        timer = new TrcTimer(moduleName);
+        sm = new TrcStateMachine(moduleName);
         sm.start(State.DO_DELAY);
     }
 
     @Override
     public void autoPeriodic(double elapsedTime)
     {
-        dashboard.displayPrintf(1, "ParkMountain: %s, %s, delay=%.0f",
+        dashboard.displayPrintf(1, moduleName + ": %s, %s, delay=%.0f",
                                 alliance.toString(), startPos.toString(), delay);
 
         if (sm.isReady())

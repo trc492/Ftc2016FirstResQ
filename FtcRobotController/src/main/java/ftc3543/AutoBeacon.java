@@ -54,9 +54,9 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         this.delay = delay;
         this.pushButton = pushButton;
         this.option = option;
-        event = new TrcEvent("TriggerBeaconEvent");
-        timer = new TrcTimer("TriggerBeaconTimer");
-        sm = new TrcStateMachine("autoTriggerBeacon");
+        event = new TrcEvent(moduleName);
+        timer = new TrcTimer(moduleName);
+        sm = new TrcStateMachine(moduleName);
         sm.start(State.DO_DELAY);
     }
 
