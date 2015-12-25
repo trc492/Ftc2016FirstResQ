@@ -8,7 +8,7 @@ import trclib.TrcRobot;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
 
-public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
+public class AutoBeacon implements TrcRobot.AutoStrategy
 {
     private enum State
     {
@@ -25,7 +25,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
-    private static final String moduleName = "AutoTriggerBeacon";
+    private static final String moduleName = "AutoBeacon";
 
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
@@ -34,6 +34,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
     private double delay;
+    private boolean pushButton;
     private FtcAuto.BeaconOption option;
     private TrcEvent event;
     private TrcTimer timer;
@@ -41,15 +42,17 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
     private boolean leftPusherExtended = false;
     private boolean rightPusherExtended = false;
 
-    public AutoTriggerBeacon(
+    public AutoBeacon(
             FtcAuto.Alliance alliance,
             FtcAuto.StartPosition startPos,
             double delay,
+            boolean pushButton,
             FtcAuto.BeaconOption option)
     {
         this.alliance = alliance;
         this.startPos = startPos;
         this.delay = delay;
+        this.pushButton = pushButton;
         this.option = option;
         event = new TrcEvent("TriggerBeaconEvent");
         timer = new TrcTimer("TriggerBeaconTimer");
@@ -74,8 +77,9 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
             robot.pidCtrlLight.printPidInfo(tracer);
         }
 
-        dashboard.displayPrintf(1, moduleName + ": %s, %s,delay=%.0f,option=%s",
-                                alliance.toString(), startPos.toString(), delay, option.toString());
+        dashboard.displayPrintf(1, moduleName + ": %s, %s,delay=%.0f,pushButton=%s,option=%s",
+                                alliance.toString(), startPos.toString(), delay,
+                                Boolean.toString(pushButton), option.toString());
         dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
                                 robot.colorSensor.red(),
                                 robot.colorSensor.green(),
@@ -88,8 +92,8 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         if (sm.isReady())
         {
             State state = (State)sm.getState();
-            tracer.traceInfo(moduleName, "State: %s", state.toString());
-            dashboard.displayPrintf(7, "State=%s", state.toString());
+            tracer.traceInfo(moduleName, "State: %s [%.3f]", state.toString(), elapsedTime);
+            dashboard.displayPrintf(7, "State: %s [%.3f]", state.toString(), elapsedTime);
 
             switch (state)
             {
@@ -170,31 +174,34 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
                     robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);;
-                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);;
-                    int redValue = robot.colorSensor.red();
-                    int greenValue = robot.colorSensor.green();
-                    int blueValue = robot.colorSensor.blue();
-                    boolean isRed = redValue > blueValue && redValue > greenValue;
-                    boolean isBlue = blueValue > redValue && blueValue > greenValue;
-                    tracer.traceInfo(
-                            "TriggerBeacon", "[%d,%d,%d]isRed=%s,isBlue=%s",
-                            redValue, greenValue, blueValue,
-                            isRed? "true": "false",
-                            isBlue? "true": "false");
-                    //
-                    // Determine which button to push and do it.
-                    //
-                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed ||
-                        alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
+                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
+                    if (pushButton)
                     {
-                        robot.rightButtonPusher.extend();
-                        rightPusherExtended = true;
-                    }
-                    else if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isBlue ||
-                             alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isRed)
-                    {
-                        robot.leftButtonPusher.extend();
-                        leftPusherExtended = true;
+                        int redValue = robot.colorSensor.red();
+                        int greenValue = robot.colorSensor.green();
+                        int blueValue = robot.colorSensor.blue();
+                        boolean isRed = redValue > blueValue && redValue > greenValue;
+                        boolean isBlue = blueValue > redValue && blueValue > greenValue;
+                        tracer.traceInfo(
+                                moduleName, "[%d,%d,%d]isRed=%s,isBlue=%s",
+                                redValue, greenValue, blueValue,
+                                isRed? "true": "false",
+                                isBlue? "true": "false");
+                        //
+                        // Determine which button to push and do it.
+                        //
+                        if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isRed ||
+                            alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isBlue)
+                        {
+                            robot.rightButtonPusher.extend();
+                            rightPusherExtended = true;
+                        }
+                        else if (alliance == FtcAuto.Alliance.RED_ALLIANCE && isBlue ||
+                                 alliance == FtcAuto.Alliance.BLUE_ALLIANCE && isRed)
+                        {
+                            robot.leftButtonPusher.extend();
+                            leftPusherExtended = true;
+                        }
                     }
                     //
                     // Deposit the climbers into the bin.
@@ -226,6 +233,7 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
                     }
 
                     robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
+
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
                         //
@@ -302,4 +310,4 @@ public class AutoTriggerBeacon implements TrcRobot.AutoStrategy
         }
     }
 
-}   //class AutoTriggerBeacon
+}   //class AutoBeacon

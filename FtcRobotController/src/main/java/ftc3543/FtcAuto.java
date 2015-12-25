@@ -30,10 +30,9 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     {
         DO_NOTHING,
         DEFENSE,
-        PARK_REPAIR_ZONE,
         PARK_FLOOR_GOAL,
         PARK_MOUNTAIN,
-        TRIGGER_BEACON
+        BEACON
     }   //enum Strategy
 
     public FtcRobot robot;
@@ -45,6 +44,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     private double delay = 0.0;
     private Strategy strategy = Strategy.DO_NOTHING;
     private double driveDistance = 0.0;
+    private boolean pushButton = true;
     private BeaconOption beaconOption = BeaconOption.DO_NOTHING;
 
     //
@@ -72,10 +72,6 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 autoStrategy = new AutoDefense(delay, driveDistance);
                 break;
 
-            case PARK_REPAIR_ZONE:
-                autoStrategy = new AutoParkRepairZone(alliance, startPos, delay);
-                break;
-
             case PARK_FLOOR_GOAL:
                 autoStrategy = new AutoParkFloorGoal(alliance, startPos, delay);
                 break;
@@ -84,8 +80,9 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 autoStrategy = new AutoParkMountain(alliance, startPos, delay);
                 break;
 
-            case TRIGGER_BEACON:
-                autoStrategy = new AutoTriggerBeacon(alliance, startPos, delay, beaconOption);
+            case BEACON:
+                autoStrategy = new AutoBeacon(
+                        alliance, startPos, delay, pushButton, beaconOption);
                 break;
 
             case DO_NOTHING:
@@ -96,9 +93,9 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 
         getOpModeTracer().traceInfo(
                 getOpModeName(),
-                "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, beaconOption=%s",
+                "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, pushButton=%s, beaconOption=%s",
                 strategy.toString(), alliance.toString(), startPos.toString(), delay,
-                beaconOption.toString());
+                Boolean.toString(pushButton), beaconOption.toString());
     }   //robotInit
 
     @Override
@@ -163,7 +160,8 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         FtcMenu delayMenu = new FtcMenu("Delay time:", startPosMenu, this);
         FtcMenu strategyMenu = new FtcMenu("Strategies:", delayMenu, this);
         FtcMenu distanceMenu = new FtcMenu("Distance:", strategyMenu, this);
-        FtcMenu beaconOptionMenu = new FtcMenu("Beacon options", strategyMenu, this);
+        FtcMenu beaconButtonMenu = new FtcMenu("Push beacon button:", strategyMenu, this);
+        FtcMenu beaconOptionMenu = new FtcMenu("Beacon options", beaconButtonMenu, this);
 
         allianceMenu.addChoice("Red", Alliance.RED_ALLIANCE, startPosMenu);
         allianceMenu.addChoice("Blue", Alliance.BLUE_ALLIANCE, startPosMenu);
@@ -180,10 +178,9 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 
         strategyMenu.addChoice("Do nothing", Strategy.DO_NOTHING);
         strategyMenu.addChoice("Defense", Strategy.DEFENSE, distanceMenu);
-        strategyMenu.addChoice("Park repair zone", Strategy.PARK_REPAIR_ZONE);
         strategyMenu.addChoice("Park floor goal", Strategy.PARK_FLOOR_GOAL);
         strategyMenu.addChoice("Park mountain", Strategy.PARK_MOUNTAIN);
-        strategyMenu.addChoice("Trigger beacon", Strategy.TRIGGER_BEACON, beaconOptionMenu);
+        strategyMenu.addChoice("Beacon", Strategy.BEACON, beaconButtonMenu);
 
         distanceMenu.addChoice("1 ft", 12.0);
         distanceMenu.addChoice("2 ft", 24.0);
@@ -193,6 +190,9 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         distanceMenu.addChoice("6 ft", 72.0);
         distanceMenu.addChoice("8 ft", 96.0);
         distanceMenu.addChoice("10 ft", 120.0);
+
+        beaconButtonMenu.addChoice("Yes", true, beaconOptionMenu);
+        beaconButtonMenu.addChoice("No", false, beaconOptionMenu);
 
         beaconOptionMenu.addChoice("Do nothing", BeaconOption.DO_NOTHING);
         beaconOptionMenu.addChoice("Do defense", BeaconOption.DEFENSE);
@@ -205,6 +205,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         delay = (Double)delayMenu.getCurrentChoiceObject();
         strategy = (Strategy)strategyMenu.getCurrentChoiceObject();
         driveDistance = (Double)distanceMenu.getCurrentChoiceObject();
+        pushButton = (Boolean)beaconButtonMenu.getCurrentChoiceObject();
         beaconOption = (BeaconOption)beaconOptionMenu.getCurrentChoiceObject();
 
         dashboard.displayPrintf(0, "Auto Strategy: %s (%s)",

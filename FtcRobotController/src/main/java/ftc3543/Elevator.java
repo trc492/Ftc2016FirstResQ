@@ -23,6 +23,7 @@ public class Elevator implements TrcPidController.PidInput,
     private TrcPidController pidCtrl;
     private TrcPidMotor pidMotor;
     private FtcServo brake;
+    private boolean brakeOn = false;
 
     public Elevator()
     {
@@ -53,10 +54,18 @@ public class Elevator implements TrcPidController.PidInput,
     {
         brake.setPosition(
                 brakeOn? RobotInfo.BRAKE_ON_POSITION: RobotInfo.BRAKE_OFF_POSITION);
+        this.brakeOn = brakeOn;
     }
 
     public void setPower(double power)
     {
+        if (power != 0.0 && brakeOn)
+        {
+            //
+            // Elevator is moving and brake is ON, disengage brake.
+            //
+            setBrakeOn(false);
+        }
         pidMotor.setPower(power);
     }
 

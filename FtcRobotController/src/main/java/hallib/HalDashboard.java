@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.robocol.Telemetry;
 
 import java.util.NoSuchElementException;
 
-import ftclib.FtcOpMode;
 import trclib.TrcDbgTrace;
 
 /**
@@ -17,8 +16,6 @@ import trclib.TrcDbgTrace;
  * dashboard display is very useful for displaying debug information. In
  * particular, the TrcMenu class uses the dashboard to display a choice menu
  * and interact with the user for choosing autonomous strategies and options.
- * This class is a wrapper of the Telemetry class to send information to the
- * Driver Station to be displayed.
  */
 public class HalDashboard
 {

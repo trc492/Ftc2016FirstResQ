@@ -2,6 +2,7 @@ package ftc3543;
 
 import ftclib.FtcOpMode;
 import hallib.HalDashboard;
+import trclib.TrcDbgTrace;
 import trclib.TrcEvent;
 import trclib.TrcRobot;
 import trclib.TrcStateMachine;
@@ -18,8 +19,11 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
         DONE
     }   //enum State
 
+    private static final String moduleName = "AutoParkFloorGoal";
+
     private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
+    private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
@@ -49,6 +53,8 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
         if (sm.isReady())
         {
             State state = (State)sm.getState();
+            tracer.traceInfo(moduleName, "State: %s [%.3f]", state.toString(), elapsedTime);
+            dashboard.displayPrintf(7, "State: %s [%.3f]", state.toString(), elapsedTime);
 
             switch (state)
             {
