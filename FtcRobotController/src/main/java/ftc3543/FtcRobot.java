@@ -225,8 +225,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         else if (pidCtrl == pidCtrlLight)
         {
             input = lightSensor.getData().value;
-
-            if (Math.abs(input) - RobotInfo.LIGHT_THRESHOLD < RobotInfo.LIGHT_DEADBAND)
+            //
+            // Give it a +/- 10% deadband to minimize fish tailing.
+            //
+            if (Math.abs(input - RobotInfo.LIGHT_THRESHOLD) < RobotInfo.LIGHT_DEADBAND)
             {
                 input = RobotInfo.LIGHT_THRESHOLD;
             }
