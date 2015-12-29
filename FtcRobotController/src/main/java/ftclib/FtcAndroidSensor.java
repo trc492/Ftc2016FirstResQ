@@ -74,8 +74,7 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
      * @param filters specifies an array of filter object used for filtering data of each axis.
      *                If none needed, it can be set to null.
      */
-    public FtcAndroidSensor(
-            String instanceName, int sensorType, int numAxes, TrcFilter[] filters)
+    public FtcAndroidSensor(String instanceName, int sensorType, int numAxes, TrcFilter[] filters)
     {
         this(FtcOpMode.getInstance().hardwareMap.appContext,
              instanceName, sensorType, numAxes, filters);
@@ -92,6 +91,64 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     {
         this(instanceName, sensorType, numAxes, null);
     }   //FtcAndroidSensor
+
+    /**
+     * This method creates an instance of the FtcAndroidSensor with the given sensor type.
+     * If none found, it will return null.
+     *
+     * @param context specifies the activity context.
+     * @param instanceName specifies the instance name.
+     * @param sensorType specifies the sensor type.
+     * @param numAxes specifies the number of axes of the sensor.
+     * @param filters specifies an array of filter object used for filtering data of each axis.
+     *                If none needed, it can be set to null.
+     */
+    public static FtcAndroidSensor createInstance(
+            Context context, String instanceName, int sensorType, int numAxes, TrcFilter[] filters)
+    {
+        FtcAndroidSensor sensor;
+
+        try
+        {
+            sensor = new FtcAndroidSensor(context, instanceName, sensorType, numAxes, filters);
+        }
+        catch (UnsupportedOperationException e)
+        {
+            sensor = null;
+        }
+
+        return sensor;
+    }   //createInstance
+
+    /**
+     * This method creates an instance of the FtcAndroidSensor with the given sensor type.
+     * If none found, it will return null.
+     *
+     * @param instanceName specifies the instance name.
+     * @param sensorType specifies the sensor type.
+     * @param numAxes specifies the number of axes of the sensor.
+     * @param filters specifies an array of filter object used for filtering data of each axis.
+     *                If none needed, it can be set to null.
+     */
+    public static FtcAndroidSensor createInstance(
+            String instanceName, int sensorType, int numAxes, TrcFilter[] filters)
+    {
+        return createInstance(FtcOpMode.getInstance().hardwareMap.appContext,
+                              instanceName, sensorType, numAxes, filters);
+    }   //createInstance
+
+    /**
+     * This method creates an instance of the FtcAndroidSensor with the given sensor type.
+     * If none found, it will return null.
+     *
+     * @param instanceName specifies the instance name.
+     * @param sensorType specifies the sensor type.
+     * @param numAxes specifies the number of axes of the sensor.
+     */
+    public static FtcAndroidSensor createInstance(String instanceName, int sensorType, int numAxes)
+    {
+        return createInstance(instanceName, sensorType, numAxes, null);
+    }   //createInstance
 
     /**
      * This method enables/disables the sensor data listener.
