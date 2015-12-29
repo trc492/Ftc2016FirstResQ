@@ -658,10 +658,13 @@ public class FtcGamepad implements TrcTaskMgr.Task
     //
     // Implements TrcTaskMgr.Task
     //
+
+    @Override
     public void startTask(TrcRobot.RunMode runMode)
     {
     }   //startTask
 
+    @Override
     public void stopTask(TrcRobot.RunMode runMode)
     {
     }   //stopTask
@@ -672,6 +675,7 @@ public class FtcGamepad implements TrcTaskMgr.Task
      *
      * @param runMode specifies the current robot run mode.
      */
+    @Override
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "prePeriodic";
@@ -736,14 +740,17 @@ public class FtcGamepad implements TrcTaskMgr.Task
         }
     }   //prePeriodicTask
 
+    @Override
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
     }   //postPeriodicTask
 
+    @Override
     public void preContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //preContinuousTask
 
+    @Override
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //postContinuousTask

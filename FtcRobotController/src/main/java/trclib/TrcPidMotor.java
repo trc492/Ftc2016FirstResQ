@@ -701,6 +701,8 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     //
     // Implements TrcTaskMgr.Task
     //
+
+    @Override
     public void startTask(TrcRobot.RunMode runMode)
     {
     }   //startTask
@@ -711,6 +713,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
      *
      * @param runMode specifies the competition mode that is about to
      */
+    @Override
     public void stopTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "stopTask";
@@ -730,6 +733,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         }
     }   //stopTask
 
+    @Override
     public void prePeriodicTask(TrcRobot.RunMode runMode)
     {
     }   //prePeriodicTask
@@ -745,14 +749,17 @@ public class TrcPidMotor implements TrcTaskMgr.Task
      *
      * @param runMode specifies the competition mode that is running.
      */
+    @Override
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
     }   //postPeriodicTask
 
+    @Override
     public void preContinuousTask(TrcRobot.RunMode runMode)
     {
     }   //preContinuousTask
 
+    @Override
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "postPeriodic";
