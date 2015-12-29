@@ -35,6 +35,7 @@ public class FtcMenu
     private static final int MENUBUTTON_DOWN    = (1 << 3);
 
     private static int prevButtonStates = 0;
+    private static FtcMenu currMenu = null;
 
     private HalDashboard dashboard;
     private String menuTitle;
@@ -43,7 +44,7 @@ public class FtcMenu
     private ArrayList<String> choiceTextTable = new ArrayList<String>();
     private ArrayList<Object> choiceObjectTable = new ArrayList<Object>();
     private ArrayList<FtcMenu> childMenuTable = new ArrayList<FtcMenu>();
-    private int currentChoice = -1;
+    private int currChoice = -1;
     private int firstDisplayedChoice = 0;
 
     /**
@@ -147,13 +148,13 @@ public class FtcMenu
         choiceTextTable.add(choiceText);
         choiceObjectTable.add(choiceObj);
         childMenuTable.add(childMenu);
-        if (currentChoice == -1)
+        if (currChoice == -1)
         {
             //
             // This is the first added choice in the menu.
             // Make it the default choice by highlighting it.
             //
-            currentChoice = 0;
+            currChoice = 0;
         }
     }   //addChoice
 
@@ -275,10 +276,10 @@ public class FtcMenu
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currentChoice);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currChoice);
         }
 
-        return currentChoice;
+        return currChoice;
     }   //getCurrentChoice
 
     /**
@@ -292,7 +293,7 @@ public class FtcMenu
      */
     public String getCurrentChoiceText()
     {
-        return getChoiceText(currentChoice);
+        return getChoiceText(currChoice);
     }   //getCurrentChoiceText
 
     /**
@@ -306,118 +307,20 @@ public class FtcMenu
      */
     public Object getCurrentChoiceObject()
     {
-        return getChoiceObject(currentChoice);
+        return getChoiceObject(currChoice);
     }   //getCurrentChoiceObject
 
     /**
-     * This method displays the menu and waits for the user to navigate the selections
-     * and make a choice.
-     * Note: this is a blocking method, it won't return until a choice is made or the
-     * menu is canceled.
+     * This method sets the current menu to the specified root menu. Typically,
+     * this is called in conjunction with the runMenus() method to use the FtcMenu
+     * module in a non-blocking environment.
      *
-     * @return choice index of the selection, -1 if the menu is canceled.
+     * @param rootMenu specifies the root menu.
      */
-    public int getUserChoice()
+    public static void setRootMenu(FtcMenu rootMenu)
     {
-        final String funcName = "getUserChoice";
-        int choice = -1;
-        boolean done = false;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        while (!done)
-        {
-            int currButtonStates = getMenuButtons();
-            int changedButtons = currButtonStates ^ prevButtonStates;
-
-            if (debugEnabled)
-            {
-                dbgTrace.traceInfo(funcName, "buttons=%x", currButtonStates);
-            }
-            //
-            // Check if any menu buttons changed states.
-            //
-            if (changedButtons != 0)
-            {
-                int buttonsPressed = currButtonStates & changedButtons;
-
-                if ((buttonsPressed & MENUBUTTON_BACK) != 0)
-                {
-                    //
-                    // MenuCancel is pressed. Set choice to none and exit.
-                    //
-                    choice = -1;
-                    done = true;
-                }
-                else if ((buttonsPressed & MENUBUTTON_ENTER) != 0)
-                {
-                    //
-                    // MenuEnter is pressed. Set choice to the selected choice and exit.
-                    //
-                    choice = currentChoice;
-                    done = true;
-                }
-                else if ((buttonsPressed & MENUBUTTON_UP) != 0)
-                {
-                    //
-                    // MenuUp is pressed. Move the selected choice up one.
-                    //
-                    prevChoice();
-                }
-                else if ((buttonsPressed & MENUBUTTON_DOWN)!= 0)
-                {
-                    //
-                    // MenuDown is pressed. Move the selected choice down one.
-                    //
-                    nextChoice();
-                }
-
-                prevButtonStates = currButtonStates;
-            }
-            //
-            // Refresh the display to show the choice movement.
-            //
-            displayMenu();
-            HalUtil.sleep(LOOP_INTERVAL);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                    "=%d", choice);
-        }
-
-        return choice;
-    }   //getUserChoice
-
-    /**
-     * This method displays the menu and waits for the user to navigate the selections
-     * and make a choice.
-     * Note: this is a blocking method, it won't return until a choice is made or the
-     * menu is canceled.
-     *
-     * @return choice text of the selection, null if the menu is canceled.
-     */
-    public String getUserChoiceText()
-    {
-        return getChoiceText(getUserChoice());
-    }   //getUserChoiceText
-
-    /**
-     * This method displays the menu and waits for the user to navigate the selections
-     * and make a choice.
-     * Note: this is a blocking method, it won't return until a choice is made or the
-     * menu is canceled.
-     *
-     * @return choice object of the selection, null if the menu is canceled.
-     */
-    public Object getUserChoiceObject()
-    {
-        return getChoiceObject(getUserChoice());
-    }   //getUserChoiceObject
+        currMenu = rootMenu;
+    }   //setRootMenu
 
     /**
      * This method traverses the menu tree from the given root menu displaying each
@@ -431,33 +334,105 @@ public class FtcMenu
      */
     public static void walkMenuTree(FtcMenu rootMenu)
     {
-        FtcMenu menu = rootMenu;
-
-        while (menu != null)
+        setRootMenu(rootMenu);
+        while (!runMenus())
         {
-            int choice = menu.getUserChoice();
-            if (choice != -1)
+            HalUtil.sleep(LOOP_INTERVAL);
+            /*
+            try
             {
                 //
-                // User selected a choice, let's go to the next menu.
+                // Make sure we yield so events get processed.
                 //
-                menu = menu.childMenuTable.get(choice);
+                FtcOpMode.getInstance().waitOneFullHardwareCycle();
             }
-            else if (menu != rootMenu)
+            catch (InterruptedException e)
             {
+            }
+            */
+        }
+    }   //walkMenuTree
+
+    /**
+     * This method walks the menu tree in a non-blocking environment.
+     * It means this method must be called periodically, so that the
+     * caller can perform other tasks if necessary.
+     *
+     * @return true if the user finished selecting the last choice of
+     *         the menu tree, false if the caller must call this again
+     *         in a loop.
+     */
+    public static boolean runMenus()
+    {
+        boolean done = false;
+
+        if (currMenu == null)
+        {
+            done = true;
+        }
+        else
+        {
+            int currButtonStates = currMenu.getMenuButtons();
+            int changedButtons = currButtonStates ^ prevButtonStates;
+            //
+            // Check if any menu buttons changed states.
+            //
+            if (changedButtons != 0)
+            {
+                int buttonsPressed = currButtonStates & changedButtons;
+
+                if ((buttonsPressed & MENUBUTTON_BACK) != 0)
+                {
+                    //
+                    // MenuBack is pressed, goto parent menu unless it's already root menu.
+                    // If at root menu, stay on it.
+                    //
+                    FtcMenu parentMenu = currMenu.getParentMenu();
+                    if (parentMenu != null)
+                    {
+                        currMenu = parentMenu;
+                    }
+                }
+                else if ((buttonsPressed & MENUBUTTON_ENTER) != 0)
+                {
+                    //
+                    // MenuEnter is pressed, goto the child menu of the current choice.
+                    // If there is none, we are done.
+                    //
+                    currMenu = currMenu.childMenuTable.get(currMenu.getCurrentChoice());
+                    if (currMenu == null)
+                    {
+                        //
+                        // We are done with the menus. Let's clear the dashboard.
+                        //
+                        HalDashboard.getInstance().clearDisplay();
+                    }
+                }
+                else if ((buttonsPressed & MENUBUTTON_UP) != 0)
+                {
+                    //
+                    // MenuUp is pressed. Move the selected choice up one.
+                    //
+                    currMenu.prevChoice();
+                }
+                else if ((buttonsPressed & MENUBUTTON_DOWN) != 0)
+                {
+                    //
+                    // MenuDown is pressed. Move the selected choice down one.
+                    //
+                    currMenu.nextChoice();
+                }
+
+                prevButtonStates = currButtonStates;
                 //
-                // User canceled a menu, let's go back to the parent menu
-                // unless we are already at the root menu in which case
-                // we stay in the root menu.
+                // Refresh the display to show the choice movement.
                 //
-                menu = menu.getParentMenu();
+                currMenu.displayMenu();
             }
         }
-        //
-        // We are done with the menus. Let's clear the dashboard.
-        //
-        HalDashboard.getInstance().clearDisplay();
-    }   //walkMenuTree
+
+        return done;
+    }   //runMenus
 
     /**
      * This method checks all the menu button states and combine them into an integer,
@@ -519,7 +494,7 @@ public class FtcMenu
         {
             dashboard.displayPrintf(
                     i - firstDisplayedChoice + 1,
-                    i == currentChoice? ">>\t%s": "%s", choiceTextTable.get(i));
+                    i == currChoice? ">>\t%s": "%s", choiceTextTable.get(i));
         }
     }   //displayMenu
 
@@ -533,25 +508,25 @@ public class FtcMenu
 
         if (choiceTextTable.size() == 0)
         {
-            currentChoice = -1;
+            currChoice = -1;
         }
         else
         {
-            currentChoice++;
-            if (currentChoice >= choiceTextTable.size())
+            currChoice++;
+            if (currChoice >= choiceTextTable.size())
             {
-                currentChoice = 0;
+                currChoice = 0;
             }
 
             int lastDisplayedChoice =
                     Math.min(firstDisplayedChoice + HalDashboard.MAX_NUM_TEXTLINES - 2,
                              choiceTextTable.size() - 1);
-            if (currentChoice > lastDisplayedChoice)
+            if (currChoice > lastDisplayedChoice)
             {
                 //
                 // Scroll down.
                 //
-                firstDisplayedChoice = currentChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
+                firstDisplayedChoice = currChoice - (HalDashboard.MAX_NUM_TEXTLINES - 2);
             }
         }
 
@@ -559,7 +534,7 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (choice=%d)", currentChoice);
+                               "! (choice=%d)", currChoice);
         }
     }   //nextChoice
 
@@ -573,22 +548,22 @@ public class FtcMenu
 
         if (choiceTextTable.size() == 0)
         {
-            currentChoice = -1;
+            currChoice = -1;
         }
         else
         {
-            currentChoice--;
-            if (currentChoice < 0)
+            currChoice--;
+            if (currChoice < 0)
             {
-                currentChoice = choiceTextTable.size() - 1;
+                currChoice = choiceTextTable.size() - 1;
             }
 
-            if (currentChoice < firstDisplayedChoice)
+            if (currChoice < firstDisplayedChoice)
             {
                 //
                 // Scroll up.
                 //
-                firstDisplayedChoice = currentChoice;
+                firstDisplayedChoice = currChoice;
             }
         }
 
@@ -596,7 +571,7 @@ public class FtcMenu
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                               "! (choice=%d)", currentChoice);
+                               "! (choice=%d)", currChoice);
         }
     }   //prevChoice
 
