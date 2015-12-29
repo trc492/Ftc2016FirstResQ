@@ -79,6 +79,8 @@ public class Slider implements TrcPidController.PidInput,
     //
     // Implements TrcPidController.PidInput.
     //
+
+    @Override
     public double getInput(TrcPidController pidCtrl)
     {
         double value = 0.0;
@@ -95,6 +97,7 @@ public class Slider implements TrcPidController.PidInput,
     // Implements TrcDigitalTrigger.TriggerHandler
     //
 
+    @Override
     public void DigitalTriggerEvent(TrcDigitalTrigger digitalTrigger, boolean active)
     {
         if (digitalTrigger == lowerLimitTrigger)

@@ -240,6 +240,8 @@ public class FtcRobot implements TrcPidController.PidInput,
     //
     // Implements TrcAnalogTrigger.TriggerHandler
     //
+
+    @Override
     public void AnalogTriggerEvent(
             TrcAnalogTrigger analogTrigger, TrcAnalogTrigger.Zone zone, double value)
     {
