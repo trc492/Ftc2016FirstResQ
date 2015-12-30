@@ -39,7 +39,7 @@ public class HalDashboard
      *
      * @param telemetry specifies the Telemetry object.
      */
-    private HalDashboard(Telemetry telemetry)
+    public HalDashboard(Telemetry telemetry)
     {
         if (debugEnabled)
         {
@@ -66,6 +66,7 @@ public class HalDashboard
      * @param telemetry specifies the Telemetry object.
      * @return global instance of the dashboard object.
      */
+    /*
     public static HalDashboard getInstance(Telemetry telemetry)
     {
         if (instance == null)
@@ -75,6 +76,7 @@ public class HalDashboard
 
         return instance;
     }   //getInstance
+    */
 
     /**
      * This static method allows any class to get an instance of

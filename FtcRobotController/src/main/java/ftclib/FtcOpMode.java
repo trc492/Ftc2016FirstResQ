@@ -168,7 +168,7 @@ public abstract class FtcOpMode extends LinearOpMode
     {
         final String funcName = "runOpMode";
         TrcTaskMgr taskMgr = TrcTaskMgr.getInstance();
-        HalDashboard dashboard = HalDashboard.getInstance(telemetry);
+        HalDashboard dashboard = new HalDashboard(telemetry);
 
         if (debugEnabled)
         {

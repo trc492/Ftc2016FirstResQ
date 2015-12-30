@@ -17,7 +17,7 @@ public class Elevator implements TrcPidController.PidInput,
     // the elevator and a servo to engage/disengage the brake.
     //
     private FtcTouchSensor lowerLimitSwitch;
-    private FtcTouchSensor upperLimitSwitch;
+//    private FtcTouchSensor upperLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
     private FtcDcMotor motor;
     private TrcPidController pidCtrl;
@@ -28,10 +28,10 @@ public class Elevator implements TrcPidController.PidInput,
     public Elevator()
     {
         lowerLimitSwitch = new FtcTouchSensor("lowerLimitSwitch");
-        upperLimitSwitch = new FtcTouchSensor("upperLimitSwitch");
+//        upperLimitSwitch = new FtcTouchSensor("upperLimitSwitch");
         lowerLimitTrigger = new TrcDigitalTrigger("elevatorLowerLimit", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
-        motor = new FtcDcMotor("elevator", lowerLimitSwitch, upperLimitSwitch);
+        motor = new FtcDcMotor("elevator", lowerLimitSwitch);//, upperLimitSwitch);
         pidCtrl = new TrcPidController(
                 "elevator",
                 RobotInfo.ELEVATOR_KP, RobotInfo.ELEVATOR_KI,
@@ -91,7 +91,7 @@ public class Elevator implements TrcPidController.PidInput,
 
     public boolean isUpperLimitSwitchPressed()
     {
-        return upperLimitSwitch.isActive();
+        return false;//upperLimitSwitch.isActive();
     }
 
     public void displayDebugInfo(int lineNum)

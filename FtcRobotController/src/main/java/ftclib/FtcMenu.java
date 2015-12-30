@@ -375,6 +375,10 @@ public class FtcMenu
             int currButtonStates = currMenu.getMenuButtons();
             int changedButtons = currButtonStates ^ prevButtonStates;
             //
+            // Refresh the display to show the choice movement.
+            //
+            currMenu.displayMenu();
+            //
             // Check if any menu buttons changed states.
             //
             if (changedButtons != 0)
@@ -424,10 +428,6 @@ public class FtcMenu
                 }
 
                 prevButtonStates = currButtonStates;
-                //
-                // Refresh the display to show the choice movement.
-                //
-                currMenu.displayMenu();
             }
         }
 
