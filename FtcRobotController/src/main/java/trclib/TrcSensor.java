@@ -1,3 +1,26 @@
+/*
+ * Titan Robotics Framework Library
+ * Copyright (c) 2015 Michael H. Tsang (http://www.titanrobotics.net)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package trclib;
 
 import hallib.HalUtil;
@@ -13,6 +36,10 @@ import hallib.HalUtil;
  */
 public abstract class TrcSensor
 {
+    private static final String moduleName = "TrcSensor";
+    private static final boolean debugEnabled = false;
+    private TrcDbgTrace dbgTrace = null;
+
     /**
      * This class implements the SensorData object that consists of the sensor
      * value as well as a timestamp when the data sample is taken.
@@ -20,7 +47,7 @@ public abstract class TrcSensor
     public static class SensorData
     {
         public double timestamp;
-        public double value;
+        public Object value;
 
         /**
          * Constructor: Creates an instance of the object with the given
@@ -29,7 +56,7 @@ public abstract class TrcSensor
          * @param timestamp specifies the timestamp.
          * @param value     specifies the data value.
          */
-        public SensorData(double timestamp, double value)
+        public SensorData(double timestamp, Object value)
         {
             this.timestamp = timestamp;
             this.value = value;
@@ -61,10 +88,6 @@ public abstract class TrcSensor
     //
     private static final int NUM_CAL_SAMPLES    = 100;
     private static final long CAL_INTERVAL      = 10;   //in msec.
-
-    private static final String moduleName = "TrcSensor";
-    private static final boolean debugEnabled = false;
-    private TrcDbgTrace dbgTrace = null;
 
     private final String instanceName;
     private int numAxes;
@@ -252,31 +275,33 @@ public abstract class TrcSensor
         final String funcName = "getData";
 
         SensorData data = getRawData(index, dataType);
+        double value = (Double)data.value;
         //
         // Apply filter if necessary.
         //
         if (filters[index] != null && ((processOptions & PROCESSOPTION_APPLY_FILTER) != 0))
         {
-            data.value = filters[index].filterData(data.value);
+            value = filters[index].filterData(value);
         }
         //
         // Apply zeroOffset.
         //
         if ((processOptions & PROCESSOPTION_APPLY_ZEROOFFSET) != 0)
         {
-            data.value -= zeroOffsets[index];
+            value -= zeroOffsets[index];
         }
         //
         // Apply deadband.
         //
         if ((processOptions & PROCESSOPTION_APPLY_DEADBAND) != 0)
         {
-            data.value = TrcUtil.applyDeadband(data.value, deadbands[index]);
+            value = TrcUtil.applyDeadband(value, deadbands[index]);
         }
         //
         // Change sign and scale data if necessary.
         //
-        data.value *= signs[index]*scales[index];
+        value *= signs[index]*scales[index];
+        data.value = value;
 
         if (debugEnabled)
         {
@@ -306,7 +331,7 @@ public abstract class TrcSensor
 
         for (int i = 0; i < numAxes; i++)
         {
-            double value = getRawData(i, dataType).value;
+            double value = (Double)getRawData(i, dataType).value;
             minValues[i] = value;
             maxValues[i] = value;
             sums[i] = 0.0;
@@ -316,7 +341,7 @@ public abstract class TrcSensor
         {
             for (int i = 0; i < numAxes; i++)
             {
-                double value = getRawData(i, dataType).value;
+                double value = (Double)getRawData(i, dataType).value;
                 sums[i] += value;
 
                 if (value < minValues[i])

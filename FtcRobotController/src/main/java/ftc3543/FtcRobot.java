@@ -174,7 +174,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         gyro.resetZIntegrator();
         gyro.setEnabled(true);
         sonarSensor.setEnabled(true);
-        prevSonarValue = sonarSensor.getData().value;
+        prevSonarValue = (Double)sonarSensor.getData().value;
         lightSensor.setEnabled(true);
         driveBase.resetPosition();
     }   //startMode
@@ -207,7 +207,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         }
         else if (pidCtrl == pidCtrlSonar)
         {
-            input = sonarSensor.getData().value;
+            input = (Double)sonarSensor.getData().value;
             //
             // The Lego Ultrasonic sensor occasionally returns a zero.
             // This is causing havoc to PID control. Let's detect that
@@ -224,7 +224,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         }
         else if (pidCtrl == pidCtrlLight)
         {
-            input = lightSensor.getData().value;
+            input = (Double)lightSensor.getData().value;
             //
             // Give it a +/- 10% deadband to minimize fish tailing.
             //
