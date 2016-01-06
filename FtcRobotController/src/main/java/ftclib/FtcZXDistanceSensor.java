@@ -58,7 +58,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     private static final int ZXREG_RRNG             = 0x0e;     //Right Emitter Ranging Data
     private static final int ZXREG_REGVER           = 0xfe;     //Register Map Version
     private static final int ZXREG_MODEL            = 0xff;     //Sensor Model ID
-    private static final int READ_LENGTH            = (ZXREG_RRNG - ZXREG_STATUS + 1);
 
     //
     // Register 0x00 - STATUS:
@@ -298,9 +297,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(ZXREG_REGVER, 1, this);
-        read(ZXREG_MODEL, 1, this);
-        read(ZXREG_STATUS, READ_LENGTH, this);
+        read(ZXREG_REGVER, ZXREG_MODEL - ZXREG_REGVER + 1, this);
+        read(ZXREG_STATUS, ZXREG_RRNG - ZXREG_STATUS + 1, this);
     }   //FtcZXDistanceSensor
 
     /**
@@ -522,36 +520,34 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        switch (regAddress)
+        if (regAddress == ZXREG_STATUS)
         {
-            case ZXREG_STATUS:
-                deviceStatus = data[ZXREG_STATUS] & 0xff;
+            deviceStatus = data[ZXREG_STATUS - ZXREG_STATUS] & 0xff;
 
-                if ((deviceStatus & STATUS_GESTURES) != 0)
-                {
-                    gesture = new TrcSensor.SensorData(
-                            timestamp, Gesture.getGesture(data[ZXREG_GESTURE] & 0xff));
-                    gestureSpeed = new TrcSensor.SensorData(timestamp, data[ZXREG_GSPEED] & 0xff);
-                }
+            if ((deviceStatus & STATUS_GESTURES) != 0)
+            {
+                gesture = new TrcSensor.SensorData(
+                        timestamp, Gesture.getGesture(data[ZXREG_GESTURE - ZXREG_STATUS] & 0xff));
+                gestureSpeed = new TrcSensor.SensorData(
+                        timestamp, data[ZXREG_GSPEED - ZXREG_STATUS] & 0xff);
+            }
 
-                if ((deviceStatus & STATUS_DAV) != 0)
-                {
-                    xPos = new TrcSensor.SensorData(timestamp, data[ZXREG_XPOS] & 0xff);
-                    zPos = new TrcSensor.SensorData(timestamp, data[ZXREG_ZPOS] & 0xff);
-                    leftRangingData = new TrcSensor.SensorData(timestamp, data[ZXREG_LRNG] & 0xff);
-                    rightRangingData = new TrcSensor.SensorData(timestamp, data[ZXREG_RRNG] & 0xff);
-                }
+            if ((deviceStatus & STATUS_DAV) != 0)
+            {
+                xPos = new TrcSensor.SensorData(timestamp, data[ZXREG_XPOS - ZXREG_STATUS] & 0xff);
+                zPos = new TrcSensor.SensorData(timestamp, data[ZXREG_ZPOS - ZXREG_STATUS] & 0xff);
+                leftRangingData = new TrcSensor.SensorData(
+                        timestamp, data[ZXREG_LRNG - ZXREG_STATUS] & 0xff);
+                rightRangingData = new TrcSensor.SensorData(
+                        timestamp, data[ZXREG_RRNG - ZXREG_STATUS] & 0xff);
+            }
 
-                repeat = true;
-                break;
-
-            case ZXREG_REGVER:
-                regMapVersion = data[0] & 0xff;
-                break;
-
-            case ZXREG_MODEL:
-                modelVersion = data[0] & 0xff;
-                break;
+            repeat = true;
+        }
+        else if (regAddress == ZXREG_REGVER)
+        {
+            regMapVersion = data[ZXREG_REGVER - ZXREG_REGVER] & 0xff;
+            modelVersion = data[ZXREG_MODEL - ZXREG_REGVER] & 0xff;
         }
 
         if (debugEnabled)

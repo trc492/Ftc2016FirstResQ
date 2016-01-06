@@ -145,7 +145,6 @@ public class FtcI2cDevice extends TrcI2cDevice
         device.enableI2cReadMode(i2cAddress, regAddress, length);
         device.setI2cPortActionFlag();
         device.writeI2cCacheToController();
-//        device.readI2cCacheFromController();
     }   //sendReadCommand
 
     /**
