@@ -30,11 +30,11 @@ import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
 
 /**
- * This class implements a ZX Distance sensor extending FtcI2cDevice.
- * It provides implementation of the TrcI2cDevice.DataReader interface
- * for continuously reading all the registers.
+ * This class implements the ZX Distance sensor extending FtcI2cDevice.
+ * It provides the TrcI2cDevice.CompletionHandler interface to read the
+ * received data.
  */
-public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.DataReader
+public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler
 {
     private static final String moduleName = "FtcZXDistanceSensor";
     private static final boolean debugEnabled = false;
@@ -58,6 +58,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     private static final int ZXREG_RRNG             = 0x0e;     //Right Emitter Ranging Data
     private static final int ZXREG_REGVER           = 0xfe;     //Register Map Version
     private static final int ZXREG_MODEL            = 0xff;     //Sensor Model ID
+    private static final int READ_LENGTH            = (ZXREG_RRNG - ZXREG_STATUS + 1);
 
     //
     // Register 0x00 - STATUS:
@@ -267,15 +268,15 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     //
     public static final int MODEL_VERSION           = 0x01;
 
-    private TrcSensor.SensorData[] deviceStatus = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] gesture = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] gestureSpeed = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] xPos = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] zPos = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] leftRangingData = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] rightRangingData = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] regMapVersion = new TrcSensor.SensorData[1];
-    private TrcSensor.SensorData[] modelVersion = new TrcSensor.SensorData[1];
+    private int deviceStatus = 0;
+    private TrcSensor.SensorData gesture = null;
+    private TrcSensor.SensorData gestureSpeed = null;
+    private TrcSensor.SensorData xPos = null;
+    private TrcSensor.SensorData zPos = null;
+    private TrcSensor.SensorData leftRangingData = null;
+    private TrcSensor.SensorData rightRangingData = null;
+    private int regMapVersion = 0;
+    private int modelVersion = 0;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -297,18 +298,9 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        addToDataReader(ZXREG_STATUS, deviceStatus.length, deviceStatus, null);
-        addToDataReader(ZXREG_GESTURE, gesture.length, gesture, this);
-        addToDataReader(ZXREG_GSPEED, gestureSpeed.length, gestureSpeed, this);
-        addToDataReader(ZXREG_XPOS, xPos.length, xPos, this);
-        addToDataReader(ZXREG_ZPOS, zPos.length, zPos, this);
-        addToDataReader(ZXREG_LRNG, leftRangingData.length, leftRangingData, this);
-        addToDataReader(ZXREG_RRNG, rightRangingData.length, rightRangingData, this);
-        addToDataReader(ZXREG_REGVER, regMapVersion.length, regMapVersion, this);
-        addToDataReader(ZXREG_MODEL, modelVersion.length, modelVersion, this);
-        regMapVersion[0].value = -1.0;
-        modelVersion[0].value = -1.0;
-        setContinuousMode(true);
+        read(ZXREG_REGVER, 1, this);
+        read(ZXREG_MODEL, 1, this);
+        read(ZXREG_STATUS, READ_LENGTH, this);
     }   //FtcZXDistanceSensor
 
     /**
@@ -340,15 +332,14 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     public int getStatus()
     {
         final String funcName = "getStatus";
-        int data = (Integer)deviceStatus[0].value;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", data);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", deviceStatus);
         }
 
-        return data;
+        return deviceStatus;
     }   //getStatus
 
     /**
@@ -356,18 +347,19 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
      *
      * @return detected gesture type.
      */
-    public Gesture getGesture()
+    public TrcSensor.SensorData getGesture()
     {
         final String funcName = "getGesture";
-        Gesture data = Gesture.getGesture((Integer)gesture[0].value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", data.toString());
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=(timestamp=%.3f,value=%s)",
+                               gesture != null? gesture.timestamp: 0,
+                               gesture != null? ((Gesture)gesture.value).toString(): "null");
         }
 
-        return data;
+        return gesture;
     }   //getGesture
 
     /**
@@ -384,10 +376,11 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%d)",
-                               gestureSpeed[0].timestamp, gestureSpeed[0].value);
+                               gestureSpeed != null? gestureSpeed.timestamp: 0.0,
+                               gestureSpeed != null? (Integer)gestureSpeed.value: 0);
         }
 
-        return gestureSpeed[0];
+        return gestureSpeed;
     }   //getGestureSpeed
 
     /**
@@ -399,20 +392,16 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     {
         final String funcName = "getX";
 
-        if ((Integer)xPos[0].value > MAX_XPOSITION)
-        {
-            xPos[0].value = -1;
-        }
-
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%d)",
-                               xPos[0].timestamp, xPos[0].value);
+                               xPos != null? xPos.timestamp: 0.0,
+                               xPos != null? (Integer)xPos.value: 0);
         }
 
-        return xPos[0];
+        return xPos;
     }   //getX
 
     /**
@@ -424,20 +413,16 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     {
         final String funcName = "getZ";
 
-        if ((Integer)zPos[0].value > MAX_ZPOSITION)
-        {
-            zPos[0].value = -1;
-        }
-
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%d)",
-                               zPos[0].timestamp, zPos[0].value);
+                               zPos != null? zPos.timestamp: 0.0,
+                               zPos != null? (Integer)zPos.value: 0);
         }
 
-        return zPos[0];
+        return zPos;
     }   //getZ
 
     /**
@@ -454,10 +439,11 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%d)",
-                               leftRangingData[0].timestamp, leftRangingData[0].value);
+                               leftRangingData != null? leftRangingData.timestamp: 0.0,
+                               leftRangingData != null? (Integer)leftRangingData.value: 0);
         }
 
-        return leftRangingData[0];
+        return leftRangingData;
     }   //getLeftRangingData
 
     /**
@@ -474,10 +460,11 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%d)",
-                               rightRangingData[0].timestamp, rightRangingData[0].value);
+                               rightRangingData != null? rightRangingData.timestamp: 0.0,
+                               rightRangingData != null? (Integer)rightRangingData.value: 0);
         }
 
-        return rightRangingData[0];
+        return rightRangingData;
     }   //getRightRangingData
 
     /**
@@ -488,15 +475,14 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     public int getRegMapVersion()
     {
         final String funcName = "getRegMapVersion";
-        int data = (Integer)regMapVersion[0].value;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", data);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", regMapVersion);
         }
 
-        return data;
+        return regMapVersion;
     }   //getRegMapVersion
 
     /**
@@ -507,92 +493,84 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Da
     public int getModelVersion()
     {
         final String funcName = "getModelVersion";
-        int data = (Integer)modelVersion[0].value;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", data);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", modelVersion);
         }
 
-        return data;
+        return modelVersion;
     }   //getModelVersion
 
     //
-    // Implements TrcI2cDevice.DataReader interface.
+    // Implements TrcI2cDevice.CompletionHandler interface.
     //
 
     /**
-     * This method is called to check if the device register should be read.
-     * Typically, a status register is checked to make sure the data is
-     * available.
+     * This method is called to notify the completion of the read operation.
      *
-     * @param regAddress specifies the register address.
-     * @return true to read the register, false otherwise.
+     * @param timestamp specified the timestamp of the data retrieved.
+     * @param regAddress specifies the starting register address.
+     * @param length specifies the number of bytes read.
+     * @param data specifies the data byte array.
+     * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean shouldReadData(int regAddress)
+    public boolean readCompletion(double timestamp, int regAddress, int length, byte[] data)
     {
-        final String funcName = "shouldReadData";
-        boolean shouldRead;
+        final String funcName = "readCompletion";
+        boolean repeat = false;
 
         switch (regAddress)
         {
             case ZXREG_STATUS:
-                //
-                // Always reads Status register.
-                //
-                shouldRead = true;
-                break;
+                deviceStatus = data[ZXREG_STATUS] & 0xff;
 
-            case ZXREG_GESTURE:
-            case ZXREG_GSPEED:
-                //
-                // Reads these only if any of the gesture bits in the Status register
-                // are set.
-                //
-                shouldRead = (getStatus() & STATUS_GESTURES) != 0;
-                break;
+                if ((deviceStatus & STATUS_GESTURES) != 0)
+                {
+                    gesture = new TrcSensor.SensorData(
+                            timestamp, Gesture.getGesture(data[ZXREG_GESTURE] & 0xff));
+                    gestureSpeed = new TrcSensor.SensorData(timestamp, data[ZXREG_GSPEED] & 0xff);
+                }
 
-            case ZXREG_XPOS:
-            case ZXREG_ZPOS:
-            case ZXREG_LRNG:
-            case ZXREG_RRNG:
-                //
-                // Reads these only if the STATUS_DAV bit is set.
-                //
-                shouldRead = (getStatus() & STATUS_DAV) != 0;
+                if ((deviceStatus & STATUS_DAV) != 0)
+                {
+                    xPos = new TrcSensor.SensorData(timestamp, data[ZXREG_XPOS] & 0xff);
+                    zPos = new TrcSensor.SensorData(timestamp, data[ZXREG_ZPOS] & 0xff);
+                    leftRangingData = new TrcSensor.SensorData(timestamp, data[ZXREG_LRNG] & 0xff);
+                    rightRangingData = new TrcSensor.SensorData(timestamp, data[ZXREG_RRNG] & 0xff);
+                }
+
+                repeat = true;
                 break;
 
             case ZXREG_REGVER:
-                //
-                // RegVer register doesn't change. So we just need to read it once.
-                //
-                shouldRead = (Integer)regMapVersion[0].value == -1;
+                regMapVersion = data[0] & 0xff;
                 break;
 
             case ZXREG_MODEL:
-                //
-                // Model register doesn't change. So we just need to read it once.
-                //
-                shouldRead = (Integer)modelVersion[0].value == -1;
+                modelVersion = data[0] & 0xff;
                 break;
-
-            default:
-                //
-                // We don't know this register, don't read it.
-                //
-                shouldRead = false;
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK, "addr=%x", regAddress);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
+                                "timestamp=%.3f,regAddr=%x,len=%d", timestamp, regAddress, length);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                               "=%s", Boolean.toString(shouldRead));
+                               "=%s", Boolean.toString(repeat));
         }
 
-        return shouldRead;
-    }   //shouldReadData
+        return repeat;
+    }   //readCompletion
+
+    /**
+     * This method is called to notify the completion of the write operation.
+     */
+    @Override
+    public void writeCompletion()
+    {
+    }   //writeCompletion
 
 }   //class FtcZXDistanceSensor

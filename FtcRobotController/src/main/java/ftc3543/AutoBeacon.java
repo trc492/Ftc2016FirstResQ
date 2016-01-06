@@ -15,6 +15,9 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         DO_DELAY,
         MOVE_FORWARD,
         FIND_LINE,
+        CLEAR_DEBRIS,
+        BACK_TO_LINE,
+        FIND_LINE_AGAIN,
         TURN_TO_LINE,
         FOLLOW_LINE,
         PUSH_BUTTON,
@@ -136,6 +139,24 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(25.0, 0.0, false, event);
                     sm.addEvent(event);
+                    sm.waitForEvents(State.CLEAR_DEBRIS);
+                    break;
+
+                case CLEAR_DEBRIS:
+                    robot.pidDrive.setTarget(12.0, 0.0, false, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.BACK_TO_LINE);
+                    break;
+
+                case BACK_TO_LINE:
+                    robot.pidDrive.setTarget(-18.0, 0.0, false, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.FIND_LINE_AGAIN);
+                    break;
+
+                case FIND_LINE_AGAIN:
+                    robot.pidDrive.setTarget(12.0, 0.0, false, event);
+                    sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;
 
@@ -207,6 +228,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Deposit the climbers into the bin.
                     //
                     robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
+//                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION,
+//                                                  RobotInfo.HANGINGHOOK_STEPRATE);
                     //
                     // It takes sometime for the arm to move and deposit the climber.
                     // So set a timer to wait for it.
@@ -233,6 +256,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     }
 
                     robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
+//                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+//                                                  RobotInfo.HANGINGHOOK_STEPRATE);
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {

@@ -41,7 +41,7 @@ public class FtcI2cDevice extends TrcI2cDevice
     private TrcDbgTrace dbgTrace = null;
 
     private int i2cAddress;
-    private I2cDevice sensor;
+    private I2cDevice device;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -64,7 +64,7 @@ public class FtcI2cDevice extends TrcI2cDevice
         }
 
         this.i2cAddress = i2cAddress;
-        sensor = hardwareMap.i2cDevice.get(instanceName);
+        device = hardwareMap.i2cDevice.get(instanceName);
     }   //FtcI2cDevice
 
     /**
@@ -91,7 +91,7 @@ public class FtcI2cDevice extends TrcI2cDevice
     public boolean isPortReady()
     {
         final String funcName = "isPortReady";
-        boolean ready = sensor.isI2cPortReady();
+        boolean ready = device.isI2cPortReady();
 
         if (debugEnabled)
         {
@@ -112,7 +112,7 @@ public class FtcI2cDevice extends TrcI2cDevice
     public boolean isPortInWriteMode()
     {
         final String funcName = "isPortInWriteMode";
-        boolean writeMode = sensor.isI2cPortInWriteMode();
+        boolean writeMode = device.isI2cPortInWriteMode();
 
         if (debugEnabled)
         {
@@ -125,15 +125,15 @@ public class FtcI2cDevice extends TrcI2cDevice
     }   //isPortInWriteMode
 
     /**
-     * This method sets up the port for a read operation.
+     * This method sends the read command to the device.
      *
      * @param regAddress specifies the register address.
      * @param length specifies the number of bytes to read.
      */
     @Override
-    public void setupReadCommand(int regAddress, int length)
+    public void sendReadCommand(int regAddress, int length)
     {
-        final String funcName = "setupReadCommand";
+        final String funcName = "sendReadCommand";
 
         if (debugEnabled)
         {
@@ -142,20 +142,23 @@ public class FtcI2cDevice extends TrcI2cDevice
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        sensor.enableI2cReadMode(i2cAddress, regAddress, length);
-    }   //setupReadCommand
+        device.enableI2cReadMode(i2cAddress, regAddress, length);
+        device.setI2cPortActionFlag();
+        device.writeI2cCacheToController();
+//        device.readI2cCacheFromController();
+    }   //sendReadCommand
 
     /**
-     * This method sets up the port for a write operation.
+     * This method sends the write command to the device.
      *
      * @param regAddress specifies the register address.
      * @param length specifies the number of bytes to write.
      * @param data specifies the data buffer containing the data to write to the device.
      */
     @Override
-    public void setupWriteCommand(int regAddress, int length, byte[] data)
+    public void sendWriteCommand(int regAddress, int length, byte[] data)
     {
-        final String funcName = "setupWriteCommand";
+        final String funcName = "sendWriteCommand";
 
         if (debugEnabled)
         {
@@ -164,46 +167,11 @@ public class FtcI2cDevice extends TrcI2cDevice
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        sensor.copyBufferIntoWriteBuffer(data);
-        sensor.enableI2cWriteMode(i2cAddress, regAddress, length);
-    }   //setupWriteCommand
-
-    /**
-     * This method initiates a bus transaction with the previous command.
-     */
-    @Override
-    public void initiatePreviousCommand()
-    {
-        final String funcName = "initiatePreviousCommand";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        sensor.setI2cPortActionFlag();
-        sensor.writeI2cPortFlagOnlyToController();
-    }   //initiatePreviousCommand
-
-    /**
-     * This method initiates a bus transaction with a new command either from
-     * setupReadCommand or setupWriteCommand.
-     */
-    @Override
-    public void initiatePortCommand()
-    {
-        final String funcName = "initiatePortCommand";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        sensor.setI2cPortActionFlag();
-        sensor.writeI2cCacheToController();
-    }   //initiatePortCommand
+        device.enableI2cWriteMode(i2cAddress, regAddress, length);
+        device.copyBufferIntoWriteBuffer(data);
+        device.setI2cPortActionFlag();
+        device.writeI2cCacheToController();
+    }   //sendWriteCommand
 
     /**
      * This method retrieves the data read from the device.
@@ -215,8 +183,8 @@ public class FtcI2cDevice extends TrcI2cDevice
     {
         final String funcName = "getData";
 
-        sensor.readI2cCacheFromController();
-        byte[] data = sensor.getCopyOfReadBuffer();
+        device.readI2cCacheFromController();
+        byte[] data = device.getCopyOfReadBuffer();
 
         if (debugEnabled)
         {
