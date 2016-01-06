@@ -136,7 +136,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // If line is detected, it will interrupt PID drive.
                     //
                     robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
+                    robot.pidCtrlDrive.setOutputRange(-0.2, 0.2);
                     robot.pidDrive.setTarget(25.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.CLEAR_DEBRIS);
@@ -165,6 +165,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     // If line is detected, it will interrupt PID turn.
                     //
+                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);;
                     robot.pidDrive.setTarget(
                             0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event);

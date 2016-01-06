@@ -58,6 +58,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     private static final int ZXREG_RRNG             = 0x0e;     //Right Emitter Ranging Data
     private static final int ZXREG_REGVER           = 0xfe;     //Register Map Version
     private static final int ZXREG_MODEL            = 0xff;     //Sensor Model ID
+    private static final int DATA_LENGTH            = (ZXREG_RRNG - ZXREG_STATUS + 1);
+    private static final int VER_LENGTH             = (ZXREG_MODEL - ZXREG_REGVER + 1);
 
     //
     // Register 0x00 - STATUS:
@@ -297,8 +299,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(ZXREG_REGVER, ZXREG_MODEL - ZXREG_REGVER + 1, this);
-        read(ZXREG_STATUS, ZXREG_RRNG - ZXREG_STATUS + 1, this);
+        read(ZXREG_REGVER, VER_LENGTH, this);
+        read(ZXREG_STATUS, DATA_LENGTH, this);
     }   //FtcZXDistanceSensor
 
     /**
@@ -508,19 +510,19 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     /**
      * This method is called to notify the completion of the read operation.
      *
-     * @param timestamp specified the timestamp of the data retrieved.
      * @param regAddress specifies the starting register address.
      * @param length specifies the number of bytes read.
+     * @param timestamp specified the timestamp of the data retrieved.
      * @param data specifies the data byte array.
      * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean readCompletion(double timestamp, int regAddress, int length, byte[] data)
+    public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data)
     {
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == ZXREG_STATUS)
+        if (regAddress == ZXREG_STATUS && length == DATA_LENGTH)
         {
             deviceStatus = data[ZXREG_STATUS - ZXREG_STATUS] & 0xff;
 
@@ -544,7 +546,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
 
             repeat = true;
         }
-        else if (regAddress == ZXREG_REGVER)
+        else if (regAddress == ZXREG_REGVER && length == VER_LENGTH)
         {
             regMapVersion = data[ZXREG_REGVER - ZXREG_REGVER] & 0xff;
             modelVersion = data[ZXREG_MODEL - ZXREG_REGVER] & 0xff;
@@ -553,9 +555,11 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "timestamp=%.3f,regAddr=%x,len=%d", timestamp, regAddress, length);
+                                "regAddr=%x,len=%d,timestamp=%.3f", regAddress, length, timestamp);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
+            dbgTrace.traceInfo(funcName, "%s(regAddr=%x,len=%d,timestamp=%.3f)=%s",
+                               regAddress, length, timestamp, Boolean.toString(repeat));
         }
 
         return repeat;
@@ -563,9 +567,12 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
 
     /**
      * This method is called to notify the completion of the write operation.
+     *
+     * @param regAddress specifies the starting register address.
+     * @param length specifies the number of bytes read.
      */
     @Override
-    public void writeCompletion()
+    public void writeCompletion(int regAddress, int length)
     {
     }   //writeCompletion
 

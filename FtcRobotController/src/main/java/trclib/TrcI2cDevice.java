@@ -88,18 +88,21 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
         /**
          * This method is called when the read operation has been completed.
          *
-         * @param timestamp specified the timestamp of the data retrieved.
          * @param regAddress specifies the starting register address.
          * @param length specifies the number of bytes read.
+         * @param timestamp specified the timestamp of the data retrieved.
          * @param data specifies the data byte array.
          * @return true if the request should be repeated, false otherwise.
          */
-        public boolean readCompletion(double timestamp, int regAddress, int length, byte[] data);
+        public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data);
 
         /**
          * This method is called when the write operation has been completed.
+         *
+         * @param regAddress specifies the starting register address.
+         * @param length specifies the number of bytes read.
          */
-        public void writeCompletion();
+        public void writeCompletion(int regAddress, int length);
 
     }   //interface CompletionHandler
 
@@ -371,7 +374,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                     //
                 case SEND_PORT_COMMAND:
                     //
-                    // Wait for the port to become ready before setting up the command.
+                    // Wait for the port to become ready before sending the command.
                     //
                     if (isPortReady())
                     {
@@ -428,9 +431,9 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                 if (currRequest.writeBuffer == null)
                                 {
                                     if (currRequest.handler.readCompletion(
-                                            HalUtil.getCurrentTime(),
                                             currRequest.regAddress,
                                             currRequest.length,
+                                            HalUtil.getCurrentTime(),
                                             getData()))
                                     {
                                         //
@@ -441,7 +444,8 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                 }
                                 else
                                 {
-                                    currRequest.handler.writeCompletion();
+                                    currRequest.handler.writeCompletion(
+                                            currRequest.regAddress, currRequest.length);
                                 }
                             }
                             currRequest.writeBuffer = null;

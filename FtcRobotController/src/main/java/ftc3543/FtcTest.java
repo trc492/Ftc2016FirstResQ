@@ -68,6 +68,11 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     }   //robotInit
 
     @Override
+    public void runPeriodic()
+    {
+    }   //runPeriodic
+
+    @Override
     public void runContinuous()
     {
         State state = (State)sm.getState();
@@ -355,8 +360,8 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     robot.lightTrigger.setEnabled(true);
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlTurn.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlSonar.setOutputRange(-0.5, 0.5);
+                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);
+                    robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(24.0, 0.0, false, event);
                     sm.addEvent(event);
