@@ -368,6 +368,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                                currRequest.writeBuffer == null? "read": "write");
                         }
                         portCommandSM.setState(PortCommandState.SEND_PORT_COMMAND);
+                        state = (PortCommandState)portCommandSM.getState();
                     }
                     //
                     // Intentionally falling through to next case.

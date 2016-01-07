@@ -40,8 +40,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    public static final int DEF_I2CADDRESS          = 0x10;
-    public static final int ALTERNATE_I2CADDRESS    = 0x11;
+    public static final int DEF_I2CADDRESS          = 0x20;
+    public static final int ALTERNATE_I2CADDRESS    = 0x22;
 
     //
     // GestureSense XZ01 Sensor I2C Register Map Version 1.
@@ -58,8 +58,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     private static final int ZXREG_RRNG             = 0x0e;     //Right Emitter Ranging Data
     private static final int ZXREG_REGVER           = 0xfe;     //Register Map Version
     private static final int ZXREG_MODEL            = 0xff;     //Sensor Model ID
-    private static final int DATA_LENGTH            = (ZXREG_RRNG - ZXREG_STATUS + 1);
-    private static final int VER_LENGTH             = (ZXREG_MODEL - ZXREG_REGVER + 1);
 
     //
     // Register 0x00 - STATUS:
@@ -157,6 +155,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     //  0x07 - Hover-Right
     //  0x08 - Hover-Up
     //
+    private static final int GESTURE_NONE           = 0x00;
     private static final int GESTURE_RIGHT_SWIPE    = 0x01;
     private static final int GESTURE_LEFT_SWIPE     = 0x02;
     private static final int GESTURE_UP_SWIPE       = 0x03;
@@ -170,6 +169,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
      */
     public enum Gesture
     {
+        NONE(GESTURE_NONE),
         RIGHT_SWIPE(GESTURE_RIGHT_SWIPE),
         LEFT_SWIPE(GESTURE_LEFT_SWIPE),
         UP_SWIPE(GESTURE_UP_SWIPE),
@@ -215,7 +215,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                     return g;
                 }
             }
-            return null;
+            return NONE;
         }   //getGesture
 
     }   //enum Gesture
@@ -299,8 +299,9 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(ZXREG_REGVER, VER_LENGTH, this);
-        read(ZXREG_STATUS, DATA_LENGTH, this);
+        read(ZXREG_REGVER, 1, this);
+        read(ZXREG_MODEL, 1, this);
+        read(ZXREG_STATUS, 1, this);
     }   //FtcZXDistanceSensor
 
     /**
@@ -522,34 +523,62 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == ZXREG_STATUS && length == DATA_LENGTH)
+        switch (regAddress)
         {
-            deviceStatus = data[ZXREG_STATUS - ZXREG_STATUS] & 0xff;
+            case ZXREG_REGVER:
+                regMapVersion = data[0] & 0xff;
+                break;
 
-            if ((deviceStatus & STATUS_GESTURES) != 0)
-            {
-                gesture = new TrcSensor.SensorData(
-                        timestamp, Gesture.getGesture(data[ZXREG_GESTURE - ZXREG_STATUS] & 0xff));
-                gestureSpeed = new TrcSensor.SensorData(
-                        timestamp, data[ZXREG_GSPEED - ZXREG_STATUS] & 0xff);
-            }
+            case ZXREG_MODEL:
+                modelVersion = data[0] & 0xff;
+                break;
 
-            if ((deviceStatus & STATUS_DAV) != 0)
-            {
-                xPos = new TrcSensor.SensorData(timestamp, data[ZXREG_XPOS - ZXREG_STATUS] & 0xff);
-                zPos = new TrcSensor.SensorData(timestamp, data[ZXREG_ZPOS - ZXREG_STATUS] & 0xff);
-                leftRangingData = new TrcSensor.SensorData(
-                        timestamp, data[ZXREG_LRNG - ZXREG_STATUS] & 0xff);
-                rightRangingData = new TrcSensor.SensorData(
-                        timestamp, data[ZXREG_RRNG - ZXREG_STATUS] & 0xff);
-            }
+            case ZXREG_STATUS:
+                deviceStatus = data[0] & 0xff;
 
-            repeat = true;
-        }
-        else if (regAddress == ZXREG_REGVER && length == VER_LENGTH)
-        {
-            regMapVersion = data[ZXREG_REGVER - ZXREG_REGVER] & 0xff;
-            modelVersion = data[ZXREG_MODEL - ZXREG_REGVER] & 0xff;
+                if ((deviceStatus & STATUS_GESTURES) != 0)
+                {
+                    read(ZXREG_GESTURE, 1, this);
+                    read(ZXREG_GSPEED, 1, this);
+                }
+
+                if ((deviceStatus & STATUS_DAV) != 0)
+                {
+                    read(ZXREG_XPOS, 1, this);
+                    read(ZXREG_ZPOS, 1, this);
+                    read(ZXREG_LRNG, 1, this);
+                    read(ZXREG_RRNG, 1, this);
+                }
+
+                repeat = true;
+                break;
+
+            case ZXREG_GESTURE:
+                gesture = new TrcSensor.SensorData(timestamp, Gesture.getGesture(data[0] & 0xff));
+                break;
+
+            case ZXREG_GSPEED:
+                gestureSpeed = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                break;
+
+            case ZXREG_XPOS:
+                xPos = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                break;
+
+            case ZXREG_ZPOS:
+                zPos = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                break;
+
+            case ZXREG_LRNG:
+                leftRangingData = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                break;
+
+            case ZXREG_RRNG:
+                rightRangingData = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                break;
+
+            default:
+                break;
         }
 
         if (debugEnabled)
@@ -559,7 +588,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
             dbgTrace.traceInfo(funcName, "%s(regAddr=%x,len=%d,timestamp=%.3f)=%s",
-                               regAddress, length, timestamp, Boolean.toString(repeat));
+                               funcName, regAddress, length, timestamp, Boolean.toString(repeat));
         }
 
         return repeat;
