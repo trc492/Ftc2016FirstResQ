@@ -23,6 +23,7 @@
 
 package trclib;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -362,10 +363,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                     {
                         if (debugEnabled)
                         {
-                            dbgTrace.traceInfo(funcName, "%s: Request(addr=%x,len=%d,%s)",
-                                               state.toString(), currRequest.regAddress,
-                                               currRequest.length,
-                                               currRequest.writeBuffer == null? "read": "write");
+                            dbgTrace.traceInfo(funcName, "%s", state.toString());
                         }
                         portCommandSM.setState(PortCommandState.SEND_PORT_COMMAND);
                         state = (PortCommandState)portCommandSM.getState();
@@ -381,7 +379,10 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                     {
                         if (debugEnabled)
                         {
-                            dbgTrace.traceInfo(funcName, "%s", state.toString());
+                            dbgTrace.traceInfo(funcName, "%s: Request(addr=%x,len=%d,%s)",
+                                               state.toString(), currRequest.regAddress,
+                                               currRequest.length,
+                                               currRequest.writeBuffer == null? "read": "write");
                         }
 
                         if (currRequest.writeBuffer == null)
@@ -410,11 +411,6 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                     //
                     if (isPortReady())
                     {
-                        if (debugEnabled)
-                        {
-                            dbgTrace.traceInfo(funcName, "%s", state.toString());
-                        }
-
                         //
                         // For some reason, even when isPortReady() returns true, the data
                         // may not be ready. So we need to check the buffer length against
@@ -422,6 +418,13 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                         // until we have valid data.
                         //
                         byte[] data = getData();
+
+                        if (debugEnabled)
+                        {
+                            dbgTrace.traceInfo(funcName, "%s: %s",
+                                               state.toString(), Arrays.toString(data));
+                        }
+
                         if (data.length == currRequest.length)
                         {
                             //
@@ -432,10 +435,8 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                 if (currRequest.writeBuffer == null)
                                 {
                                     if (currRequest.handler.readCompletion(
-                                            currRequest.regAddress,
-                                            currRequest.length,
-                                            HalUtil.getCurrentTime(),
-                                            getData()))
+                                            currRequest.regAddress, currRequest.length,
+                                            HalUtil.getCurrentTime(), data))
                                     {
                                         //
                                         // Repeat this read request.

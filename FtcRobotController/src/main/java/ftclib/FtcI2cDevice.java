@@ -26,6 +26,8 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 
+import java.util.Arrays;
+
 import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 
@@ -188,7 +190,7 @@ public class FtcI2cDevice extends TrcI2cDevice
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", data.toString());
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Arrays.toString(data));
         }
 
         return data;
