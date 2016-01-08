@@ -418,26 +418,25 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
             //
             // Read these repeatedly.
             //
-            heading = new TrcSensor.SensorData(
-                    timestamp,
-                    (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+            int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
+                                     ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+            heading = new TrcSensor.SensorData(timestamp, 360 - value);
             integratedZ = new TrcSensor.SensorData(
                     timestamp,
-                    (int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+                    -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
+                                  ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
             rawX = new TrcSensor.SensorData(
                     timestamp,
-                    (int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+                    -(int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
+                                  ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8)));
             rawY = new TrcSensor.SensorData(
                     timestamp,
-                    (int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+                    -(int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
+                                  ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8)));
             rawZ = new TrcSensor.SensorData(
                     timestamp,
-                    (int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+                    -(int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
+                                  ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
             zOffset = new TrcSensor.SensorData(
                     timestamp,
                     (int)(short)((data[REG_Z_OFFSET_LSB - REG_HEADING_LSB] & 0xff) |
