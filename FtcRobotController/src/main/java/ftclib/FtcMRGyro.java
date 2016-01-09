@@ -23,7 +23,7 @@
 
 package ftclib;
 
-import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.hardware.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import hallib.HalUtil;
@@ -44,7 +44,7 @@ public class FtcMRGyro extends TrcGyro
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private GyroSensor gyro;
+    private ModernRoboticsI2cGyro gyro;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -60,7 +60,7 @@ public class FtcMRGyro extends TrcGyro
     {
         super(instanceName,
               3,
-              GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS | GYRO_UNWRAP_HEADING,
+              GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS,
               filters);
 
         if (debugEnabled)
@@ -71,11 +71,7 @@ public class FtcMRGyro extends TrcGyro
                                        TrcDbgTrace.MsgLevel.INFO);
         }
 
-        gyro = hardwareMap.gyroSensor.get(instanceName);
-        //
-        // Set the wrap-around range of the Z heading.
-        //
-        setZValueRange(0.0, 360.0);
+        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get(instanceName);
     }   //FtcMRGyro
 
     /**
@@ -261,8 +257,7 @@ public class FtcMRGyro extends TrcGyro
         }
         else if (dataType == DataType.HEADING)
         {
-//            value = gyro.getIntegratedZValue();
-            value = gyro.getHeading();
+            value = -gyro.getIntegratedZValue();
         }
         SensorData data = new SensorData(HalUtil.getCurrentTime(), value);
 

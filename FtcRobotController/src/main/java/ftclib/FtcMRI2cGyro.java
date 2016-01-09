@@ -172,7 +172,7 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
      */
     public void resetZIntegrator()
     {
-        final String funcName = "resetZInteger";
+        final String funcName = "resetZIntegrator";
 
         byte[] data = {CMD_RESET_Z_INTEGRATOR};
         sendWriteCommand(REG_COMMAND, 1, data);
@@ -420,7 +420,7 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
             //
             int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
                                      ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
-            heading = new TrcSensor.SensorData(timestamp, 360 - value);
+            heading = new TrcSensor.SensorData(timestamp, (360 - value)%360);
             integratedZ = new TrcSensor.SensorData(
                     timestamp,
                     -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |

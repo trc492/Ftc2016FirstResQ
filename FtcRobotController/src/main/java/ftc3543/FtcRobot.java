@@ -12,6 +12,7 @@ import ftclib.FtcUltrasonicSensor;
 import hallib.HalUtil;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
+import trclib.TrcEnhancedServo;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
@@ -56,7 +57,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     // HangingHook subsystem.
     //
     public FtcServo hookServo;
-//    public TrcEnhancedServo hangingHook;
+    public TrcEnhancedServo hangingHook;
     //
     // ClimberRelease subsystem.
     //
@@ -148,9 +149,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         // HangingHook subsystem.
         //
         hookServo = new FtcServo("hangingHook");
+//        hookServo = new FtcServo("nxtHookServo");
         hookServo.setInverted(true);
         hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
-//        hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
+        hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
 
         //
         // ClimberRelease subsystem.
@@ -226,7 +228,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         {
             input = (Double)lightSensor.getData().value;
             //
-            // Give it a +/- 10% deadband to minimize fish tailing.
+            // Give it a deadband to minimize fish tailing.
             //
             if (Math.abs(input - RobotInfo.LIGHT_THRESHOLD) < RobotInfo.LIGHT_DEADBAND)
             {

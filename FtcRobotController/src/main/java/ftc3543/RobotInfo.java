@@ -22,15 +22,15 @@ public class RobotInfo
 
     public static final double BEACON_DISTANCE                  = 2.0;
     public static final double LIGHT_THRESHOLD                  = ((20.0 + 130.0)/2.0);
-    public static final double LIGHT_DEADBAND                   = (LIGHT_THRESHOLD*0.1);
-    public static final double LINEFOLLOW_KP                    = 0.02;
+    public static final double LIGHT_DEADBAND                   = (LIGHT_THRESHOLD*0.25);
+    public static final double LINEFOLLOW_KP                    = 0.015;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;
     public static final double LINEFOLLOW_KF                    = 0.0;
     public static final double LINEFOLLOW_TOLERANCE             = 2.0;
     public static final double LINEFOLLOW_SETTLING              = 0.2;
 
-    public static final double SONAR_KP                         = 0.25;
+    public static final double SONAR_KP                         = 0.1;
     public static final double SONAR_KI                         = 0.0;
     public static final double SONAR_KD                         = 0.0;
     public static final double SONAR_KF                         = 0.0;
@@ -85,6 +85,7 @@ public class RobotInfo
     // HangingHook subsystem.
     //
     public static final double HANGINGHOOK_RETRACT_POSITION     = 0.11;
-    public static final double HANGINGHOOK_EXTEND_POSITION      = 0.8;
+    public static final double HANGINGHOOK_EXTEND_POSITION      = 0.5; //0.8;
+    public static final double HANGINGHOOK_STEPRATE             = 1.0;
 
 }   //class RobotInfo

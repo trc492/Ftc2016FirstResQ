@@ -136,26 +136,28 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // If line is detected, it will interrupt PID drive.
                     //
                     robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.2, 0.2);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(25.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.CLEAR_DEBRIS);
                     break;
 
                 case CLEAR_DEBRIS:
-                    robot.pidDrive.setTarget(12.0, 0.0, false, event);
+                    robot.lightTrigger.setEnabled(false);
+                    robot.pidDrive.setTarget(16.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.BACK_TO_LINE);
                     break;
 
                 case BACK_TO_LINE:
-                    robot.pidDrive.setTarget(-18.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(-20.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE_AGAIN);
                     break;
 
                 case FIND_LINE_AGAIN:
-                    robot.pidDrive.setTarget(12.0, 0.0, false, event);
+                    robot.lightTrigger.setEnabled(true);
+                    robot.pidDrive.setTarget(10.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;
@@ -165,7 +167,6 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     // If line is detected, it will interrupt PID turn.
                     //
-                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);;
                     robot.pidDrive.setTarget(
                             0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event);
@@ -320,7 +321,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Go into the floor goal.
                     //
-                    robot.pidDrive.setTarget(-25.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(-26.0, 0.0, false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
