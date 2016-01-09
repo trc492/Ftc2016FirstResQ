@@ -84,8 +84,9 @@ public class RobotInfo
     //
     // HangingHook subsystem.
     //
-    public static final double HANGINGHOOK_RETRACT_POSITION     = 0.11;
-    public static final double HANGINGHOOK_EXTEND_POSITION      = 0.5; //0.8;
-    public static final double HANGINGHOOK_STEPRATE             = 1.0;
+    public static final double HANGINGHOOK_RETRACT_POSITION     = 0.22;
+    public static final double HANGINGHOOK_EXTEND_POSITION      = 0.85;
+    public static final double HANGINGHOOK_DEPOSIT_CLIMBER      = 0.60;
+    public static final double HANGINGHOOK_STEPRATE             = 0.2;
 
 }   //class RobotInfo

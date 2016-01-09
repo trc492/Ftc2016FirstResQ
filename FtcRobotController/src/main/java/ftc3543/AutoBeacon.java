@@ -229,9 +229,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Deposit the climbers into the bin.
                     //
-                    robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION);
-//                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_EXTEND_POSITION,
-//                                                  RobotInfo.HANGINGHOOK_STEPRATE);
+                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_DEPOSIT_CLIMBER,
+                                                  RobotInfo.HANGINGHOOK_STEPRATE);
                     //
                     // It takes sometime for the arm to move and deposit the climber.
                     // So set a timer to wait for it.
@@ -257,9 +256,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         rightPusherExtended = false;
                     }
 
-                    robot.hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
-//                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-//                                                  RobotInfo.HANGINGHOOK_STEPRATE);
+                    robot.hookServo.setPositionWithOnTime(
+                            RobotInfo.HANGINGHOOK_RETRACT_POSITION, 3.0);
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {

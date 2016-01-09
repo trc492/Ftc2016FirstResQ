@@ -149,7 +149,6 @@ public class FtcRobot implements TrcPidController.PidInput,
         // HangingHook subsystem.
         //
         hookServo = new FtcServo("hangingHook");
-//        hookServo = new FtcServo("nxtHookServo");
         hookServo.setInverted(true);
         hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
         hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
