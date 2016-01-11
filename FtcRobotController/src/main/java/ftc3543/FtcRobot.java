@@ -134,7 +134,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         // Triggers.
         //
         lightTrigger = new TrcAnalogTrigger(
-                "lightTrigger", lightSensor, RobotInfo.LIGHT_THRESHOLD, this);
+                "lightTrigger", lightSensor, RobotInfo.LIGHT_TRIGGER_LEVEL, this);
         //
         // Slider subsystem.
         //
@@ -150,8 +150,9 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         hookServo = new FtcServo("hangingHook");
         hookServo.setInverted(true);
-        hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
         hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
+        hookServo.setPositionWithOnTime(RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+                                        RobotInfo.HANGINGHOOK_HOLD_TIME);
 
         //
         // ClimberRelease subsystem.

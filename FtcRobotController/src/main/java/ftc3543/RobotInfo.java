@@ -21,9 +21,14 @@ public class RobotInfo
     public static final double TURN_SETTLING                    = 0.2;
 
     public static final double BEACON_DISTANCE                  = 2.0;
-    public static final double LIGHT_THRESHOLD                  = ((20.0 + 130.0)/2.0);
+    public static final double LIGHT_DARK_LEVEL                 = 20.0;
+    public static final double LIGHT_BLUE_LEVEL                 = 30.0;
+    public static final double LIGHT_RED_LEVEL                  = 100.0;
+    public static final double LIGHT_WHITE_LEVEL                = 130.0;
+    public static final double LIGHT_THRESHOLD                  = ((LIGHT_DARK_LEVEL + LIGHT_WHITE_LEVEL)/2.0);
     public static final double LIGHT_DEADBAND                   = (LIGHT_THRESHOLD*0.25);
-    public static final double LINEFOLLOW_KP                    = 0.015;
+    public static final double LIGHT_TRIGGER_LEVEL              = (LIGHT_WHITE_LEVEL*0.75);
+    public static final double LINEFOLLOW_KP                    = 0.01;
     public static final double LINEFOLLOW_KI                    = 0.0;
     public static final double LINEFOLLOW_KD                    = 0.0;
     public static final double LINEFOLLOW_KF                    = 0.0;
@@ -88,5 +93,6 @@ public class RobotInfo
     public static final double HANGINGHOOK_EXTEND_POSITION      = 0.85;
     public static final double HANGINGHOOK_DEPOSIT_CLIMBER      = 0.60;
     public static final double HANGINGHOOK_STEPRATE             = 0.2;
+    public static final double HANGINGHOOK_HOLD_TIME            = 2.0;
 
 }   //class RobotInfo

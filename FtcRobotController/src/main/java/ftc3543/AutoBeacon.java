@@ -152,7 +152,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                 case BACK_TO_LINE:
                     robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(-20.0,
-                                             alliance == FtcAuto.Alliance.RED_ALLIANCE? 10.0: -15.0,
+                                             alliance == FtcAuto.Alliance.RED_ALLIANCE? 10.0: -10.0,
                                              false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE_AGAIN);
@@ -262,7 +262,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     }
 
                     robot.hookServo.setPositionWithOnTime(
-                            RobotInfo.HANGINGHOOK_RETRACT_POSITION, 1.0);
+                            RobotInfo.HANGINGHOOK_RETRACT_POSITION,
+                            RobotInfo.HANGINGHOOK_HOLD_TIME);
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
