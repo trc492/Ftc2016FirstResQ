@@ -144,19 +144,23 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
 
                 case CLEAR_DEBRIS:
                     robot.lightTrigger.setEnabled(false);
-                    robot.pidDrive.setTarget(16.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(16.0, 0.0, false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.BACK_TO_LINE);
                     break;
 
                 case BACK_TO_LINE:
-                    robot.pidDrive.setTarget(-20.0, 0.0, false, event);
+                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.pidDrive.setTarget(-20.0,
+                                             alliance == FtcAuto.Alliance.RED_ALLIANCE? 10.0: -15.0,
+                                             false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE_AGAIN);
                     break;
 
                 case FIND_LINE_AGAIN:
                     robot.lightTrigger.setEnabled(true);
+                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(10.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
@@ -167,6 +171,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     // If line is detected, it will interrupt PID turn.
                     //
+                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);
                     robot.pidDrive.setTarget(
                             0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event);
@@ -183,7 +188,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
                     robot.pidDriveLineFollow.setTarget(
                             RobotInfo.BEACON_DISTANCE, RobotInfo.LIGHT_THRESHOLD,
-                            false, event, 3.0);
+                            false, event, 4.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.PUSH_BUTTON);
                     break;
@@ -235,7 +240,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // It takes sometime for the arm to move and deposit the climber.
                     // So set a timer to wait for it.
                     //
-                    timer.set(5.0, event);
+                    timer.set(3.0, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.RETRACT);
                     break;
@@ -257,7 +262,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     }
 
                     robot.hookServo.setPositionWithOnTime(
-                            RobotInfo.HANGINGHOOK_RETRACT_POSITION, 3.0);
+                            RobotInfo.HANGINGHOOK_RETRACT_POSITION, 1.0);
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {
@@ -273,7 +278,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         // First we need to back up a little bit so we have some room to turn.
                         //
                         robot.pidDrive.setTarget(
-                                -8.0, 0.0, false, event);
+                                -8.0, 0.0, false, event, 1.0);
                         sm.addEvent(event);
                         sm.waitForEvents(State.MOVE_SOMEWHERE);
                     }

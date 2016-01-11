@@ -224,7 +224,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     if (pressed)
                     {
                         robot.hookServo.setPositionWithOnTime(
-                                RobotInfo.HANGINGHOOK_EXTEND_POSITION, 3.0);
+                                RobotInfo.HANGINGHOOK_EXTEND_POSITION, 1.0);
 //                        robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_DEPOSIT_CLIMBER,
 //                                                      RobotInfo.HANGINGHOOK_STEPRATE);
                     }
@@ -234,7 +234,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     if (pressed)
                     {
                         robot.hookServo.setPositionWithOnTime(
-                                RobotInfo.HANGINGHOOK_RETRACT_POSITION, 3.0);
+                                RobotInfo.HANGINGHOOK_RETRACT_POSITION, 1.0);
                     }
                     break;
 
