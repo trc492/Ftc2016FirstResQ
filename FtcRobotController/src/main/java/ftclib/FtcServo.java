@@ -275,13 +275,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
     {
     }   //prePeriodicTask
 
-    /**
-     * This method is called periodically to run a state machine that will enable
-     * the servo controller, set the servo position, wait for the specified hold
-     * time, and finally disable the servo controller.
-     *
-     * @param runMode specifies the competition mode that is running.
-     */
     @Override
     public void postPeriodicTask(TrcRobot.RunMode runMode)
     {
@@ -292,6 +285,13 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
     {
     }   //preContinuousTask
 
+    /**
+     * This method is called periodically to run a state machine that will enable
+     * the servo controller, set the servo position, wait for the specified hold
+     * time, and finally disable the servo controller.
+     *
+     * @param runMode specifies the competition mode that is running.
+     */
     @Override
     public void postContinuousTask(TrcRobot.RunMode runMode)
     {

@@ -428,7 +428,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                         if (data.length == currRequest.length)
                         {
                             //
-                            // The port command is complete, set completion event if any.
+                            // The port command is complete, call completion handler if any.
                             //
                             if (currRequest.handler != null)
                             {
