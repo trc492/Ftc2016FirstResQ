@@ -60,6 +60,45 @@ public class TrcRobot
 
     }   //enum RunMode
 
+    public interface RobotMode
+    {
+        /**
+         * This method is called to initialize the robot. In FTC, this is called when the
+         * "Init" button on the Driver Station phone is pressed.
+         */
+        public void initRobot();
+
+        /**
+         * This method is called when the competition mode is about to start. In FTC, this is
+         * called when the "Play" button on the Driver Station phone is pressed. Typically,
+         * you put code that will prepare the robot for start of competition here such as
+         * resetting the encoders/sensors and enabling some sensors to start sampling.
+         */
+        public void startMode();
+
+        /**
+         * This method is called when competition mode is about to end. Typically, you put code
+         * that will do clean up here such as disabling the sampling of some sensors.
+         */
+        public void stopMode();
+
+        /**
+         * This method is called periodically about 50 times a second. Typically, you put code
+         * that doesn't require frequent update here. For example, TeleOp joystick code can be
+         * put here since human responses are considered slow.
+         */
+        public void runPeriodic();
+
+        /**
+         * This method is called periodically as fast as the control system allows. Typically,
+         * you put code that requires servicing at a higher frequency here. To make the robot
+         * as responsive and as accurate as possible especially in autonomous mode, you will
+         * typically put that code here.
+         */
+        public void runContinuous();
+
+    }
+
     /**
      * Any class that implements an autonomous strategy must implement this interface.
      */

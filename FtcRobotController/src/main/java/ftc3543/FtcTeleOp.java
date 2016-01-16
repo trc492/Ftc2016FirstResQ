@@ -14,11 +14,11 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     private FtcGamepad operatorGamepad;
 
     //
-    // Implements FtcOpMode abstract methods.
+    // Overrides TrcRobot.RobotMode methods.
     //
 
     @Override
-    public void robotInit()
+    public void initRobot()
     {
         //
         // Initializing global objects.
@@ -32,7 +32,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         operatorGamepad = new FtcGamepad("OperatorGamepad", gamepad2, this);
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
-    }   //robotInit
+    }   //initRobot
 
     @Override
     public void startMode()
@@ -86,31 +86,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         dashboard.displayPrintf(6, "lowerLimit=%d,upperLimit=%d",
                                 robot.slider.isLowerLimitSwitchPressed()? 1: 0,
                                 robot.slider.isUpperLimitSwitchPressed()? 1: 0);
-        /*
-        //
-        // HangingHook subsystem.
-        //
-        double leftTrigger = operatorGamepad.getLeftTrigger(true);
-        double rightTrigger = operatorGamepad.getRightTrigger(true);
-        if (leftTrigger > 0.0)
-        {
-            robot.hangingHook.setPosition(
-                    RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-                    leftTrigger*RobotInfo.HANGINGHOOK_STEP_RATE);
-        }
-        else if (rightTrigger > 0.0)
-        {
-            robot.hangingHook.setPosition(
-                    RobotInfo.HANGINGHOOK_EXTEND_POSITION,
-                    leftTrigger*RobotInfo.HANGINGHOOK_STEP_RATE);
-        }
-        */
     }   //runPeriodic
-
-    @Override
-    public void runContinuous()
-    {
-    }   //runContinuous
 
     //
     // Implements FtcGamepad.ButtonHandler interface.

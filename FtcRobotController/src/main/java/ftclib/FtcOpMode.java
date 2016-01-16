@@ -35,46 +35,8 @@ import trclib.TrcTaskMgr;
  * This class implements a cooperative multi-tasking scheduler
  * extending LinearOpMode.
  */
-public abstract class FtcOpMode extends LinearOpMode
+public class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
 {
-    /**
-     * This abstract method is called when the "Init" button on the
-     * Driver Station phone is pressed. Typically, you put code to
-     * initialze the robot here.
-     */
-    public abstract void robotInit();
-
-    /**
-     * This abstract method is called when the "Play" button on the
-     * Driver Station phone is pressed. Typcially, you put code that
-     * will prepare the robot for start of competition here. Most of
-     * the time, there is nothing to do in this method because most of
-     * the initialization is already done in robotInit().
-     */
-    public abstract void startMode();
-
-    /**
-     * This abstract method is called when competition mode is about
-     * to end. Typically, you put code that will do clean up here.
-     * Most of the time, there is nothing to do because when the program
-     * ends, the robot will be stopped anyway.
-     */
-    public abstract void stopMode();
-
-    /**
-     * This abstract method is called periodically about 50 times a second.
-     * This is where you put the bulk of your competition code.
-     */
-    public abstract void runPeriodic();
-
-    /**
-     * This abstract method is called periodically much faster than runPeriodic().
-     * Typically, you put code that requires servicing at a higher frequency here.
-     * Most of the time, there is nothing to do here because most robot actions
-     * can be handled adequately with runPeriodic().
-     */
-    public abstract void runContinuous();
-
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
@@ -248,7 +210,7 @@ public abstract class FtcOpMode extends LinearOpMode
         {
             dbgTrace.traceInfo(funcName, "Runing robotInit ...");
         }
-        robotInit();
+        initRobot();
 
         //
         // Wait for the start of autonomous mode.
@@ -338,5 +300,55 @@ public abstract class FtcOpMode extends LinearOpMode
         }
         taskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
     }   //runOpMode
+
+    /**
+     * This method is called to initialize the robot. In FTC, this is called when the
+     * "Init" button on the Driver Station phone is pressed.
+     */
+    @Override
+    public void initRobot()
+    {
+    }   //init
+
+    /**
+     * This method is called when the competition mode is about to start. In FTC, this is
+     * called when the "Play" button on the Driver Station phone is pressed. Typically,
+     * you put code that will prepare the robot for start of competition here such as
+     * resetting the encoders/sensors and enabling some sensors to start sampling.
+     */
+    @Override
+    public void startMode()
+    {
+    }   //startMode
+
+    /**
+     * This method is called when competition mode is about to end. Typically, you put code
+     * that will do clean up here such as disabling the sampling of some sensors.
+     */
+    @Override
+    public void stopMode()
+    {
+    }   //stopMode
+
+    /**
+     * This method is called periodically about 50 times a second. Typically, you put code
+     * that doesn't require frequent update here. For example, TeleOp joystick code can be
+     * put here since human responses are considered slow.
+     */
+    @Override
+    public void runPeriodic()
+    {
+    }   //runPeriodic
+
+    /**
+     * This method is called periodically as fast as the control system allows. Typically,
+     * you put code that requires servicing at a higher frequency here. To make the robot
+     * as responsive and as accurate as possible especially in autonomous mode, you will
+     * typically put that code here.
+     */
+    @Override
+    public void runContinuous()
+    {
+    }   //runContinuous
 
 }   //class FtcOpMode

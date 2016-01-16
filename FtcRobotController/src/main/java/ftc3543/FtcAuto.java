@@ -48,11 +48,11 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     private BeaconOption beaconOption = BeaconOption.DO_NOTHING;
 
     //
-    // Implements FtcOpMode abstract methods.
+    // Overrides TrcRobot.RobotMode methods.
     //
 
     @Override
-    public void robotInit()
+    public void initRobot()
     {
         //
         // Initializing global objects.
@@ -96,7 +96,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, pushButton=%s, beaconOption=%s",
                 strategy.toString(), alliance.toString(), startPos.toString(), delay,
                 Boolean.toString(pushButton), beaconOption.toString());
-    }   //robotInit
+    }   //initRobot
 
     @Override
     public void startMode()
@@ -110,11 +110,6 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     {
         robot.stopMode(TrcRobot.RunMode.AUTO_MODE);
     }   //stopMode
-
-    @Override
-    public void runPeriodic()
-    {
-    }   //runPeriodic
 
     @Override
     public void runContinuous()
