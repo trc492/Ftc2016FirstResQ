@@ -151,8 +151,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         hookServo = new FtcServo("hangingHook");
         hookServo.setInverted(true);
         hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
-        hookServo.setPositionWithOnTime(RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-                                        RobotInfo.HANGINGHOOK_HOLD_TIME);
+        hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
 
         //
         // ClimberRelease subsystem.
