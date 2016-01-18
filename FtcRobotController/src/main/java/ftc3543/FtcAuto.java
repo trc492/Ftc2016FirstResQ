@@ -49,7 +49,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     private BeaconOption beaconOption = BeaconOption.DO_NOTHING;
 
     //
-    // Implements FtcOpMode interface.
+    // Implements FtcOpMode abstract method.
     //
 
     @Override
@@ -126,7 +126,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     }   //runContinuous
 
     //
-    // Implements MenuButtons
+    // Implements FtcMenu.MenuButtons interface.
     //
 
     @Override

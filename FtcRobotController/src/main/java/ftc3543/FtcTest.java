@@ -109,7 +109,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     }   //runPeriodic
 
     //
-    // Implements MenuButtons
+    // Implements FtcMenu.MenuButtons interface.
     //
 
     @Override

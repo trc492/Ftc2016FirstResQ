@@ -14,7 +14,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     private FtcGamepad operatorGamepad;
 
     //
-    // Implements FtcOpMode interface.
+    // Implements FtcOpMode abstract method.
     //
 
     @Override
