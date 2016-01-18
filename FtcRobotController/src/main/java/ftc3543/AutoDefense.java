@@ -43,7 +43,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
     public void autoPeriodic(double elapsedTime)
     {
         dashboard.displayPrintf(1, moduleName + ": delay=%.0f, distance=%.0f",
-                                delay, distance/12.0);
+                                delay, distance);
 
         if (sm.isReady())
         {
@@ -73,7 +73,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
                     //
                     // Drive the set distance.
                     //
-                    robot.pidDrive.setTarget(distance, 0.0, false, event);
+                    robot.pidDrive.setTarget(distance*12.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;

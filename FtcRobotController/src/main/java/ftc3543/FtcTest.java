@@ -1,6 +1,8 @@
 package ftc3543;
 
+import ftclib.FtcChoiceMenu;
 import ftclib.FtcMenu;
+import ftclib.FtcValueMenu;
 import trclib.TrcEvent;
 import trclib.TrcStateMachine;
 import trclib.TrcTimer;
@@ -138,12 +140,17 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doMenus()
     {
-        FtcMenu testMenu = new FtcMenu("Tests:", null, this);
-        FtcMenu driveTimeMenu = new FtcMenu("Drive time:", testMenu, this);
-        FtcMenu driveDistanceMenu = new FtcMenu("Drive distance:", testMenu, this);
-        FtcMenu turnDegreesMenu = new FtcMenu("Turn degrees:", testMenu, this);
-        FtcMenu allianceMenu = new FtcMenu("Alliance:", testMenu, this);
-        FtcMenu wallDistanceMenu = new FtcMenu("Wall distance:", testMenu, this);
+        FtcChoiceMenu testMenu = new FtcChoiceMenu("Tests:", null, this);
+        FtcValueMenu driveTimeMenu = new FtcValueMenu("Drive time:", testMenu, this,
+                                                      1.0, 10.0, 1.0, 8.0, "%.0f sec");
+        FtcValueMenu driveDistanceMenu = new FtcValueMenu("Drive distance:", testMenu, this,
+                                                          1.0, 10.0, 1.0, 8.0, "%.0f ft");
+        FtcValueMenu turnDegreesMenu =
+                new FtcValueMenu("Turn degrees:", testMenu, this,
+                                 -360.0, 360.0, 90.0, 360.0, "%.0f deg");
+        FtcChoiceMenu allianceMenu = new FtcChoiceMenu("Alliance:", testMenu, this);
+        FtcValueMenu wallDistanceMenu = new FtcValueMenu("Wall distance:", allianceMenu, this,
+                                                         2.0, 12.0, 2.0, 2.0, "%.0f in");
 
         testMenu.addChoice("Sensors test", Test.SENSORS_TEST);
         testMenu.addChoice("Motors test", Test.MOTORS_TEST);
@@ -152,39 +159,17 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         testMenu.addChoice("Degrees turn", Test.DEGREES_TURN, turnDegreesMenu);
         testMenu.addChoice("Line follow", Test.LINE_FOLLOW, allianceMenu);
 
-        driveTimeMenu.addChoice("1 sec", 1.0);
-        driveTimeMenu.addChoice("2 sec", 2.0);
-        driveTimeMenu.addChoice("4 sec", 4.0);
-        driveTimeMenu.addChoice("8 sec", 8.0);
-
-        driveDistanceMenu.addChoice("2 ft", 24.0);
-        driveDistanceMenu.addChoice("4 ft", 48.0);
-        driveDistanceMenu.addChoice("8 ft", 96.0);
-        driveDistanceMenu.addChoice("10 ft", 120.0);
-
-        turnDegreesMenu.addChoice("-90 degrees", -90.0);
-        turnDegreesMenu.addChoice("-180 degrees", -180.0);
-        turnDegreesMenu.addChoice("-360 degrees", -360.0);
-        turnDegreesMenu.addChoice("90 degrees", 90.0);
-        turnDegreesMenu.addChoice("180 degrees", 180.0);
-        turnDegreesMenu.addChoice("360 degrees", 360.0);
-
         allianceMenu.addChoice("Red", Alliance.RED_ALLIANCE, wallDistanceMenu);
         allianceMenu.addChoice("Blue", Alliance.BLUE_ALLIANCE, wallDistanceMenu);
-
-        wallDistanceMenu.addChoice("4 inches", 4.0);
-        wallDistanceMenu.addChoice("6 inches", 6.0);
-        wallDistanceMenu.addChoice("8 inches", 8.0);
-        wallDistanceMenu.addChoice("12 inches", 12.0);
 
         FtcMenu.walkMenuTree(testMenu);
 
         test = (Test)testMenu.getCurrentChoiceObject();
-        driveTime = (Double)driveTimeMenu.getCurrentChoiceObject();
-        driveDistance = (Double)driveDistanceMenu.getCurrentChoiceObject();
-        turnDegrees = (Double)turnDegreesMenu.getCurrentChoiceObject();
+        driveTime = driveTimeMenu.getCurrentValue();
+        driveDistance = driveDistanceMenu.getCurrentValue();
+        turnDegrees = turnDegreesMenu.getCurrentValue();
         alliance = (Alliance)allianceMenu.getCurrentChoiceObject();
-        wallDistance = (Double)wallDistanceMenu.getCurrentChoiceObject();
+        wallDistance = wallDistanceMenu.getCurrentValue();
 
         dashboard.displayPrintf(0, "Test: %s", testMenu.getCurrentChoiceText());
     }   //doMenus
@@ -339,7 +324,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doDistanceDrive(double distance)
     {
-        dashboard.displayPrintf(9, "Distance Drive: %.1f ft", distance/12.0);
+        dashboard.displayPrintf(9, "Distance Drive: %.1f ft", distance);
         dashboard.displayPrintf(10, "xPos=%.1f,yPos=%.1f,heading=%.1f",
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
@@ -356,7 +341,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // Drive the given distance.
                     //
-                    robot.pidDrive.setTarget(distance, 0.0, false, event);
+                    robot.pidDrive.setTarget(distance*12.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
