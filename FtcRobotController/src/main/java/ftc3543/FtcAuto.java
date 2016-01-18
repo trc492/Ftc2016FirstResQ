@@ -45,10 +45,11 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     private Strategy strategy = Strategy.DO_NOTHING;
     private double driveDistance = 0.0;
     private boolean pushButton = true;
+    private boolean depositClimbers = false;
     private BeaconOption beaconOption = BeaconOption.DO_NOTHING;
 
     //
-    // Overrides TrcRobot.RobotMode methods.
+    // Implements FtcOpMode interface.
     //
 
     @Override
@@ -82,7 +83,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 
             case BEACON:
                 autoStrategy = new AutoBeacon(
-                        alliance, startPos, delay, pushButton, beaconOption);
+                        alliance, startPos, delay, pushButton, depositClimbers, beaconOption);
                 break;
 
             case DO_NOTHING:
@@ -97,6 +98,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
                 strategy.toString(), alliance.toString(), startPos.toString(), delay,
                 Boolean.toString(pushButton), beaconOption.toString());
     }   //initRobot
+
+    //
+    // Overrides TrcRobot.RobotMode methods.
+    //
 
     @Override
     public void startMode()
@@ -156,7 +161,8 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         FtcMenu strategyMenu = new FtcMenu("Strategies:", delayMenu, this);
         FtcMenu distanceMenu = new FtcMenu("Distance:", strategyMenu, this);
         FtcMenu beaconButtonMenu = new FtcMenu("Push beacon button:", strategyMenu, this);
-        FtcMenu beaconOptionMenu = new FtcMenu("Beacon options", beaconButtonMenu, this);
+        FtcMenu depositClimbersMenu = new FtcMenu("Deposit climbers:", beaconButtonMenu, this);
+        FtcMenu beaconOptionMenu = new FtcMenu("Beacon options", depositClimbersMenu, this);
 
         allianceMenu.addChoice("Red", Alliance.RED_ALLIANCE, startPosMenu);
         allianceMenu.addChoice("Blue", Alliance.BLUE_ALLIANCE, startPosMenu);
@@ -188,8 +194,11 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         distanceMenu.addChoice("8 ft", 96.0);
         distanceMenu.addChoice("10 ft", 120.0);
 
-        beaconButtonMenu.addChoice("Yes", true, beaconOptionMenu);
-        beaconButtonMenu.addChoice("No", false, beaconOptionMenu);
+        beaconButtonMenu.addChoice("Yes", true, depositClimbersMenu);
+        beaconButtonMenu.addChoice("No", false, depositClimbersMenu);
+
+        depositClimbersMenu.addChoice("Yes", true, beaconOptionMenu);
+        depositClimbersMenu.addChoice("No", false, beaconOptionMenu);
 
         beaconOptionMenu.addChoice("Do nothing", BeaconOption.DO_NOTHING);
         beaconOptionMenu.addChoice("Do defense", BeaconOption.DEFENSE);
@@ -203,6 +212,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         strategy = (Strategy)strategyMenu.getCurrentChoiceObject();
         driveDistance = (Double)distanceMenu.getCurrentChoiceObject();
         pushButton = (Boolean)beaconButtonMenu.getCurrentChoiceObject();
+        depositClimbers = (Boolean)depositClimbersMenu.getCurrentChoiceObject();
         beaconOption = (BeaconOption)beaconOptionMenu.getCurrentChoiceObject();
 
         dashboard.displayPrintf(0, "Auto Strategy: %s (%s)",

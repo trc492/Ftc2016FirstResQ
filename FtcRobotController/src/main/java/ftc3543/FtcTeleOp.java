@@ -14,7 +14,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     private FtcGamepad operatorGamepad;
 
     //
-    // Overrides TrcRobot.RobotMode methods.
+    // Implements FtcOpMode interface.
     //
 
     @Override
@@ -33,6 +33,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         driverGamepad.setYInverted(true);
         operatorGamepad.setYInverted(true);
     }   //initRobot
+
+    //
+    // Overrides TrcRobot.RobotMode methods.
+    //
 
     @Override
     public void startMode()

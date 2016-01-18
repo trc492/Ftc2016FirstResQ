@@ -35,14 +35,20 @@ import trclib.TrcTaskMgr;
  * This class implements a cooperative multi-tasking scheduler
  * extending LinearOpMode.
  */
-public class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
+public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
 {
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
-
     private static TrcDbgTrace opModeTracer = null;
     private static String opModeName = null;
+
+
+    /**
+     * This method is called to initialize the robot. In FTC, this is called when the
+     * "Init" button on the Driver Station phone is pressed.
+     */
+    public abstract void initRobot();
 
     private final static String OPMODE_AUTO     = "FtcAuto";
     private final static String OPMODE_TELEOP   = "FtcTeleOp";
@@ -300,15 +306,6 @@ public class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
         }
         taskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
     }   //runOpMode
-
-    /**
-     * This method is called to initialize the robot. In FTC, this is called when the
-     * "Init" button on the Driver Station phone is pressed.
-     */
-    @Override
-    public void initRobot()
-    {
-    }   //init
 
     /**
      * This method is called when the competition mode is about to start. In FTC, this is

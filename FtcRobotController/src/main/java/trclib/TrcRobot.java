@@ -63,12 +63,6 @@ public class TrcRobot
     public interface RobotMode
     {
         /**
-         * This method is called to initialize the robot. In FTC, this is called when the
-         * "Init" button on the Driver Station phone is pressed.
-         */
-        public void initRobot();
-
-        /**
          * This method is called when the competition mode is about to start. In FTC, this is
          * called when the "Play" button on the Driver Station phone is pressed. Typically,
          * you put code that will prepare the robot for start of competition here such as
@@ -97,7 +91,7 @@ public class TrcRobot
          */
         public void runContinuous();
 
-    }
+    }   //interface RobotMode
 
     /**
      * Any class that implements an autonomous strategy must implement this interface.

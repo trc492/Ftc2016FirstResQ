@@ -38,6 +38,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
     private FtcAuto.StartPosition startPos;
     private double delay;
     private boolean pushButton;
+    private boolean depositClimbers;
     private FtcAuto.BeaconOption option;
     private TrcEvent event;
     private TrcTimer timer;
@@ -50,12 +51,14 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
             FtcAuto.StartPosition startPos,
             double delay,
             boolean pushButton,
+            boolean depositClimbers,
             FtcAuto.BeaconOption option)
     {
         this.alliance = alliance;
         this.startPos = startPos;
         this.delay = delay;
         this.pushButton = pushButton;
+        this.depositClimbers = depositClimbers;
         this.option = option;
         event = new TrcEvent(moduleName);
         timer = new TrcTimer(moduleName);
@@ -73,11 +76,15 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         {
             robot.pidCtrlDrive.printPidInfo(tracer);
             robot.pidCtrlTurn.printPidInfo(tracer);
+            tracer.traceInfo(moduleName, "[%.3f] Light sensor value = %.0f",
+                             elapsedTime, robot.lightSensor.getData().value);
         }
         else if (robot.pidDriveLineFollow.isEnabled())
         {
             robot.pidCtrlSonar.printPidInfo(tracer);
             robot.pidCtrlLight.printPidInfo(tracer);
+            tracer.traceInfo(moduleName, "[%.3f] Light sensor value = %.0f",
+                             elapsedTime, robot.lightSensor.getData().value);
         }
 
         dashboard.displayPrintf(1, moduleName + ": %s, %s,delay=%.0f,pushButton=%s,option=%s",
@@ -234,8 +241,11 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Deposit the climbers into the bin.
                     //
-                    robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_DEPOSIT_CLIMBER,
-                                                  RobotInfo.HANGINGHOOK_STEPRATE);
+                    if (depositClimbers)
+                    {
+                        robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_DEPOSIT_CLIMBER,
+                                                      RobotInfo.HANGINGHOOK_STEPRATE);
+                    }
                     //
                     // It takes sometime for the arm to move and deposit the climber.
                     // So set a timer to wait for it.

@@ -50,7 +50,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     private int motorIndex = 0;
 
     //
-    // Overrides TrcRobot.RobotMode methods.
+    // Implements FtcOpMode interface.
     //
 
     @Override
@@ -69,6 +69,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         doMenus();
         sm.start(State.START);
     }   //initRobot
+
+    //
+    // Overrides TrcRobot.RobotMode methods.
+    //
 
     @Override
     public void runContinuous()
