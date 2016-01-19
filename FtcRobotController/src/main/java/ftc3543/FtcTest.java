@@ -76,6 +76,14 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     // Overrides TrcRobot.RobotMode methods.
     //
 
+    //
+    // Must override TeleOp so it doesn't fight with us.
+    //
+    @Override
+    public void runPeriodic()
+    {
+    }   //runPeriodic
+
     @Override
     public void runContinuous()
     {
@@ -142,15 +150,15 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     {
         FtcChoiceMenu testMenu = new FtcChoiceMenu("Tests:", null, this);
         FtcValueMenu driveTimeMenu = new FtcValueMenu("Drive time:", testMenu, this,
-                                                      1.0, 10.0, 1.0, 8.0, "%.0f sec");
+                                                      1.0, 10.0, 1.0, 8.0, " %.0f sec");
         FtcValueMenu driveDistanceMenu = new FtcValueMenu("Drive distance:", testMenu, this,
-                                                          1.0, 10.0, 1.0, 8.0, "%.0f ft");
+                                                          1.0, 10.0, 1.0, 8.0, " %.0f ft");
         FtcValueMenu turnDegreesMenu =
                 new FtcValueMenu("Turn degrees:", testMenu, this,
-                                 -360.0, 360.0, 90.0, 360.0, "%.0f deg");
+                                 -360.0, 360.0, 90.0, 360.0, " %.0f deg");
         FtcChoiceMenu allianceMenu = new FtcChoiceMenu("Alliance:", testMenu, this);
         FtcValueMenu wallDistanceMenu = new FtcValueMenu("Wall distance:", allianceMenu, this,
-                                                         2.0, 12.0, 2.0, 2.0, "%.0f in");
+                                                         2.0, 12.0, 2.0, 2.0, " %.0f in");
 
         testMenu.addChoice("Sensors test", Test.SENSORS_TEST);
         testMenu.addChoice("Motors test", Test.MOTORS_TEST);
@@ -259,10 +267,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                             robot.rightRearWheel.setPower(0.5);
                             break;
                     }
-                    motorIndex = (motorIndex + 1)%4;
+                    motorIndex = motorIndex + 1;
                     timer.set(5.0, event);
                     sm.addEvent(event);
-                    sm.waitForEvents(State.DONE);
+                    sm.waitForEvents(motorIndex < 4? State.START: State.DONE);
                     break;
 
                 case DONE:

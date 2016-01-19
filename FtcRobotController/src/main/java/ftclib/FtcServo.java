@@ -41,17 +41,19 @@ import trclib.TrcTimer;
  */
 public class FtcServo extends TrcServo implements TrcTaskMgr.Task
 {
+    private static final String moduleName = "FtcServo";
+    private static final boolean debugEnabled = false;
+    private TrcDbgTrace dbgTrace = null;
+
     private enum State
     {
-        ENABLE_CONTROLLER,
+//        ENABLE_CONTROLLER,
         SET_POSITION,
         DISABLE_CONTROLLER,
         DONE
     }   //enum State
 
-    private static final String moduleName = "FtcServo";
-    private static final boolean debugEnabled = false;
-    private TrcDbgTrace dbgTrace = null;
+    private static final double CONTROLLER_ONOFF_DELAY = 0.1;
 
     private String instanceName;
     private Servo servo;
@@ -122,6 +124,14 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
      */
     public void cancel()
     {
+        final String funcName = "cancel";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
         if (sm.isEnabled())
         {
             timer.cancel();
@@ -135,7 +145,7 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
      *
      * @param enabled specifies true to enable the state machine task, false otherwise.
      */
-    public void setTaskEnabled(boolean enabled)
+    private void setTaskEnabled(boolean enabled)
     {
         if (enabled)
         {
@@ -166,9 +176,38 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
         cancel();
         servoPos = pos;
         servoOnTime = onTime;
-        sm.start(State.ENABLE_CONTROLLER);
+//        sm.start(State.ENABLE_CONTROLLER);
+        sm.start(State.SET_POSITION);
         setTaskEnabled(true);
     }   //setPositionWithOnTime
+
+    /**
+     * The method eanbles/disables the servo controller. If the servo controller is disabled,
+     * all servos on the controller will go limp. This is useful for preventing the servos from
+     * burning up if it is held against a heavy load.
+     *
+     * @param on specifies true to enable the servo controller, false otherwise.
+     */
+    public void setControllerOn(boolean on)
+    {
+        final String funcName = "setControllerOn";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "on=%s", Boolean.toString(on));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (on)
+        {
+            controller.pwmEnable();
+        }
+        else
+        {
+            controller.pwmDisable();
+        }
+    }   //setControllerOn
 
     //
     // Implements TrcServo abstract methods.
@@ -300,10 +339,14 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
             State state = (State)sm.getState();
             switch (state)
             {
+                /*
                 case ENABLE_CONTROLLER:
                     controller.pwmEnable();
-                    sm.setState(State.SET_POSITION);
+                    timer.set(CONTROLLER_ONOFF_DELAY, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.SET_POSITION);
                     break;
+                */
 
                 case SET_POSITION:
                     servo.setPosition(servoPos);
@@ -314,7 +357,9 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
 
                 case DISABLE_CONTROLLER:
                     controller.pwmDisable();
-                    sm.setState(State.DONE);
+                    timer.set(CONTROLLER_ONOFF_DELAY, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.DONE);
                     break;
 
                 case DONE:

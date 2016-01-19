@@ -392,9 +392,11 @@ public class FtcChoiceMenu extends FtcMenu
         //
         for (int i = firstDisplayedChoice; i <= lastDisplayedChoice; i++)
         {
+            ChoiceItem item = choiceItems.get(i);
             dashboard.displayPrintf(
                     i - firstDisplayedChoice + 1,
-                    i == currChoice? ">>\t%s": "%s", choiceItems.get(i).getText());
+                    i == currChoice? ">>\t%s%s": "%s%s",
+                    item.getText(), item.getChildMenu() != null? " ...": "");
         }
     }   //displayMenu
 

@@ -160,10 +160,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         FtcChoiceMenu allianceMenu = new FtcChoiceMenu("Alliance:", null, this);
         FtcChoiceMenu startPosMenu = new FtcChoiceMenu("Start position:", allianceMenu, this);
         FtcValueMenu delayMenu = new FtcValueMenu("Delay time:", startPosMenu, this,
-                                                  0.0, 15.0, 1.0, 0.0, "%.0f sec");
+                                                  0.0, 15.0, 1.0, 0.0, " %.0f sec");
         FtcChoiceMenu strategyMenu = new FtcChoiceMenu("Strategies:", delayMenu, this);
         FtcValueMenu distanceMenu = new FtcValueMenu("Distance:", strategyMenu, this,
-                                                     1.0, 10.0, 1.0, 1.0, "%.0f ft");
+                                                     1.0, 10.0, 1.0, 1.0, " %.0f ft");
         FtcChoiceMenu beaconButtonMenu =
                 new FtcChoiceMenu("Push beacon button:", strategyMenu, this);
         FtcChoiceMenu depositClimbersMenu =
