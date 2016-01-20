@@ -74,13 +74,13 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     private int firmwareRev = 0;
     private int manufacturerCode = 0;
     private int idCode = 0;
-    private TrcSensor.SensorData heading = null;
-    private TrcSensor.SensorData integratedZ = null;
-    private TrcSensor.SensorData rawX = null;
-    private TrcSensor.SensorData rawY = null;
-    private TrcSensor.SensorData rawZ = null;
-    private TrcSensor.SensorData zOffset = null;
-    private TrcSensor.SensorData zScaling = null;
+    private TrcSensor.SensorData heading = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData integratedZ = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData rawX = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData rawY = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData rawZ = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData zOffset = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData zScaling = new TrcSensor.SensorData(0.0, null);
     private boolean calibrating = false;
 
     /**
@@ -246,17 +246,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getHeading()
     {
         final String funcName = "getHeading";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(heading.timestamp, heading.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               heading != null? heading.timestamp: 0.0,
-                               heading != null? (Integer)heading.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return heading;
+        return data;
     }   //getHeading
 
     /**
@@ -267,17 +267,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getIntegratedZ()
     {
         final String funcName = "getIntegratedZ";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(integratedZ.timestamp, integratedZ.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               integratedZ != null? integratedZ.timestamp: 0.0,
-                               integratedZ != null? (Integer)integratedZ.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return integratedZ;
+        return data;
     }   //getIntegratedZ
 
     /**
@@ -288,17 +288,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getRawX()
     {
         final String funcName = "getRawX";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(rawX.timestamp, rawX.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               rawX != null? rawX.timestamp: 0.0,
-                               rawX != null? (Integer)rawX.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return rawX;
+        return data;
     }   //getRawX
 
     /**
@@ -309,17 +309,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getRawY()
     {
         final String funcName = "getRawY";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(rawY.timestamp, rawY.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               rawY != null? rawY.timestamp: 0.0,
-                               rawY != null? (Integer)rawY.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return rawY;
+        return data;
     }   //getRawY
 
     /**
@@ -330,17 +330,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getRawZ()
     {
         final String funcName = "getRawZ";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(rawZ.timestamp, rawZ.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               rawZ != null? rawZ.timestamp: 0.0,
-                               rawZ != null? (Integer)rawZ.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return rawZ;
+        return data;
     }   //getRawZ
 
     /**
@@ -351,17 +351,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getZOffset()
     {
         final String funcName = "getZOffset";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(zOffset.timestamp, zOffset.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               zOffset != null? zOffset.timestamp: 0.0,
-                               zOffset != null? (Integer)zOffset.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return zOffset;
+        return data;
     }   //getZOffset
 
     /**
@@ -372,17 +372,17 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     public TrcSensor.SensorData getZScaling()
     {
         final String funcName = "getZScaling";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(zScaling.timestamp, zScaling.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               zScaling != null? zScaling.timestamp: 0.0,
-                               zScaling != null? (Integer)zScaling.value: 0);
+                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
         }
 
-        return zScaling;
+        return data;
     }   //getZScaling
 
     //
@@ -420,31 +420,39 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
             //
             int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
                                      ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
-            heading = new TrcSensor.SensorData(timestamp, (360 - value)%360);
-            integratedZ = new TrcSensor.SensorData(
-                    timestamp,
+            heading.timestamp = timestamp;
+            heading.value = (360 - value)%360;
+
+            integratedZ.timestamp = timestamp;
+            integratedZ.value =
                     -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
-            rawX = new TrcSensor.SensorData(
-                    timestamp,
+                                  ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
+            rawX.timestamp = timestamp;
+            rawX.value =
                     -(int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8)));
-            rawY = new TrcSensor.SensorData(
-                    timestamp,
+                                  ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
+            rawY.timestamp = timestamp;
+            rawY.value =
                     -(int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8)));
-            rawZ = new TrcSensor.SensorData(
-                    timestamp,
+                                  ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
+            rawZ.timestamp = timestamp;
+            rawZ.value =
                     -(int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8)));
-            zOffset = new TrcSensor.SensorData(
-                    timestamp,
+                                  ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
+            zOffset.timestamp = timestamp;
+            zOffset.value =
                     (int)(short)((data[REG_Z_OFFSET_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_Z_OFFSET_MSB - REG_HEADING_LSB] & 0xff) << 8)));
-            zScaling = new TrcSensor.SensorData(
-                    timestamp,
+                                 ((data[REG_Z_OFFSET_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
+            zScaling.timestamp = timestamp;
+            zScaling.value =
                     (int)(short)((data[REG_Z_SCALING_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8)));
+                                 ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+
             repeat = true;
         }
 

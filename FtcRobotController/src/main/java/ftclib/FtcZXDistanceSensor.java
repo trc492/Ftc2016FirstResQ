@@ -270,12 +270,12 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public static final int MODEL_VERSION           = 0x01;
 
     private int deviceStatus = 0;
-    private TrcSensor.SensorData gesture = null;
-    private TrcSensor.SensorData gestureSpeed = null;
-    private TrcSensor.SensorData xPos = null;
-    private TrcSensor.SensorData zPos = null;
-    private TrcSensor.SensorData leftRangingData = null;
-    private TrcSensor.SensorData rightRangingData = null;
+    private TrcSensor.SensorData gesture = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData gestureSpeed = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData xPos = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData zPos = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData leftRangingData = new TrcSensor.SensorData(0.0, null);
+    private TrcSensor.SensorData rightRangingData = new TrcSensor.SensorData(0.0, null);
     private int regMapVersion = 0;
     private int modelVersion = 0;
 
@@ -351,16 +351,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getGesture()
     {
         final String funcName = "getGesture";
+        TrcSensor.SensorData data = new TrcSensor.SensorData(gesture.timestamp, gesture.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=(timestamp=%.3f,value=%s)",
-                               gesture != null? gesture.timestamp: 0,
-                               gesture != null? ((Gesture)gesture.value).toString(): "null");
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(timestamp=%.3f,value=%s)",
+                               data.timestamp, ((Gesture)data.value).toString());
         }
 
-        return gesture;
+        return data;
     }   //getGesture
 
     /**
@@ -371,17 +372,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getGestureSpeed()
     {
         final String funcName = "getGestureSpeed";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(gestureSpeed.timestamp, gestureSpeed.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               gestureSpeed != null? gestureSpeed.timestamp: 0.0,
-                               gestureSpeed != null? (Integer)gestureSpeed.value: 0);
+                               "=(timestamp=%.3f,value=%s)", data.timestamp, (Integer)data.value);
         }
 
-        return gestureSpeed;
+        return data;
     }   //getGestureSpeed
 
     /**
@@ -392,17 +393,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getX()
     {
         final String funcName = "getX";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(xPos.timestamp, xPos.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               xPos != null? xPos.timestamp: 0.0,
-                               xPos != null? (Integer)xPos.value: 0);
+                               "=(timestamp=%.3f,value=%s)", data.timestamp, (Integer)data.value);
         }
 
-        return xPos;
+        return data;
     }   //getX
 
     /**
@@ -413,17 +414,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getZ()
     {
         final String funcName = "getZ";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(zPos.timestamp, zPos.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               zPos != null? zPos.timestamp: 0.0,
-                               zPos != null? (Integer)zPos.value: 0);
+                               "=(timestamp=%.3f,value=%s)", data.timestamp, (Integer)data.value);
         }
 
-        return zPos;
+        return data;
     }   //getZ
 
     /**
@@ -434,17 +435,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getLeftRangingData()
     {
         final String funcName = "getLeftRangingData";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(leftRangingData.timestamp, leftRangingData.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               leftRangingData != null? leftRangingData.timestamp: 0.0,
-                               leftRangingData != null? (Integer)leftRangingData.value: 0);
+                               "=(timestamp=%.3f,value=%s)", data.timestamp, (Integer)data.value);
         }
 
-        return leftRangingData;
+        return data;
     }   //getLeftRangingData
 
     /**
@@ -455,17 +456,17 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public TrcSensor.SensorData getRightRangingData()
     {
         final String funcName = "getRightRangingData";
+        TrcSensor.SensorData data =
+                new TrcSensor.SensorData(rightRangingData.timestamp, rightRangingData.value);
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)",
-                               rightRangingData != null? rightRangingData.timestamp: 0.0,
-                               rightRangingData != null? (Integer)rightRangingData.value: 0);
+                               "=(timestamp=%.3f,value=%s)", data.timestamp, (Integer)data.value);
         }
 
-        return rightRangingData;
+        return data;
     }   //getRightRangingData
 
     /**
@@ -554,27 +555,33 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                 break;
 
             case ZXREG_GESTURE:
-                gesture = new TrcSensor.SensorData(timestamp, Gesture.getGesture(data[0] & 0xff));
+                gesture.timestamp = timestamp;
+                gesture.value = Gesture.getGesture((int)data[0] & 0xff);
                 break;
 
             case ZXREG_GSPEED:
-                gestureSpeed = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                gestureSpeed.timestamp = timestamp;
+                gestureSpeed.value = (int)data[0] & 0xff;
                 break;
 
             case ZXREG_XPOS:
-                xPos = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                xPos.timestamp = timestamp;
+                xPos.value = (int)data[0] & 0xff;
                 break;
 
             case ZXREG_ZPOS:
-                zPos = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                zPos.timestamp = timestamp;
+                zPos.value = (int)data[0] & 0xff;
                 break;
 
             case ZXREG_LRNG:
-                leftRangingData = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                leftRangingData.timestamp = timestamp;
+                leftRangingData.value = (int)data[0] & 0xff;
                 break;
 
             case ZXREG_RRNG:
-                rightRangingData = new TrcSensor.SensorData(timestamp, data[0] & 0xff);
+                rightRangingData.timestamp = timestamp;
+                rightRangingData.value = (int)data[0] & 0xff;
                 break;
 
             default:
