@@ -25,7 +25,8 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     {
         DO_NOTHING,
         DEFENSE,
-        PARK_FLOOR_GOAL
+        PARK_FLOOR_GOAL,
+        PARK_MOUNTAIN
     }   //enum BeaconOption
 
     public enum Strategy
@@ -194,6 +195,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         beaconOptionMenu.addChoice("Do nothing", BeaconOption.DO_NOTHING);
         beaconOptionMenu.addChoice("Do defense", BeaconOption.DEFENSE);
         beaconOptionMenu.addChoice("Park floor goal", BeaconOption.PARK_FLOOR_GOAL);
+        beaconOptionMenu.addChoice("Park mountain", BeaconOption.PARK_MOUNTAIN);
 
         FtcMenu.walkMenuTree(allianceMenu);
 

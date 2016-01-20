@@ -23,8 +23,11 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         PUSH_BUTTON,
         RETRACT,
         MOVE_SOMEWHERE,
-        GO_BUMP,
+        GO_DEFENSE,
         PARK_FLOOR_GOAL,
+        BACK_TO_MOUNTAIN,
+        TURN_TO_MOUNTAIN,
+        GO_UP_MOUNTAIN,
         DONE
     }   //enum State
 
@@ -304,7 +307,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         //
                         if (elapsedTime > 10.0)
                         {
-                            sm.setState(State.GO_BUMP);
+                            sm.setState(State.GO_DEFENSE);
                         }
                     }
                     else if (option == FtcAuto.BeaconOption.PARK_FLOOR_GOAL)
@@ -318,9 +321,20 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         sm.addEvent(event);
                         sm.waitForEvents(State.PARK_FLOOR_GOAL);
                     }
+                    else if (option == FtcAuto.BeaconOption.PARK_MOUNTAIN)
+                    {
+                        //
+                        // Turn to parallel the mountain.
+                        //
+                        robot.pidDrive.setTarget(
+                                0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? 45.0: -45.0,
+                                false, event);
+                        sm.addEvent(event);
+                        sm.waitForEvents(State.BACK_TO_MOUNTAIN);
+                    }
                     break;
 
-                case GO_BUMP:
+                case GO_DEFENSE:
                     //
                     // Run to the opponent side and bump them if necessary.
                     //
@@ -336,6 +350,32 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Go into the floor goal.
                     //
                     robot.pidDrive.setTarget(-26.0, 0.0, false, event, 3.0);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.DONE);
+                    break;
+
+                case BACK_TO_MOUNTAIN:
+                    //
+                    // Back up to mountain foothill.
+                    //
+                    robot.pidDrive.setTarget(-40.0, 0.0, false, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.TURN_TO_MOUNTAIN);
+                    break;
+
+                case TURN_TO_MOUNTAIN:
+                    //
+                    // Turn to face the mountain.
+                    //
+                    robot.pidDrive.setTarget(
+                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -80.0: 80.0,
+                            false, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.GO_UP_MOUNTAIN);
+                    break;
+
+                case GO_UP_MOUNTAIN:
+                    robot.pidDrive.setTarget(50.0, 0.0, false, event, 5.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
