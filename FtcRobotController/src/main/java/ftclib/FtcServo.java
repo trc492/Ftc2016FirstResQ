@@ -47,7 +47,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
 
     private enum State
     {
-//        ENABLE_CONTROLLER,
         SET_POSITION,
         DISABLE_CONTROLLER,
         DONE
@@ -176,7 +175,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
         cancel();
         servoPos = pos;
         servoOnTime = onTime;
-//        sm.start(State.ENABLE_CONTROLLER);
         sm.start(State.SET_POSITION);
         setTaskEnabled(true);
     }   //setPositionWithOnTime
@@ -339,15 +337,6 @@ public class FtcServo extends TrcServo implements TrcTaskMgr.Task
             State state = (State)sm.getState();
             switch (state)
             {
-                /*
-                case ENABLE_CONTROLLER:
-                    controller.pwmEnable();
-                    timer.set(CONTROLLER_ONOFF_DELAY, event);
-                    sm.addEvent(event);
-                    sm.waitForEvents(State.SET_POSITION);
-                    break;
-                */
-
                 case SET_POSITION:
                     servo.setPosition(servoPos);
                     timer.set(servoOnTime, event);
