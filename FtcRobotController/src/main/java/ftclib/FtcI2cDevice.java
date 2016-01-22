@@ -80,6 +80,25 @@ public class FtcI2cDevice extends TrcI2cDevice
         this(FtcOpMode.getInstance().hardwareMap, instanceName, i2cAddress);
     }   //FtcI2cDevice
 
+    /**
+     * This method updates the I2C address of the device to a new address. This is typically
+     * called by the child class to update the I2C address after changing it.
+     *
+     * @param newAddress specifies the new I2C address.
+     */
+    protected void updateI2cAddress(int newAddress)
+    {
+        final String funcName = "updateI2cAddress";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "address=%x", newAddress);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        i2cAddress = newAddress;
+    }   //updateI2cAddress
+
     //
     // Implements TrcI2cDevice abstract methods.
     //

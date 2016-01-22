@@ -33,9 +33,9 @@ import trclib.TrcSensor;
  * This class implements the Modern Robotics Color Sensor extending FtcI2cDevice.
  * It provides the TrcI2cDevice.CompletionHandler interface to read the received data.
  */
-public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler
+public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.CompletionHandler
 {
-    private static final String moduleName = "FtcI2cColorSensor";
+    private static final String moduleName = "FtcMRI2cColorSensor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
@@ -44,16 +44,11 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
     //
     // I2C registers.
     //
-    private static final int REG_FIRMWARE_REVISION  = 0x00;
-    private static final int REG_MANUFACTURER_CODE  = 0x01;
-    private static final int REG_ID_CODE            = 0x02;
-    private static final int REG_COMMAND            = 0x03;
     private static final int REG_COLOR_NUMBER       = 0x04;
     private static final int REG_RED                = 0x05;
     private static final int REG_GREEN              = 0x06;
     private static final int REG_BLUE               = 0x07;
     private static final int REG_WHITE              = 0x08;
-    private static final int HEADER_LENGTH          = (REG_ID_CODE - REG_FIRMWARE_REVISION + 1);
     private static final int DATA_LENGTH            = (REG_WHITE - REG_COLOR_NUMBER + 1);
 
     //
@@ -87,9 +82,6 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
     private static final byte COLORNUM_LIGHT_BLUE   = 15;
     private static final byte COLORNUM_WHITE        = 16;
 
-    private int firmwareRev = 0;
-    private int manufacturerCode = 0;
-    private int idCode = 0;
     private TrcSensor.SensorData colorNumber = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData redValue = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData greenValue = new TrcSensor.SensorData(0.0, null);
@@ -103,7 +95,7 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcI2cColorSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress)
+    public FtcMRI2cColorSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress)
     {
         super(hardwareMap, instanceName, i2cAddress);
 
@@ -116,9 +108,8 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(REG_FIRMWARE_REVISION, HEADER_LENGTH, this);
         read(REG_COLOR_NUMBER, DATA_LENGTH, this);
-    }   //FtcI2cColorSensor
+    }   //FtcMRI2cColorSensor
 
     /**
      * Constructor: Creates an instance of the object.
@@ -126,20 +117,20 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcI2cColorSensor(String instanceName, int i2cAddress)
+    public FtcMRI2cColorSensor(String instanceName, int i2cAddress)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, i2cAddress);
-    }   //FtcI2cColorSensor
+    }   //FtcMRI2cColorSensor
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
      */
-    public FtcI2cColorSensor(String instanceName)
+    public FtcMRI2cColorSensor(String instanceName)
     {
         this(instanceName, DEF_I2CADDRESS);
-    }   //FtcI2cColorSensor
+    }   //FtcMRI2cColorSensor
 
     /**
      * This method turns on the internal LED to illuminate the target surface or turns off
@@ -201,64 +192,10 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
      * inches (5cm) from a white target. This target must be as white as possible. At least 3
      * layers of high quality copy paper make a good white target.
      */
-    public void calibrateWHiteBalance()
+    public void calibrateWhiteBalance()
     {
         sendCommand(CMD_CAL_WHITEBAL);
     }   //calibrateWhiteBalance
-
-    /**
-     * This method returns the firmware revision.
-     *
-     * @return firmware revision number.
-     */
-    public int getFirmwareRevision()
-    {
-        final String funcName = "getFirmwareRevision";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", firmwareRev);
-        }
-
-        return firmwareRev;
-    }   //getFirmwareRevision
-
-    /**
-     * This method returns the manufacturer code of the sensor.
-     *
-     * @return manufacturer code.
-     */
-    public int getManufacturerCode()
-    {
-        final String funcName = "getManufacturerCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", manufacturerCode);
-        }
-
-        return manufacturerCode;
-    }   //getManufacturerCode
-
-    /**
-     * This method returns the ID code of the sensor.
-     *
-     * @return ID code.
-     */
-    public int getIdCode()
-    {
-        final String funcName = "getIdCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", idCode);
-        }
-
-        return idCode;
-    }   //getManufacturerCode
 
     /**
      * This method returns the color number.
@@ -365,26 +302,6 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
         return data;
     }   //getWhiteValue
 
-    /**
-     * This method sends a command to the device.
-     *
-     * @param command specifies the command byte.
-     */
-    private void sendCommand(byte command)
-    {
-        final String funcName = "sendCommand";
-        byte[] data = new byte[1];
-
-        data[0] = command;
-        sendWriteCommand(REG_COMMAND, 1, data);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //sendCommand
-
     //
     // Implements TrcI2cDevice.CompletionHandler interface.
     //
@@ -404,16 +321,7 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_FIRMWARE_REVISION && length == HEADER_LENGTH)
-        {
-            //
-            // These only need to be read once, so no repeat.
-            //
-            firmwareRev = data[REG_FIRMWARE_REVISION - REG_FIRMWARE_REVISION] & 0xff;
-            manufacturerCode = data[REG_MANUFACTURER_CODE - REG_FIRMWARE_REVISION] & 0xff;
-            idCode = data[REG_ID_CODE - REG_FIRMWARE_REVISION] & 0xff;
-        }
-        else if (regAddress == REG_COLOR_NUMBER && length == DATA_LENGTH)
+        if (regAddress == REG_COLOR_NUMBER && length == DATA_LENGTH)
         {
             //
             // Read these repeatedly.
@@ -434,6 +342,10 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
             whiteValue.value = (int)data[REG_WHITE - REG_COLOR_NUMBER] & 0xff;
 
             repeat = true;
+        }
+        else
+        {
+            repeat = super.readCompletion(regAddress, length, timestamp, data);
         }
 
         if (debugEnabled)
@@ -461,4 +373,4 @@ public class FtcI2cColorSensor extends FtcI2cDevice implements TrcI2cDevice.Comp
     {
     }   //writeCompletion
 
-}   //class FtcI2cColorSensor
+}   //class FtcMRI2cColorSensor

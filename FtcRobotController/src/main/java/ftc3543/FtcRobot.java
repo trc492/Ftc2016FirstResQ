@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import ftclib.FtcDcMotor;
+import ftclib.FtcMRI2cColorSensor;
 import ftclib.FtcMRGyro;
 import ftclib.FtcOpMode;
 import ftclib.FtcOpticalDistanceSensor;
@@ -27,6 +28,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcUltrasonicSensor sonarSensor;
     public FtcOpticalDistanceSensor lightSensor;
     public ColorSensor colorSensor;
+    public FtcMRI2cColorSensor i2cColorSensor;
     public double prevSonarValue;
     //
     // DriveBase subsystem.
@@ -82,6 +84,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         lightSensor = new FtcOpticalDistanceSensor("lightSensor");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        i2cColorSensor = new FtcMRI2cColorSensor("i2cColorSensor");
         //
         // DriveBase subsystem.
         //
@@ -177,6 +180,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         sonarSensor.setEnabled(true);
         prevSonarValue = (Double)sonarSensor.getData().value;
         lightSensor.setEnabled(true);
+        i2cColorSensor.setLEDEnabled(true);
         driveBase.resetPosition();
     }   //startMode
 
@@ -187,6 +191,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         gyro.setEnabled(false);
         sonarSensor.setEnabled(false);
         lightSensor.setEnabled(false);
+        i2cColorSensor.setLEDEnabled(false);
     }   //stopMode
 
     //

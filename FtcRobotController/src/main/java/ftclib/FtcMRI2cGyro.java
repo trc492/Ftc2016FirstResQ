@@ -34,7 +34,7 @@ import trclib.TrcSensor;
  * It provides the TrcI2cDevice.CompletionHandler interface to read the
  * received data.
  */
-public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler
+public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.CompletionHandler
 {
     private static final String moduleName = "FtcMRI2cGyro";
     private static final boolean debugEnabled = false;
@@ -45,10 +45,6 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     //
     // I2C registers.
     //
-    private static final int REG_FIRMWARE_REVISION  = 0x00;
-    private static final int REG_MANUFACTURER_CODE  = 0x01;
-    private static final int REG_ID_CODE            = 0x02;
-    private static final int REG_COMMAND            = 0x03;
     private static final int REG_HEADING_LSB        = 0x04;
     private static final int REG_HEADING_MSB        = 0x05;
     private static final int REG_INTEGRATED_Z_LSB   = 0x06;
@@ -63,7 +59,6 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     private static final int REG_Z_OFFSET_MSB       = 0x0f;
     private static final int REG_Z_SCALING_LSB      = 0x10;
     private static final int REG_Z_SCALING_MSB      = 0x11;
-    private static final int HEADER_LENGTH          = (REG_ID_CODE - REG_FIRMWARE_REVISION + 1);
     private static final int DATA_LENGTH            = (REG_Z_SCALING_MSB - REG_HEADING_LSB + 1);
 
     private static final int CMD_MEASUREMENT_MODE   = 0x00;
@@ -71,9 +66,6 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
     private static final int CMD_RESET_Z_INTEGRATOR = 0x52;
     private static final int CMD_WRITE_EEPROM_DATA  = 0x57;
 
-    private int firmwareRev = 0;
-    private int manufacturerCode = 0;
-    private int idCode = 0;
     private TrcSensor.SensorData heading = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData integratedZ = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData rawX = new TrcSensor.SensorData(0.0, null);
@@ -104,7 +96,6 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
         }
 
         resetZIntegrator();
-        read(REG_FIRMWARE_REVISION, HEADER_LENGTH, this);
         read(REG_HEADING_LSB, DATA_LENGTH, this);
     }   //FtcMRI2cGyro
 
@@ -183,60 +174,6 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //resetZIntegrator
-
-    /**
-     * This method returns the firmware revision.
-     *
-     * @return firmware revision number.
-     */
-    public int getFirmwareRevision()
-    {
-        final String funcName = "getFirmwareRevision";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", firmwareRev);
-        }
-
-        return firmwareRev;
-    }   //getFirmwareRevision
-
-    /**
-     * This method returns the manufacturer code of the sensor.
-     *
-     * @return manufacturer code.
-     */
-    public int getManufacturerCode()
-    {
-        final String funcName = "getManufacturerCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", manufacturerCode);
-        }
-
-        return manufacturerCode;
-    }   //getManufacturerCode
-
-    /**
-     * This method returns the ID code of the sensor.
-     *
-     * @return ID code.
-     */
-    public int getIdCode()
-    {
-        final String funcName = "getIdCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", idCode);
-        }
-
-        return idCode;
-    }   //getManufacturerCode
 
     /**
      * This method returns the heading data.
@@ -404,16 +341,7 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_FIRMWARE_REVISION && length == HEADER_LENGTH)
-        {
-            //
-            // These only need to be read once, so no repeat.
-            //
-            firmwareRev = data[REG_FIRMWARE_REVISION - REG_FIRMWARE_REVISION] & 0xff;
-            manufacturerCode = data[REG_MANUFACTURER_CODE - REG_FIRMWARE_REVISION] & 0xff;
-            idCode = data[REG_ID_CODE - REG_FIRMWARE_REVISION] & 0xff;
-        }
-        else if (regAddress == REG_HEADING_LSB && length == DATA_LENGTH)
+        if (regAddress == REG_HEADING_LSB && length == DATA_LENGTH)
         {
             //
             // Read these repeatedly.
@@ -454,6 +382,10 @@ public class FtcMRI2cGyro extends FtcI2cDevice implements TrcI2cDevice.Completio
                                  ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
             repeat = true;
+        }
+        else
+        {
+            repeat = super.readCompletion(regAddress, length, timestamp, data);
         }
 
         if (debugEnabled)
