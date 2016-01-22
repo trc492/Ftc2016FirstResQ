@@ -48,6 +48,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     private TrcMotorController motor2;
     private TrcPidController pidCtrl;
 
+    private double syncConstant = 0.0;
     private boolean active = false;
     private double positionScale = 1.0;
     private boolean holdTarget = false;
@@ -128,6 +129,28 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     {
         return instanceName;
     }   //toString
+
+    /**
+     * This method sets the sync constants to synchronize the two motors. This is only a valid
+     * call if there are two motors. It is ignored otherwise.
+     *
+     * @param syncConstant specifies the sync constant for synchronizing the two motors.
+     */
+    public void setSyncConstant(double syncConstant)
+    {
+        final String funcName = "setSyncConstant";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "syncK=%f", syncConstant);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        if (motor1 != null && motor2 != null)
+        {
+            this.syncConstant = syncConstant;
+        }
+    }   //setSyncConstant
 
     /**
      * This method returns the state of the PID motor.
@@ -632,10 +655,29 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     "power=%f", power);
         }
 
-        motor1.setPower(power);
+        double power1 = power;
+        double power2 = power;
+        if (syncConstant != 0.0)
+        {
+            double pos1 = motor1.getPosition();
+            double pos2 = motor2.getPosition();
+            double deltaPower = syncConstant*(pos1 - pos2);
+            power1 -= deltaPower;
+            if (power1 > 1.0)
+            {
+                power2 -= power1 - 1.0;
+                power1 = 1.0;
+            }
+            else if (power1 < 1.0)
+            {
+                power2 -= power1 + 1.0;
+                power1 = -1.0;
+            }
+        }
+        motor1.setPower(power1);
         if (motor2 != null)
         {
-            motor2.setPower(power);
+            motor2.setPower(power2);
             /*
             if (motor2 instanceof CANJaguar)
             {

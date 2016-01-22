@@ -169,6 +169,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         leftButtonPusher = new ButtonPusher("leftPusher", true);
         rightButtonPusher = new ButtonPusher("rightPusher", false);
+        leftButtonPusher.stop();
+        rightButtonPusher.stop();
     }   //FtcRobot
 
     public void startMode(TrcRobot.RunMode runMode)

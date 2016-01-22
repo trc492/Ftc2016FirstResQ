@@ -48,6 +48,11 @@ public class ButtonPusher implements TrcTaskMgr.Task
         }
     }
 
+    public void stop()
+    {
+        pusherServo.setPosition(TrcServo.CONTINUOUS_SERVO_STOP);
+    }
+
     private void cancel()
     {
         if (sm.isEnabled())
