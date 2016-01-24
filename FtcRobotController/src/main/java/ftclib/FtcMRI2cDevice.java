@@ -68,7 +68,7 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    protected FtcMRI2cDevice(HardwareMap hardwareMap, String instanceName, int i2cAddress)
+    public FtcMRI2cDevice(HardwareMap hardwareMap, String instanceName, int i2cAddress)
     {
         super(hardwareMap, instanceName, i2cAddress);
 
@@ -189,33 +189,46 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
      * @param length specifies the number of bytes read.
      * @param timestamp specified the timestamp of the data retrieved.
      * @param data specifies the data byte array.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data)
+    public boolean readCompletion(
+            int regAddress, int length, double timestamp, byte[] data, boolean timedout)
     {
         final String funcName = "readCompletion";
+        boolean repeat = false;
 
         if (regAddress == REG_FIRMWARE_REVISION && length == HEADER_LENGTH)
         {
-            //
-            // These only need to be read once, so no repeat.
-            //
-            firmwareRev = data[REG_FIRMWARE_REVISION - REG_FIRMWARE_REVISION] & 0xff;
-            manufacturerCode = data[REG_MANUFACTURER_CODE - REG_FIRMWARE_REVISION] & 0xff;
-            idCode = data[REG_ID_CODE - REG_FIRMWARE_REVISION] & 0xff;
+            if (timedout)
+            {
+                repeat = true;
+            }
+            else
+            {
+                //
+                // These only need to be read once, so no repeat.
+                //
+                firmwareRev = data[REG_FIRMWARE_REVISION - REG_FIRMWARE_REVISION] & 0xff;
+                manufacturerCode = data[REG_MANUFACTURER_CODE - REG_FIRMWARE_REVISION] & 0xff;
+                idCode = data[REG_ID_CODE - REG_FIRMWARE_REVISION] & 0xff;
+            }
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d,timestamp=%.3f", regAddress, length, timestamp);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK, "=false");
-            dbgTrace.traceInfo(funcName, "%s(addr=%x,length=%d,time=%.3f,size=%d)=false",
-                               funcName, regAddress, length, timestamp, data.length);
+                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s",
+                                regAddress, length, timestamp, Boolean.toString(timedout));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
+                               "=%s", Boolean.toString(repeat));
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)=%s",
+                               funcName, regAddress, length, timestamp, data.length,
+                               Boolean.toString(timedout), Boolean.toString(repeat));
         }
 
-        return false;
+        return repeat;
     }   //readCompletion
 
     /**
@@ -223,9 +236,10 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
      *
      * @param regAddress specifies the starting register address.
      * @param length specifies the number of bytes read.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      */
     @Override
-    public void writeCompletion(int regAddress, int length)
+    public void writeCompletion(int regAddress, int length, boolean timedout)
     {
     }   //writeCompletion
 

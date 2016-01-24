@@ -516,10 +516,12 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
      * @param length specifies the number of bytes read.
      * @param timestamp specified the timestamp of the data retrieved.
      * @param data specifies the data byte array.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data)
+    public boolean readCompletion(
+            int regAddress, int length, double timestamp, byte[] data, boolean timedout)
     {
         final String funcName = "readCompletion";
         boolean repeat = false;
@@ -527,61 +529,95 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         switch (regAddress)
         {
             case ZXREG_REGVER:
-                regMapVersion = data[0] & 0xff;
+                if (timedout)
+                {
+                    repeat = true;
+                }
+                else
+                {
+                    regMapVersion = data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_MODEL:
-                modelVersion = data[0] & 0xff;
+                if (timedout)
+                {
+                    repeat = true;
+                }
+                else
+                {
+                    modelVersion = data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_STATUS:
-                deviceStatus = data[0] & 0xff;
-
-                if ((deviceStatus & STATUS_GESTURES) != 0)
+                if (!timedout)
                 {
-                    read(ZXREG_GESTURE, 1, this);
-                    read(ZXREG_GSPEED, 1, this);
-                }
+                    deviceStatus = data[0] & 0xff;
 
-                if ((deviceStatus & STATUS_DAV) != 0)
-                {
-                    read(ZXREG_XPOS, 1, this);
-                    read(ZXREG_ZPOS, 1, this);
-                    read(ZXREG_LRNG, 1, this);
-                    read(ZXREG_RRNG, 1, this);
-                }
+                    if ((deviceStatus & STATUS_GESTURES) != 0)
+                    {
+                        read(ZXREG_GESTURE, 1, this);
+                        read(ZXREG_GSPEED, 1, this);
+                    }
 
+                    if ((deviceStatus & STATUS_DAV) != 0)
+                    {
+                        read(ZXREG_XPOS, 1, this);
+                        read(ZXREG_ZPOS, 1, this);
+                        read(ZXREG_LRNG, 1, this);
+                        read(ZXREG_RRNG, 1, this);
+                    }
+                }
                 repeat = true;
                 break;
 
             case ZXREG_GESTURE:
-                gesture.timestamp = timestamp;
-                gesture.value = Gesture.getGesture((int)data[0] & 0xff);
+                if (!timedout)
+                {
+                    gesture.timestamp = timestamp;
+                    gesture.value = Gesture.getGesture((int)data[0] & 0xff);
+                }
                 break;
 
             case ZXREG_GSPEED:
-                gestureSpeed.timestamp = timestamp;
-                gestureSpeed.value = (int)data[0] & 0xff;
+                if (!timedout)
+                {
+                    gestureSpeed.timestamp = timestamp;
+                    gestureSpeed.value = (int)data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_XPOS:
-                xPos.timestamp = timestamp;
-                xPos.value = (int)data[0] & 0xff;
+                if (!timedout)
+                {
+                    xPos.timestamp = timestamp;
+                    xPos.value = (int)data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_ZPOS:
-                zPos.timestamp = timestamp;
-                zPos.value = (int)data[0] & 0xff;
+                if (!timedout)
+                {
+                    zPos.timestamp = timestamp;
+                    zPos.value = (int)data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_LRNG:
-                leftRangingData.timestamp = timestamp;
-                leftRangingData.value = (int)data[0] & 0xff;
+                if (!timedout)
+                {
+                    leftRangingData.timestamp = timestamp;
+                    leftRangingData.value = (int)data[0] & 0xff;
+                }
                 break;
 
             case ZXREG_RRNG:
-                rightRangingData.timestamp = timestamp;
-                rightRangingData.value = (int)data[0] & 0xff;
+                if (!timedout)
+                {
+                    rightRangingData.timestamp = timestamp;
+                    rightRangingData.value = (int)data[0] & 0xff;
+                }
                 break;
 
             default:
@@ -591,11 +627,13 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d,timestamp=%.3f", regAddress, length, timestamp);
+                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s",
+                                regAddress, length, timestamp, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
-            dbgTrace.traceInfo(funcName, "%s(regAddr=%x,len=%d,timestamp=%.3f)=%s",
-                               funcName, regAddress, length, timestamp, Boolean.toString(repeat));
+            dbgTrace.traceInfo(funcName, "%s(regAddr=%x,len=%d,timestamp=%.3f,timedout=%s)=%s",
+                               funcName, regAddress, length, timestamp,
+                               Boolean.toString(timedout), Boolean.toString(repeat));
         }
 
         return repeat;
@@ -606,9 +644,10 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
      *
      * @param regAddress specifies the starting register address.
      * @param length specifies the number of bytes read.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      */
     @Override
-    public void writeCompletion(int regAddress, int length)
+    public void writeCompletion(int regAddress, int length, boolean timedout)
     {
     }   //writeCompletion
 

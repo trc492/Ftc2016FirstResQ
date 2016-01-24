@@ -333,70 +333,75 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
      * @param length specifies the number of bytes read.
      * @param timestamp specified the timestamp of the data retrieved.
      * @param data specifies the data byte array.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data)
+    public boolean readCompletion(
+            int regAddress, int length, double timestamp, byte[] data, boolean timedout)
     {
         final String funcName = "readCompletion";
         boolean repeat = false;
 
         if (regAddress == REG_HEADING_LSB && length == DATA_LENGTH)
         {
-            //
-            // Read these repeatedly.
-            //
-            int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
-                                     ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
-            heading.timestamp = timestamp;
-            heading.value = (360 - value)%360;
+            if (!timedout)
+            {
+                //
+                // Read these repeatedly.
+                //
+                int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
+                                         ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                heading.timestamp = timestamp;
+                heading.value = (360 - value)%360;
 
-            integratedZ.timestamp = timestamp;
-            integratedZ.value =
-                    -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                integratedZ.timestamp = timestamp;
+                integratedZ.value =
+                        -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
+                                      ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
-            rawX.timestamp = timestamp;
-            rawX.value =
-                    -(int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                rawX.timestamp = timestamp;
+                rawX.value =
+                        -(int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
+                                      ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
-            rawY.timestamp = timestamp;
-            rawY.value =
-                    -(int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                rawY.timestamp = timestamp;
+                rawY.value =
+                        -(int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
+                                      ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
-            rawZ.timestamp = timestamp;
-            rawZ.value =
-                    -(int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                  ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                rawZ.timestamp = timestamp;
+                rawZ.value =
+                        -(int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
+                                      ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
-            zOffset.timestamp = timestamp;
-            zOffset.value =
-                    (int)(short)((data[REG_Z_OFFSET_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_Z_OFFSET_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                zOffset.timestamp = timestamp;
+                zOffset.value =
+                        (int)(short)((data[REG_Z_OFFSET_LSB - REG_HEADING_LSB] & 0xff) |
+                                     ((data[REG_Z_OFFSET_MSB - REG_HEADING_LSB] & 0xff) << 8));
 
-            zScaling.timestamp = timestamp;
-            zScaling.value =
-                    (int)(short)((data[REG_Z_SCALING_LSB - REG_HEADING_LSB] & 0xff) |
-                                 ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8));
-
+                zScaling.timestamp = timestamp;
+                zScaling.value =
+                        (int)(short)((data[REG_Z_SCALING_LSB - REG_HEADING_LSB] & 0xff) |
+                                     ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+            }
             repeat = true;
         }
         else
         {
-            repeat = super.readCompletion(regAddress, length, timestamp, data);
+            repeat = super.readCompletion(regAddress, length, timestamp, data, timedout);
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d,timestamp=%.3f", regAddress, length, timestamp);
+                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s",
+                                regAddress, length, timestamp, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
-            dbgTrace.traceInfo(funcName, "%s(addr=%x,length=%d,time=%.3f,size=%d)=%s",
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)=%s",
                                funcName, regAddress, length, timestamp, data.length,
-                               Boolean.toString(repeat));
+                               Boolean.toString(timedout), Boolean.toString(repeat));
         }
 
         return repeat;
@@ -407,19 +412,21 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
      *
      * @param regAddress specifies the starting register address.
      * @param length specifies the number of bytes read.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      */
     @Override
-    public void writeCompletion(int regAddress, int length)
+    public void writeCompletion(int regAddress, int length, boolean timedout)
     {
         final String funcName = "writeCompletion";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d", regAddress, length);
+                                "regAddr=%x,len=%d,timedout=%s",
+                                regAddress, length, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK);
-            dbgTrace.traceInfo(funcName, "%s()",
-                               funcName, regAddress, length);
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,timedout=%s)",
+                               funcName, regAddress, length, Boolean.toString(timedout));
         }
 
         if (regAddress == REG_COMMAND && length == 1)

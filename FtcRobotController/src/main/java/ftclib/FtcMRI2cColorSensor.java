@@ -313,50 +313,55 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
      * @param length specifies the number of bytes read.
      * @param timestamp specified the timestamp of the data retrieved.
      * @param data specifies the data byte array.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      * @return true to repeat the operation, false otherwise.
      */
     @Override
-    public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data)
+    public boolean readCompletion(
+            int regAddress, int length, double timestamp, byte[] data, boolean timedout)
     {
         final String funcName = "readCompletion";
         boolean repeat = false;
 
         if (regAddress == REG_COLOR_NUMBER && length == DATA_LENGTH)
         {
-            //
-            // Read these repeatedly.
-            //
-            colorNumber.timestamp = timestamp;
-            colorNumber.value = (int)data[REG_COLOR_NUMBER - REG_COLOR_NUMBER] & 0xff;
+            if (!timedout)
+            {
+                //
+                // Read these repeatedly.
+                //
+                colorNumber.timestamp = timestamp;
+                colorNumber.value = (int)data[REG_COLOR_NUMBER - REG_COLOR_NUMBER] & 0xff;
 
-            redValue.timestamp = timestamp;
-            redValue.value = (int)data[REG_RED - REG_COLOR_NUMBER] & 0xff;
+                redValue.timestamp = timestamp;
+                redValue.value = (int)data[REG_RED - REG_COLOR_NUMBER] & 0xff;
 
-            greenValue.timestamp = timestamp;
-            greenValue.value = (int)data[REG_GREEN - REG_COLOR_NUMBER] & 0xff;
+                greenValue.timestamp = timestamp;
+                greenValue.value = (int)data[REG_GREEN - REG_COLOR_NUMBER] & 0xff;
 
-            blueValue.timestamp = timestamp;
-            blueValue.value = (int)data[REG_BLUE - REG_COLOR_NUMBER] & 0xff;
+                blueValue.timestamp = timestamp;
+                blueValue.value = (int)data[REG_BLUE - REG_COLOR_NUMBER] & 0xff;
 
-            whiteValue.timestamp = timestamp;
-            whiteValue.value = (int)data[REG_WHITE - REG_COLOR_NUMBER] & 0xff;
-
+                whiteValue.timestamp = timestamp;
+                whiteValue.value = (int)data[REG_WHITE - REG_COLOR_NUMBER] & 0xff;
+            }
             repeat = true;
         }
         else
         {
-            repeat = super.readCompletion(regAddress, length, timestamp, data);
+            repeat = super.readCompletion(regAddress, length, timestamp, data, timedout);
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d,timestamp=%.3f", regAddress, length, timestamp);
+                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s",
+                                regAddress, length, timestamp, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
-            dbgTrace.traceInfo(funcName, "%s(addr=%x,length=%d,time=%.3f,size=%d)=%s",
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)=%s",
                                funcName, regAddress, length, timestamp, data.length,
-                               Boolean.toString(repeat));
+                               Boolean.toString(timedout), Boolean.toString(repeat));
         }
 
         return repeat;
@@ -367,9 +372,10 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
      *
      * @param regAddress specifies the starting register address.
      * @param length specifies the number of bytes read.
+     * @param timedout specifies true if the operation was timed out, false otherwise.
      */
     @Override
-    public void writeCompletion(int regAddress, int length)
+    public void writeCompletion(int regAddress, int length, boolean timedout)
     {
     }   //writeCompletion
 

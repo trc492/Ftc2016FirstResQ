@@ -93,17 +93,20 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
          * @param length specifies the number of bytes read.
          * @param timestamp specified the timestamp of the data retrieved.
          * @param data specifies the data byte array.
+         * @param timedout specifies true if the operation was timed out, false otherwise.
          * @return true if the request should be repeated, false otherwise.
          */
-        public boolean readCompletion(int regAddress, int length, double timestamp, byte[] data);
+        public boolean readCompletion(
+                int regAddress, int length, double timestamp, byte[] data, boolean timedout);
 
         /**
          * This method is called when the write operation has been completed.
          *
          * @param regAddress specifies the starting register address.
          * @param length specifies the number of bytes read.
+         * @param timedout specifies true if the operation was timed out, false otherwise.
          */
-        public void writeCompletion(int regAddress, int length);
+        public void writeCompletion(int regAddress, int length, boolean timedout);
 
     }   //interface CompletionHandler
 
@@ -121,7 +124,11 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
         //
         SEND_PORT_COMMAND,
         //
-        // Port command is completed, call completion handler if necessary.
+        // Wait for port command to complete.
+        //
+        WAIT_PORT_COMMAND_COMPLETE,
+        //
+        // The request has been completed or we timed out.
         //
         PORT_COMMAND_COMPLETED,
         //
@@ -142,6 +149,8 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
         private int length;
         private byte[] writeBuffer;
         private CompletionHandler handler;
+        private double timeout;
+        private boolean expired;
 
         /**
          * Constructor: Create an instance of the object.
@@ -151,14 +160,18 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
          * @param writeBuffer specifies the write buffer, null if read operation.
          * @param handler specifies the completion handler to call when done.
          *                Can be null if none needed.
+         * @param timeout specifies the timeout time. It can be set to 0 if there is no timeout.
          */
         public Request(
-                int regAddress, int length, byte[] writeBuffer, CompletionHandler handler)
+                int regAddress, int length, byte[] writeBuffer,
+                CompletionHandler handler, double timeout)
         {
             this.regAddress = regAddress;
             this.length = length;
             this.writeBuffer = writeBuffer;
             this.handler = handler;
+            this.timeout = timeout;
+            this.expired = false;
         }   //Request
 
     }   //class Request
@@ -167,6 +180,8 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
     private TrcStateMachine portCommandSM;
     private Queue<Request> requestQueue = new LinkedList<Request>();
     private Request currRequest = null;
+    private double expiredTime = 0.0;
+    private byte[] dataRead = null;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -225,8 +240,9 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
      * @param length specifies the number of bytes to read.
      * @param handler specifies the completion handler to call when done.
      *                Can be null if none needed.
+     * @param timeout specifies the timeout for the operation in seconds.
      */
-    public void read(int regAddress, int length, CompletionHandler handler)
+    public void read(int regAddress, int length, CompletionHandler handler, double timeout)
     {
         final String funcName = "read";
 
@@ -237,7 +253,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        requestQueue.add(new Request(regAddress, length, null, handler));
+        requestQueue.add(new Request(regAddress, length, null, handler, timeout));
         //
         // If the PortCommand state machine is not already active, start it.
         //
@@ -252,10 +268,23 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
      *
      * @param regAddress specifies the register address to read from.
      * @param length specifies the number of bytes to read.
+     * @param handler specifies the completion handler to call when done.
+     *                Can be null if none needed.
+     */
+    public void read(int regAddress, int length, CompletionHandler handler)
+    {
+        read(regAddress, length, handler, 0.0);
+    }   //read
+
+    /**
+     * This method queues the read request.
+     *
+     * @param regAddress specifies the register address to read from.
+     * @param length specifies the number of bytes to read.
      */
     public void read(int regAddress, int length)
     {
-        read(regAddress, length, null);
+        read(regAddress, length, null, 0.0);
     }   //read
 
     /**
@@ -266,8 +295,10 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
      * @param writeBuffer specifies the buffer containing the data to be written to the device.
      * @param handler specifies the completion handler to call when done.
      *                Can be null if none needed.
+     * @param timeout specifies the timeout for the operation in seconds.
      */
-    public void write(int regAddress, int length, byte[] writeBuffer, CompletionHandler handler)
+    public void write(int regAddress, int length, byte[] writeBuffer,
+                      CompletionHandler handler, double timeout)
     {
         final String funcName = "write";
 
@@ -278,7 +309,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        requestQueue.add(new Request(regAddress, length, writeBuffer, handler));
+        requestQueue.add(new Request(regAddress, length, writeBuffer, handler, timeout));
         //
         // If the PortCommand state machine is not already active, start it.
         //
@@ -294,10 +325,24 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
      * @param regAddress specifies the register address to write to.
      * @param length specifies the number of bytes to read.
      * @param writeBuffer specifies the buffer containing the data to be written to the device.
+     * @param handler specifies the completion handler to call when done.
+     *                Can be null if none needed.
+     */
+    public void write(int regAddress, int length, byte[] writeBuffer, CompletionHandler handler)
+    {
+        write(regAddress, length, writeBuffer, handler, 0.0);
+    }   //write
+
+    /**
+     * This method queues the write request.
+     *
+     * @param regAddress specifies the register address to write to.
+     * @param length specifies the number of bytes to read.
+     * @param writeBuffer specifies the buffer containing the data to be written to the device.
      */
     public void write(int regAddress, int length, byte[] writeBuffer)
     {
-        write(regAddress, length, writeBuffer, null);
+        write(regAddress, length, writeBuffer, null, 0.0);
     }   //write
 
     //
@@ -365,6 +410,12 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                         {
                             dbgTrace.traceInfo(funcName, "%s", state.toString());
                         }
+                        expiredTime = currRequest.timeout;
+                        if (expiredTime != 0.0)
+                        {
+                            expiredTime += HalUtil.getCurrentTime();
+                        }
+                        currRequest.expired = false;
                         portCommandSM.setState(PortCommandState.SEND_PORT_COMMAND);
                         state = (PortCommandState)portCommandSM.getState();
                     }
@@ -385,6 +436,7 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                                currRequest.writeBuffer == null? "read": "write");
                         }
 
+                        dataRead = null;
                         if (currRequest.writeBuffer == null)
                         {
                             //
@@ -401,59 +453,119 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
                                              currRequest.length,
                                              currRequest.writeBuffer);
                         }
+                        portCommandSM.setState(PortCommandState.WAIT_PORT_COMMAND_COMPLETE);
+                    }
+                    else if (expiredTime != 0.0 && HalUtil.getCurrentTime() > expiredTime)
+                    {
+                        currRequest.expired = true;
                         portCommandSM.setState(PortCommandState.PORT_COMMAND_COMPLETED);
+                        if (debugEnabled)
+                        {
+                            dbgTrace.traceInfo(
+                                    funcName, "%s: Port timed out, busy with another request.",
+                                    state.toString());
+                        }
+                    }
+                    break;
+
+                case WAIT_PORT_COMMAND_COMPLETE:
+                    //
+                    // Wait for the port command to complete or timed out.
+                    //
+                    if (isPortReady())
+                    {
+                        if (currRequest.writeBuffer != null)
+                        {
+                            //
+                            // It is a write request, the request is completed.
+                            //
+                            portCommandSM.setState(PortCommandState.PORT_COMMAND_COMPLETED);
+                            if (debugEnabled)
+                            {
+                                dbgTrace.traceInfo(
+                                        funcName, "%s: write command completed.", state.toString());
+                            }
+                        }
+                        else
+                        {
+                            dataRead = getData();
+                            //
+                            // It is a read request. For some reason, even when isPortReady()
+                            // returns true, the data may not be ready. So we need to check the
+                            // buffer length against the requested length. If it's not ready,
+                            // remain in this state until we have valid data or timed out.
+                            //
+                            if (dataRead.length == currRequest.length)
+                            {
+                                //
+                                // We have valid data, the request is completed.
+                                //
+                                portCommandSM.setState(PortCommandState.PORT_COMMAND_COMPLETED);
+                                if (debugEnabled)
+                                {
+                                    dbgTrace.traceInfo(
+                                            funcName, "%s: read command completed. %s",
+                                            state.toString(), Arrays.toString(dataRead));
+                                }
+                            }
+                            else if (dataRead.length != currRequest.length &&
+                                     expiredTime != 0.0 && HalUtil.getCurrentTime() > expiredTime)
+                            {
+                                currRequest.expired = true;
+                                portCommandSM.setState(PortCommandState.PORT_COMMAND_COMPLETED);
+                                if (debugEnabled)
+                                {
+                                    dbgTrace.traceInfo(
+                                            funcName, "%s: Port command timed out.", state.toString());
+                                }
+                            }
+                        }
+                    }
+                    else if (expiredTime != 0.0 && HalUtil.getCurrentTime() > expiredTime)
+                    {
+                        currRequest.expired = true;
+                        portCommandSM.setState(PortCommandState.PORT_COMMAND_COMPLETED);
+                        if (debugEnabled)
+                        {
+                            dbgTrace.traceInfo(
+                                    funcName, "%s: Port command timed out.", state.toString());
+                        }
                     }
                     break;
 
                 case PORT_COMMAND_COMPLETED:
                     //
-                    // Wait for the port command to complete.
+                    // The port command is complete, call completion handler if any.
                     //
-                    if (isPortReady())
+                    if (debugEnabled)
                     {
-                        //
-                        // For some reason, even when isPortReady() returns true, the data
-                        // may not be ready. So we need to check the buffer length against
-                        // the requested length. If it's not ready, remain in this state
-                        // until we have valid data.
-                        //
-                        byte[] data = getData();
+                        dbgTrace.traceInfo(
+                                funcName, "%s: Command completed (timeout=%s).",
+                                state.toString(), Boolean.toString(currRequest.expired));
+                    }
 
-                        if (debugEnabled)
+                    if (currRequest.handler != null)
+                    {
+                        if (currRequest.writeBuffer == null)
                         {
-                            dbgTrace.traceInfo(funcName, "%s: %s",
-                                               state.toString(), Arrays.toString(data));
-                        }
-
-                        if (data.length == currRequest.length)
-                        {
-                            //
-                            // The port command is complete, call completion handler if any.
-                            //
-                            if (currRequest.handler != null)
+                            if (currRequest.handler.readCompletion(
+                                    currRequest.regAddress, currRequest.length,
+                                    HalUtil.getCurrentTime(), dataRead, currRequest.expired))
                             {
-                                if (currRequest.writeBuffer == null)
-                                {
-                                    if (currRequest.handler.readCompletion(
-                                            currRequest.regAddress, currRequest.length,
-                                            HalUtil.getCurrentTime(), data))
-                                    {
-                                        //
-                                        // Repeat this read request.
-                                        //
-                                        requestQueue.add(currRequest);
-                                    }
-                                }
-                                else
-                                {
-                                    currRequest.handler.writeCompletion(
-                                            currRequest.regAddress, currRequest.length);
-                                }
+                                //
+                                // Repeat this read request.
+                                //
+                                requestQueue.add(currRequest);
                             }
-                            currRequest.writeBuffer = null;
-                            portCommandSM.setState(PortCommandState.START);
+                        }
+                        else
+                        {
+                            currRequest.handler.writeCompletion(
+                                    currRequest.regAddress, currRequest.length,
+                                    currRequest.expired);
                         }
                     }
+                    portCommandSM.setState(PortCommandState.START);
                     break;
 
                 case DONE:
