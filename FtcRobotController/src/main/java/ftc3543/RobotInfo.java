@@ -60,6 +60,9 @@ public class RobotInfo
     public static final double WINCH_CAL_POWER                  = -0.2;
     public static final double WINCH_BRAKE_ON_POSITION          = 1.0;
     public static final double WINCH_BRAKE_OFF_POSITION         = 0.0;
+    public static final double WINCH_TILTER_MIN_POSITION        = 0.1;
+    public static final double WINCH_TILTER_MAX_POSITION        = 0.85;
+    public static final double WINCH_TILTER_MAX_STEPRATE        = 0.2;
 
     //
     // Climber Depositor subsystem.

@@ -5,6 +5,7 @@ import ftclib.FtcServo;
 import ftclib.FtcTouchSensor;
 import hallib.HalDashboard;
 import trclib.TrcDigitalTrigger;
+import trclib.TrcEnhancedServo;
 import trclib.TrcEvent;
 import trclib.TrcPidController;
 import trclib.TrcPidMotor;
@@ -25,6 +26,8 @@ public class Winch implements TrcPidController.PidInput,
     private TrcPidMotor pidMotor;
     private FtcServo brake;
     private boolean brakeOn = false;
+    private FtcServo tilterServo;
+    private TrcEnhancedServo tilter;
 
     public Winch()
     {
@@ -44,18 +47,17 @@ public class Winch implements TrcPidController.PidInput,
         pidMotor.setPositionScale(RobotInfo.WINCH_INCHES_PER_CLICK);
         brake = new FtcServo("brake");
         setBrakeOn(false);
+        tilterServo = new FtcServo("tilterServo");
+        tilter = new TrcEnhancedServo("tilter", tilterServo);
+        tilter.setPosition(RobotInfo.WINCH_TILTER_MIN_POSITION);
+        tilter.setStepMode(RobotInfo.WINCH_TILTER_MAX_STEPRATE,
+                           RobotInfo.WINCH_TILTER_MIN_POSITION,
+                           RobotInfo.WINCH_TILTER_MAX_POSITION);
     }
 
     public void zeroCalibrate()
     {
         pidMotor.zeroCalibrate(RobotInfo.WINCH_CAL_POWER);
-    }
-
-    public void setBrakeOn(boolean brakeOn)
-    {
-        brake.setPosition(
-                brakeOn? RobotInfo.WINCH_BRAKE_ON_POSITION: RobotInfo.WINCH_BRAKE_OFF_POSITION);
-        this.brakeOn = brakeOn;
     }
 
     public void setPower(double power)
@@ -102,6 +104,28 @@ public class Winch implements TrcPidController.PidInput,
     public boolean isLowerLimitSwitchPressed()
     {
         return lowerLimitSwitch.isActive();
+    }
+
+    public void setBrakeOn(boolean brakeOn)
+    {
+        brake.setPosition(
+                brakeOn? RobotInfo.WINCH_BRAKE_ON_POSITION: RobotInfo.WINCH_BRAKE_OFF_POSITION);
+        this.brakeOn = brakeOn;
+    }
+
+    public void setTilterPosition(double position)
+    {
+        tilter.setPosition(position);
+    }
+
+    public double getTilterPosition()
+    {
+        return tilterServo.getPosition();
+    }
+
+    public void setTilterPower(double power)
+    {
+        tilter.setPower(power);
     }
 
     public void displayDebugInfo(int lineNum)

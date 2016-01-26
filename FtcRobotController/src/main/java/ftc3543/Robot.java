@@ -77,7 +77,9 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         gyro = new FtcMRGyro("gyroSensor");
         gyro.calibrate();
         beaconColorSensor = hardwareMap.colorSensor.get("colorSensor");
-        lineFollowColorSensor = new FtcMRI2cColorSensor("i2cColorSensor");
+        beaconColorSensor.enableLed(false);
+        lineFollowColorSensor = new FtcMRI2cColorSensor("i2cColorSensor", 0x40);
+        lineFollowColorSensor.setLEDEnabled(false);
         sonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         //

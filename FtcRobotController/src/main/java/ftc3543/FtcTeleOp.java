@@ -78,6 +78,13 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         dashboard.displayPrintf(3, "Winch:power=%.2f,len=%.2f,limitSW=%d",
                                 winchPower, robot.winch.getLength(),
                                 robot.winch.isLowerLimitSwitchPressed()? 1: 0);
+        //
+        // Winch Tilter.
+        //
+        double tilterPower = operatorGamepad.getLeftStickY(true);
+        robot.winch.setTilterPower(tilterPower);
+        dashboard.displayPrintf(4, "Tilter:power=%.2f,pos=%.2f",
+                                tilterPower, robot.winch.getTilterPosition());
     }   //runPeriodic
 
     //
@@ -117,14 +124,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_B:
+                case FtcGamepad.GAMEPAD_Y:
                     if (pressed)
                     {
-                        robot.rightButtonPusher.extend();
-                    }
-                    else
-                    {
-                        robot.rightButtonPusher.retract();
+                        robot.winch.setBrakeOn(true);
                     }
                     break;
 
@@ -139,10 +142,14 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_Y:
+                case FtcGamepad.GAMEPAD_B:
                     if (pressed)
                     {
-                        robot.winch.setBrakeOn(true);
+                        robot.rightButtonPusher.extend();
+                    }
+                    else
+                    {
+                        robot.rightButtonPusher.retract();
                     }
                     break;
 

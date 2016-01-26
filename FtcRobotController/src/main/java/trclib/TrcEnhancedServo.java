@@ -41,9 +41,12 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
     private boolean continuousServo = false;
     private boolean servoStepping = false;
     private double targetPosition = 0.0;
-    private double stepRate = 0.0;
+    private double currStepRate = 0.0;
     private double prevTime = 0.0;
     private double currPosition = 0.0;
+    private double maxStepRate = 0.0;
+    private double minPos = 0.0;
+    private double maxPos = 1.0;
     //
     // The following is for continuous servo.
     //
@@ -109,6 +112,23 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
         return instanceName;
     }   //toString
 
+    private void setSteppingEnabled(boolean enabled)
+    {
+        if (enabled && !servoStepping)
+        {
+            TrcTaskMgr.getInstance().registerTask(
+                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
+            TrcTaskMgr.getInstance().registerTask(
+                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.STOP_TASK);
+        }
+        else if (!enabled && servoStepping)
+        {
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.STOP_TASK);
+            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
+        }
+        servoStepping = enabled;
+    }   //setSteppingEnabled
+
     public void stop()
     {
         if (continuousServo)
@@ -117,9 +137,7 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
         }
         else if (servoStepping)
         {
-            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.STOP_TASK);
-            TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
-            servoStepping = false;
+            setSteppingEnabled(false);
         }
     }   //stop
 
@@ -144,19 +162,26 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
         if (!continuousServo)
         {
             this.targetPosition = position;
-            this.stepRate = Math.abs(stepRate);
+            this.currStepRate = Math.abs(stepRate);
             this.prevTime = HalUtil.getCurrentTime();
             this.currPosition = servo1.getPosition();
-            servoStepping = true;
-            TrcTaskMgr.getInstance().registerTask(
-                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
-            TrcTaskMgr.getInstance().registerTask(
-                    "ServoSteppingTask", this, TrcTaskMgr.TaskType.STOP_TASK);
+            setSteppingEnabled(true);
         }
     }   //setPosition
 
-    public void setContinuousPower(double power)
+    public void setStepMode(double maxStepRate, double minPos, double maxPos)
     {
+        if (!continuousServo)
+        {
+            this.maxStepRate = maxStepRate;
+            this.minPos = minPos;
+            this.maxPos = maxPos;
+        }
+    }   //setStepMode
+
+    public void setPower(double power)
+    {
+        power = TrcUtil.limit(power, -1.0, 1.0);
         if (continuousServo)
         {
             if (lowerLimitSwitch != null &&
@@ -177,7 +202,20 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
                 servo1.setPosition(power);
             }
         }
-    }   //setContinuousPower
+        else if (!servoStepping)
+        {
+            setPosition(power > 0.0? maxPos: minPos, Math.abs(power)*maxStepRate);
+        }
+        else if (power != 0.0)
+        {
+            targetPosition = power > 0.0? maxPos: minPos;
+            currStepRate = Math.abs(power)*maxStepRate;
+        }
+        else
+        {
+            setSteppingEnabled(false);
+        }
+    }   //setPower
 
     //
     // Implements TrcTaskMgr.Task
@@ -215,7 +253,7 @@ public class TrcEnhancedServo implements TrcTaskMgr.Task
         if (runMode != TrcRobot.RunMode.DISABLED_MODE)
         {
             double currTime = HalUtil.getCurrentTime();
-            double deltaPos = stepRate * (currTime - prevTime);
+            double deltaPos = currStepRate * (currTime - prevTime);
 
             if (currPosition < targetPosition)
             {
