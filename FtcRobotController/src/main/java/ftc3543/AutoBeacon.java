@@ -33,7 +33,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoBeacon";
 
-    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
+    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
@@ -77,30 +77,37 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         //
         if (robot.pidDrive.isEnabled())
         {
-            robot.pidCtrlDrive.printPidInfo(tracer);
-            robot.pidCtrlTurn.printPidInfo(tracer);
-            tracer.traceInfo(moduleName, "[%.3f] Light sensor value = %.0f",
-                             elapsedTime, robot.lightSensor.getData().value);
+            robot.encoderPidCtrl.printPidInfo(tracer);
+            robot.gyroPidCtrl.printPidInfo(tracer);
+            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, white=%d",
+                             elapsedTime,
+                             (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
         }
-        else if (robot.pidDriveLineFollow.isEnabled())
+        else if (robot.pidLineFollow.isEnabled())
         {
-            robot.pidCtrlSonar.printPidInfo(tracer);
-            robot.pidCtrlLight.printPidInfo(tracer);
-            tracer.traceInfo(moduleName, "[%.3f] Light sensor value = %.0f",
-                             elapsedTime, robot.lightSensor.getData().value);
+            robot.sonarPidCtrl.printPidInfo(tracer);
+            robot.colorPidCtrl.printPidInfo(tracer);
+            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, white=%d",
+                             elapsedTime,
+                             (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
         }
 
-        dashboard.displayPrintf(1, moduleName + ": %s, %s,delay=%.0f,pushButton=%s,option=%s",
+        dashboard.displayPrintf(1, moduleName + ": %s,%s,delay=%.0f,pushButton=%s,option=%s",
                                 alliance.toString(), startPos.toString(), delay,
                                 Boolean.toString(pushButton), option.toString());
-        dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
-                                robot.colorSensor.red(),
-                                robot.colorSensor.green(),
-                                robot.colorSensor.blue(),
-                                robot.colorSensor.alpha(),
-                                robot.colorSensor.argb());
-        robot.pidCtrlSonar.displayPidInfo(3);
-        robot.pidCtrlLight.displayPidInfo(5);
+        dashboard.displayPrintf(2, "LineFollow:color=%d,white=%d",
+                                (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                                (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
+        dashboard.displayPrintf(3, "RGBAH: [%d,%d,%d,%d,%x]",
+                                robot.beaconColorSensor.red(),
+                                robot.beaconColorSensor.green(),
+                                robot.beaconColorSensor.blue(),
+                                robot.beaconColorSensor.alpha(),
+                                robot.beaconColorSensor.argb());
+        robot.sonarPidCtrl.displayPidInfo(4);
+        robot.colorPidCtrl.displayPidInfo(6);
 
         if (sm.isReady())
         {
@@ -145,22 +152,22 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Drive forward slowly until we reach the line.
                     // If line is detected, it will interrupt PID drive.
                     //
-                    robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
+                    robot.colorTrigger.setEnabled(true);
+                    robot.encoderPidCtrl.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(25.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.CLEAR_DEBRIS);
                     break;
 
                 case CLEAR_DEBRIS:
-                    robot.lightTrigger.setEnabled(false);
+                    robot.colorTrigger.setEnabled(false);
                     robot.pidDrive.setTarget(16.0, 0.0, false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.BACK_TO_LINE);
                     break;
 
                 case BACK_TO_LINE:
-                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
+                    robot.encoderPidCtrl.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(-20.0,
                                              alliance == FtcAuto.Alliance.RED_ALLIANCE? 10.0: -10.0,
                                              false, event, 2.0);
@@ -169,8 +176,8 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     break;
 
                 case FIND_LINE_AGAIN:
-                    robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.3, 0.3);
+                    robot.colorTrigger.setEnabled(true);
+                    robot.encoderPidCtrl.setOutputRange(-0.3, 0.3);
                     robot.pidDrive.setTarget(10.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
@@ -181,7 +188,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Turn slowly to find the edge of the line.
                     // If line is detected, it will interrupt PID turn.
                     //
-                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);
+                    robot.gyroPidCtrl.setOutputRange(-0.75, 0.75);
                     robot.pidDrive.setTarget(
                             0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event);
@@ -193,11 +200,12 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Follow the line until we are in front of the beacon .
                     //
-                    robot.lightTrigger.setEnabled(false);
-                    robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);;
-                    robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
-                    robot.pidDriveLineFollow.setTarget(
-                            RobotInfo.BEACON_DISTANCE, RobotInfo.LIGHT_THRESHOLD,
+                    robot.colorTrigger.setEnabled(false);
+                    robot.sonarPidCtrl.setOutputRange(-0.3, 0.3);;
+                    robot.colorPidCtrl.setOutputRange(-0.5, 0.5);
+                    robot.pidLineFollow.setTarget(
+                            RobotInfo.SONAR_BEACON_DISTANCE,
+                            RobotInfo.COLOR_LINE_EDGE_LEVEL,
                             false, event, 4.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.PUSH_BUTTON);
@@ -209,15 +217,15 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Simultaneously dump the climbers into the bin and
                     // wait for it to finish.
                     //
-                    robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);;
-                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
+                    robot.colorPidCtrl.setOutputRange(-1.0, 1.0);
+                    robot.sonarPidCtrl.setOutputRange(-1.0, 1.0);
+                    robot.gyroPidCtrl.setOutputRange(-1.0, 1.0);;
+                    robot.encoderPidCtrl.setOutputRange(-1.0, 1.0);
                     if (pushButton)
                     {
-                        int redValue = robot.colorSensor.red();
-                        int greenValue = robot.colorSensor.green();
-                        int blueValue = robot.colorSensor.blue();
+                        int redValue = robot.beaconColorSensor.red();
+                        int greenValue = robot.beaconColorSensor.green();
+                        int blueValue = robot.beaconColorSensor.blue();
                         boolean isRed = redValue > blueValue && redValue > greenValue;
                         boolean isBlue = blueValue > redValue && blueValue > greenValue;
                         tracer.traceInfo(
@@ -246,8 +254,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     if (depositClimbers)
                     {
-                        robot.hangingHook.setPosition(RobotInfo.HANGINGHOOK_DEPOSIT_CLIMBER,
-                                                      RobotInfo.HANGINGHOOK_STEPRATE);
+                        robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_EXTEND_POSITION);
                     }
                     //
                     // It takes sometime for the arm to move and deposit the climber.
@@ -274,9 +281,9 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         rightPusherExtended = false;
                     }
 
-                    robot.hookServo.setPositionWithOnTime(
-                            RobotInfo.HANGINGHOOK_RETRACT_POSITION,
-                            RobotInfo.HANGINGHOOK_HOLD_TIME);
+                    robot.climberDepositor.setPosition(
+                            RobotInfo.DEPOSITOR_RETRACT_POSITION);
+
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
                     {

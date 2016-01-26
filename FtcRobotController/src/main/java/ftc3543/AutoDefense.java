@@ -19,7 +19,7 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoDefense";
 
-    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
+    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
@@ -55,18 +55,16 @@ public class AutoDefense implements TrcRobot.AutoStrategy
             {
                 case DO_DELAY:
                     //
-                    // If there is a delay, set the timer for it.
+                    // If the delay is less than 10, make it at least 10 seconds.
+                    // We cannot cross to the opponent's side before 10 seconds.
                     //
-                    if (delay == 0.0)
+                    if (delay < 10.0)
                     {
-                        sm.setState(State.DRIVE_DISTANCE);
+                        delay = 10.0;
                     }
-                    else
-                    {
-                        timer.set(delay, event);
-                        sm.addEvent(event);
-                        sm.waitForEvents(State.DRIVE_DISTANCE);
-                    }
+                    timer.set(delay, event);
+                    sm.addEvent(event);
+                    sm.waitForEvents(State.DRIVE_DISTANCE);
                     break;
 
                 case DRIVE_DISTANCE:

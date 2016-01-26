@@ -7,29 +7,26 @@ import ftclib.FtcDcMotor;
 import ftclib.FtcMRI2cColorSensor;
 import ftclib.FtcMRGyro;
 import ftclib.FtcOpMode;
-import ftclib.FtcOpticalDistanceSensor;
 import ftclib.FtcServo;
 import ftclib.FtcUltrasonicSensor;
 import hallib.HalUtil;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
-import trclib.TrcEnhancedServo;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
 
-public class FtcRobot implements TrcPidController.PidInput,
-                                 TrcAnalogTrigger.TriggerHandler
+public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.TriggerHandler
 {
     //
     // Sensors.
     //
     public FtcMRGyro gyro;
+    public ColorSensor beaconColorSensor;
+    public FtcMRI2cColorSensor lineFollowColorSensor;
     public FtcUltrasonicSensor sonarSensor;
-    public FtcOpticalDistanceSensor lightSensor;
-    public ColorSensor colorSensor;
-    public FtcMRI2cColorSensor i2cColorSensor;
     public double prevSonarValue;
+
     //
     // DriveBase subsystem.
     //
@@ -39,39 +36,38 @@ public class FtcRobot implements TrcPidController.PidInput,
     public FtcDcMotor rightRearWheel;
     public TrcDriveBase driveBase;
 
-    public TrcPidController pidCtrlDrive;
-    public TrcPidController pidCtrlTurn;
+    public TrcPidController encoderPidCtrl;
+    public TrcPidController gyroPidCtrl;
     public TrcPidDrive pidDrive;
 
-    public TrcPidController pidCtrlSonar;
-    public TrcPidController pidCtrlLight;
-    public TrcPidDrive pidDriveLineFollow;
-    public TrcAnalogTrigger lightTrigger;
+    public TrcPidController sonarPidCtrl;
+    public TrcPidController colorPidCtrl;
+    public TrcPidDrive pidLineFollow;
+    public TrcAnalogTrigger colorTrigger;
+
     //
-    // Slider subsystem.
+    // Winch subsystem.
     //
-    public Slider slider;
+    public Winch winch;
+
     //
-    // Elevator subsystem.
+    // Climber Depositor subsystem.
     //
-    public Elevator elevator;
+    public FtcServo climberDepositor;
+
     //
-    // HangingHook subsystem.
-    //
-    public FtcServo hookServo;
-    public TrcEnhancedServo hangingHook;
-    //
-    // ClimberRelease subsystem.
+    // Climber Release subsystem.
     //
     public FtcServo leftWing;
     public FtcServo rightWing;
+
     //
     // ButtonPusher subsystem.
     //
     public ButtonPusher leftButtonPusher;
     public ButtonPusher rightButtonPusher;
 
-    public FtcRobot(TrcRobot.RunMode runMode)
+    public Robot(TrcRobot.RunMode runMode)
     {
         HardwareMap hardwareMap = FtcOpMode.getInstance().hardwareMap;
         hardwareMap.logDevices();
@@ -80,11 +76,10 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         gyro = new FtcMRGyro("gyroSensor");
         gyro.calibrate();
+        beaconColorSensor = hardwareMap.colorSensor.get("colorSensor");
+        lineFollowColorSensor = new FtcMRI2cColorSensor("i2cColorSensor");
         sonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
-        lightSensor = new FtcOpticalDistanceSensor("lightSensor");
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        i2cColorSensor = new FtcMRI2cColorSensor("i2cColorSensor");
         //
         // DriveBase subsystem.
         //
@@ -100,64 +95,56 @@ public class FtcRobot implements TrcPidController.PidInput,
         //
         // PID Drive.
         //
-        pidCtrlDrive = new TrcPidController(
-                "drivePid",
+        encoderPidCtrl = new TrcPidController(
+                "encoderPidCtrl",
                 RobotInfo.DRIVE_KP, RobotInfo.DRIVE_KI,
                 RobotInfo.DRIVE_KD, RobotInfo.DRIVE_KF,
                 RobotInfo.DRIVE_TOLERANCE, RobotInfo.DRIVE_SETTLING,
                 this);
-        pidCtrlTurn = new TrcPidController(
-                "turnPid",
-                RobotInfo.TURN_KP, RobotInfo.TURN_KI,
-                RobotInfo.TURN_KD, RobotInfo.TURN_KF,
-                RobotInfo.TURN_TOLERANCE, RobotInfo.TURN_SETTLING,
+        gyroPidCtrl = new TrcPidController(
+                "gyroPidCtrl",
+                RobotInfo.GYRO_KP, RobotInfo.GYRO_KI,
+                RobotInfo.GYRO_KD, RobotInfo.GYRO_KF,
+                RobotInfo.GYRO_TOLERANCE, RobotInfo.GYRO_SETTLING,
                 this);
-        pidDrive = new TrcPidDrive("pidDrive", driveBase, null, pidCtrlDrive, pidCtrlTurn);
+        pidDrive = new TrcPidDrive("pidDrive", driveBase, null, encoderPidCtrl, gyroPidCtrl);
         //
         // PID Line following.
         //
-        pidCtrlSonar = new TrcPidController(
-                "sonarPid",
+        sonarPidCtrl = new TrcPidController(
+                "sonarPidCtrl",
                 RobotInfo.SONAR_KP, RobotInfo.SONAR_KI,
                 RobotInfo.SONAR_KD, RobotInfo.SONAR_KF,
                 RobotInfo.SONAR_TOLERANCE, RobotInfo.SONAR_SETTLING,
                 this);
-        pidCtrlSonar.setAbsoluteSetPoint(true);
-        pidCtrlSonar.setInverted(true);
-        pidCtrlLight = new TrcPidController(
-                "lightPid",
-                RobotInfo.LINEFOLLOW_KP, RobotInfo.LINEFOLLOW_KI,
-                RobotInfo.LINEFOLLOW_KD, RobotInfo.LINEFOLLOW_KF,
-                RobotInfo.LINEFOLLOW_TOLERANCE, RobotInfo.LINEFOLLOW_SETTLING,
+        sonarPidCtrl.setAbsoluteSetPoint(true);
+        sonarPidCtrl.setInverted(true);
+        colorPidCtrl = new TrcPidController(
+                "colorPidCtrl",
+                RobotInfo.COLOR_KP, RobotInfo.COLOR_KI,
+                RobotInfo.COLOR_KD, RobotInfo.COLOR_KF,
+                RobotInfo.COLOR_TOLERANCE, RobotInfo.COLOR_SETTLING,
                 this);
-        pidCtrlLight.setAbsoluteSetPoint(true);
-        pidDriveLineFollow = new TrcPidDrive(
-                "lineFollowDrive", driveBase, null, pidCtrlSonar, pidCtrlLight);
+        colorPidCtrl.setAbsoluteSetPoint(true);
+        pidLineFollow = new TrcPidDrive(
+                "pidLineFollow", driveBase, null, sonarPidCtrl, colorPidCtrl);
+        colorTrigger = new TrcAnalogTrigger(
+                "colorTrigger", lineFollowColorSensor, 0,
+                RobotInfo.COLOR_RED_THRESHOLD,
+                RobotInfo.COLOR_WHITE_THRESHOLD, this);
         //
-        // Triggers.
+        // Winch subsystem.
         //
-        lightTrigger = new TrcAnalogTrigger(
-                "lightTrigger", lightSensor, RobotInfo.LIGHT_TRIGGER_LEVEL, this);
+        winch = new Winch();
+        winch.zeroCalibrate();
         //
-        // Slider subsystem.
+        // Climber Depositor subsystem.
         //
-        slider = new Slider();
-//        slider.zeroCalibrate(RobotInfo.SLIDER_CAL_POWER);
+        climberDepositor = new FtcServo("depositorServo");
+        climberDepositor.setInverted(true);
+        climberDepositor.setPosition(RobotInfo.DEPOSITOR_RETRACT_POSITION);
         //
-        // Elevator subsystem.
-        //
-        elevator = new Elevator();
-//        elevator.zeroCalibrate(RobotInfo.ELEVATOR_CAL_POWER);
-        //
-        // HangingHook subsystem.
-        //
-        hookServo = new FtcServo("hangingHook");
-        hookServo.setInverted(true);
-        hangingHook = new TrcEnhancedServo("hangingHook", hookServo);
-        hookServo.setPosition(RobotInfo.HANGINGHOOK_RETRACT_POSITION);
-
-        //
-        // ClimberRelease subsystem.
+        // Climber Release subsystem.
         //
         leftWing = new FtcServo("leftWing");
         rightWing = new FtcServo("rightWing");
@@ -171,7 +158,7 @@ public class FtcRobot implements TrcPidController.PidInput,
         rightButtonPusher = new ButtonPusher("rightPusher", false);
         leftButtonPusher.stop();
         rightButtonPusher.stop();
-    }   //FtcRobot
+    }   //Robot
 
     public void startMode(TrcRobot.RunMode runMode)
     {
@@ -179,10 +166,9 @@ public class FtcRobot implements TrcPidController.PidInput,
                 FtcOpMode.getOpModeName(), "Starting: %.3f", HalUtil.getCurrentTime());
         gyro.resetZIntegrator();
         gyro.setEnabled(true);
+        lineFollowColorSensor.setLEDEnabled(true);
         sonarSensor.setEnabled(true);
-        prevSonarValue = (Double)sonarSensor.getData().value;
-        lightSensor.setEnabled(true);
-        i2cColorSensor.setLEDEnabled(true);
+        prevSonarValue = (Double)sonarSensor.getData(0).value;
         driveBase.resetPosition();
     }   //startMode
 
@@ -191,9 +177,8 @@ public class FtcRobot implements TrcPidController.PidInput,
         FtcOpMode.getOpModeTracer().traceInfo(
                 FtcOpMode.getOpModeName(), "Stopping: %.3f", HalUtil.getCurrentTime());
         gyro.setEnabled(false);
+        lineFollowColorSensor.setLEDEnabled(false);
         sonarSensor.setEnabled(false);
-        lightSensor.setEnabled(false);
-        i2cColorSensor.setLEDEnabled(false);
     }   //stopMode
 
     //
@@ -205,17 +190,17 @@ public class FtcRobot implements TrcPidController.PidInput,
     {
         double input = 0.0;
 
-        if (pidCtrl == pidCtrlDrive)
+        if (pidCtrl == encoderPidCtrl)
         {
             input = driveBase.getYPosition();
         }
-        else if (pidCtrl == pidCtrlTurn)
+        else if (pidCtrl == gyroPidCtrl)
         {
             input = driveBase.getHeading();
         }
-        else if (pidCtrl == pidCtrlSonar)
+        else if (pidCtrl == sonarPidCtrl)
         {
-            input = (Double)sonarSensor.getData().value;
+            input = (Double)sonarSensor.getData(0).value;
             //
             // The Lego Ultrasonic sensor occasionally returns a zero.
             // This is causing havoc to PID control. Let's detect that
@@ -230,15 +215,15 @@ public class FtcRobot implements TrcPidController.PidInput,
                 prevSonarValue = input;
             }
         }
-        else if (pidCtrl == pidCtrlLight)
+        else if (pidCtrl == colorPidCtrl)
         {
-            input = (Double)lightSensor.getData().value;
+            input = (double)(Integer)lineFollowColorSensor.getWhiteValue().value;
             //
             // Give it a deadband to minimize fish tailing.
             //
-            if (Math.abs(input - RobotInfo.LIGHT_THRESHOLD) < RobotInfo.LIGHT_DEADBAND)
+            if (Math.abs(input - RobotInfo.COLOR_LINE_EDGE_LEVEL) < RobotInfo.COLOR_LINE_EDGE_DEADBAND)
             {
-                input = RobotInfo.LIGHT_THRESHOLD;
+                input = RobotInfo.COLOR_LINE_EDGE_LEVEL;
             }
         }
 
@@ -253,7 +238,7 @@ public class FtcRobot implements TrcPidController.PidInput,
     public void AnalogTriggerEvent(
             TrcAnalogTrigger analogTrigger, TrcAnalogTrigger.Zone zone, double value)
     {
-        if (analogTrigger == lightTrigger &&
+        if (analogTrigger == colorTrigger &&
             zone == TrcAnalogTrigger.Zone.HIGH_ZONE &&
             pidDrive.isEnabled())
         {
@@ -261,4 +246,4 @@ public class FtcRobot implements TrcPidController.PidInput,
         }
     }   //AnalogTriggerEvent
 
-}   //class FtcRobot
+}   //class Robot

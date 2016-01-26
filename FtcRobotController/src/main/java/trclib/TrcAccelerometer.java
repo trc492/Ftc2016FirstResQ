@@ -34,7 +34,7 @@ package trclib;
  * does not provide velocity or distance data, it can set the INTEGRATE and
  * DOUBLE_INTEGRATE options and let the built-in integrator handle it.
  */
-public abstract class TrcAccelerometer extends TrcSensor
+public abstract class TrcAccelerometer extends TrcSensor implements TrcSensorDataSource
 {
     //
     // Accelerometer data types.
@@ -684,5 +684,70 @@ public abstract class TrcAccelerometer extends TrcSensor
 
         return data;
     }   //getRawData
+
+    //
+    // Implements TrcSensorDataSource interface.
+    //
+
+    /**
+     * This method returns the sensor data of the specified index.
+     *
+     * @param index specifies the data index.
+     * @return sensor data of the specified index.
+     */
+    @Override
+    public TrcSensor.SensorData getSensorData(int index)
+    {
+        final String funcName = "getSensorData";
+        TrcSensor.SensorData data = null;
+
+        switch (index)
+        {
+            case 0:
+                data = getXAcceleration();
+                break;
+
+            case 1:
+                data = getYAcceleration();
+                break;
+
+            case 2:
+                data = getZAcceleration();
+                break;
+
+            case 3:
+                data = getXVelocity();
+                break;
+
+            case 4:
+                data = getYVelocity();
+                break;
+
+            case 5:
+                data = getZVelocity();
+                break;
+
+            case 6:
+                data = getXDistance();
+                break;
+
+            case 7:
+                data = getYDistance();
+                break;
+
+            case 8:
+                data = getZDistance();
+                break;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(time=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getSensorData
 
 }   //class TrcAccelerometer

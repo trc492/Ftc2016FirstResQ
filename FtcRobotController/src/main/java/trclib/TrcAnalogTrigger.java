@@ -23,6 +23,8 @@
 
 package trclib;
 
+import java.util.IllegalFormatException;
+
 public class TrcAnalogTrigger implements TrcTaskMgr.Task
 {
     private static final String moduleName = "TrcAnalogTrigger";
@@ -46,18 +48,20 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     }   //interface TriggerHandler
 
     private String instanceName;
-    private TrcAnalogInput analogInput;
+    private TrcSensorDataSource sensor;
+    private int dataIndex;
     private double lowThreshold;
     private double highThreshold;
-    private TriggerHandler eventHandler;
+    private TriggerHandler triggerHandler;
     private Zone prevZone;
 
     public TrcAnalogTrigger(
             final String instanceName,
-            TrcAnalogInput analogInput,
+            TrcSensorDataSource sensor,
+            int dataIndex,
             double lowThreshold,
             double highThreshold,
-            TriggerHandler eventHandler)
+            TriggerHandler triggerHandler)
     {
         if (debugEnabled)
         {
@@ -68,26 +72,28 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        if (analogInput == null || eventHandler == null)
+        if (sensor == null || triggerHandler == null)
         {
-            throw new NullPointerException("AnalogInput/EventHandler must be provided");
+            throw new NullPointerException("Sensor/TriggerHandler must be provided");
         }
 
         this.instanceName = instanceName;
-        this.analogInput = analogInput;
+        this.sensor = sensor;
+        this.dataIndex = dataIndex;
         this.lowThreshold = lowThreshold;
         this.highThreshold = highThreshold;
-        this.eventHandler = eventHandler;
+        this.triggerHandler = triggerHandler;
         prevZone = Zone.UNKNOWN_ZONE;
     }   //TrcAnalogTrigger
 
     public TrcAnalogTrigger(
             final String instanceName,
-            TrcAnalogInput analogInput,
+            TrcSensorDataSource sensor,
+            int dataIndex,
             double threshold,
-            TriggerHandler eventHandler)
+            TriggerHandler triggerHandler)
     {
-        this(instanceName, analogInput, threshold, threshold, eventHandler);
+        this(instanceName, sensor, dataIndex, threshold, threshold, triggerHandler);
     }   //TrcAnalogTrigger
 
     public void setThresholds(double lowThreshold, double highThreshold)
@@ -157,7 +163,21 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     public void preContinuousTask(TrcRobot.RunMode runMode)
     {
         final String funcName = "preContinuousTask";
-        double value = (Double)analogInput.getData().value;
+        TrcSensor.SensorData data = sensor.getSensorData(dataIndex);
+        double value;
+
+        if (data.value instanceof Integer)
+        {
+            value = (double)(Integer)data.value;
+        }
+        else if (data.value instanceof Double)
+        {
+            value = (Double)data.value;
+        }
+        else
+        {
+            throw new NumberFormatException("Sensor data must be either integer or double.");
+        }
 
         Zone zone;
         if (value <= lowThreshold)
@@ -179,9 +199,9 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             // We have crossed to another zone, let's notify somebody.
             //
             prevZone = zone;
-            if (eventHandler != null)
+            if (triggerHandler != null)
             {
-                eventHandler.AnalogTriggerEvent(this, zone, value);
+                triggerHandler.AnalogTriggerEvent(this, zone, value);
             }
 
             if (debugEnabled)

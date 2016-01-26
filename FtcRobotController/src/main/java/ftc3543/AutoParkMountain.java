@@ -21,7 +21,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoParkMountain";
 
-    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
+    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 

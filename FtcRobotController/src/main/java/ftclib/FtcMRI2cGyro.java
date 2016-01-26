@@ -28,13 +28,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
+import trclib.TrcSensorDataSource;
 
 /**
  * This class implements the Modern Robotics Gyro extending FtcI2cDevice.
  * It provides the TrcI2cDevice.CompletionHandler interface to read the
  * received data.
  */
-public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.CompletionHandler
+public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.CompletionHandler,
+                                                            TrcSensorDataSource
 {
     private static final String moduleName = "FtcMRI2cGyro";
     private static final boolean debugEnabled = false;
@@ -440,5 +442,62 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
             }
         }
     }   //writeCompletion
+
+    //
+    // Implements TrcSensorDataSource interface.
+    //
+
+    /**
+     * This method returns the sensor data of the specified index.
+     *
+     * @param index specifies the data index.
+     * @return sensor data of the specified index.
+     */
+    @Override
+    public TrcSensor.SensorData getSensorData(int index)
+    {
+        final String funcName = "getSensorData";
+        TrcSensor.SensorData data = null;
+
+        switch (index)
+        {
+            case 0:
+                data = getHeading();
+                break;
+
+            case 1:
+                data = getIntegratedZ();
+                break;
+
+            case 2:
+                data = getRawX();
+                break;
+
+            case 3:
+                data = getRawY();
+                break;
+
+            case 4:
+                data = getRawZ();
+                break;
+
+            case 5:
+                data = getZOffset();
+                break;
+
+            case 6:
+                data = getZScaling();
+                break;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(time=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getSensorData
 
 }   //class FtcMRI2cGyro

@@ -28,13 +28,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
+import trclib.TrcSensorDataSource;
 
 /**
  * This class implements the ZX Distance sensor extending FtcI2cDevice.
  * It provides the TrcI2cDevice.CompletionHandler interface to read the
  * received data.
  */
-public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler
+public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler,
+                                                                 TrcSensorDataSource
 {
     private static final String moduleName = "FtcZXDistanceSensor";
     private static final boolean debugEnabled = false;
@@ -650,5 +652,58 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     public void writeCompletion(int regAddress, int length, boolean timedout)
     {
     }   //writeCompletion
+
+    //
+    // Implements TrcSensorDataSource interface.
+    //
+
+    /**
+     * This method returns the sensor data of the specified index.
+     *
+     * @param index specifies the data index.
+     * @return sensor data of the specified index.
+     */
+    @Override
+    public TrcSensor.SensorData getSensorData(int index)
+    {
+        final String funcName = "getSensorData";
+        TrcSensor.SensorData data = null;
+
+        switch (index)
+        {
+            case 0:
+                data = getGesture();
+                break;
+
+            case 1:
+                data = getGestureSpeed();
+                break;
+
+            case 2:
+                data = getX();
+                break;
+
+            case 3:
+                data = getZ();
+                break;
+
+            case 4:
+                data = getLeftRangingData();
+                break;
+
+            case 5:
+                data = getRightRangingData();
+                break;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(time=%.3f,value=%s)", data.timestamp, data.value.toString());
+        }
+
+        return data;
+    }   //getSensorData
 
 }   //class FtcZXDistanceSensor

@@ -192,30 +192,29 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         // Read all sensors and display on the dashboard.
         // Drive the robot around to sample different locations of the field.
         //
-        dashboard.displayPrintf(9, "Sensor Tests:");
-        dashboard.displayPrintf(10, "Enc:lf=%.0f,rf=%.0f",
+        dashboard.displayPrintf(9, "Enc:lf=%.0f,rf=%.0f",
                                 robot.leftFrontWheel.getPosition(),
                                 robot.rightFrontWheel.getPosition());
-        dashboard.displayPrintf(11, "Enc:lr=%.0f,rr=%.0f",
+        dashboard.displayPrintf(10, "Enc:lr=%.0f,rr=%.0f",
                                 robot.leftRearWheel.getPosition(),
                                 robot.rightRearWheel.getPosition());
-        dashboard.displayPrintf(12, "Gyro:Rate=%.1f,Heading=%.1f",
+        dashboard.displayPrintf(11, "Gyro:Rate=%.1f,Heading=%.1f",
                                 robot.gyro.getZRotationRate().value,
                                 robot.gyro.getZHeading().value);
-        dashboard.displayPrintf(13, "RGBAH=[%d,%d,%d,%d,%x]",
-                                robot.colorSensor.red(),
-                                robot.colorSensor.green(),
-                                robot.colorSensor.blue(),
-                                robot.colorSensor.alpha(),
-                                robot.colorSensor.argb());
-        dashboard.displayPrintf(14, "Light=%.0f,Sonar=%.1f",
-                                robot.lightSensor.getData().value,
-                                robot.sonarSensor.getData().value);
-        dashboard.displayPrintf(15, "ElevatorLimit[%d,%d] SliderLimit[%d,%d]",
-                                robot.elevator.isLowerLimitSwitchPressed()? 1: 0,
-                                robot.elevator.isUpperLimitSwitchPressed()? 1: 0,
-                                robot.slider.isLowerLimitSwitchPressed()? 1: 0,
-                                robot.slider.isUpperLimitSwitchPressed()? 1: 0);
+        dashboard.displayPrintf(12, "Winch:Enc=%.0f,Len=%.1f,LimitSW=%d",
+                                robot.winch.getEncoderPosition(),
+                                robot.winch.getLength(),
+                                robot.winch.isLowerLimitSwitchPressed()? 1: 0);
+        dashboard.displayPrintf(13, "Beacon:RGBAH=[%d,%d,%d,%d,%x]",
+                                robot.beaconColorSensor.red(),
+                                robot.beaconColorSensor.green(),
+                                robot.beaconColorSensor.blue(),
+                                robot.beaconColorSensor.alpha(),
+                                robot.beaconColorSensor.argb());
+        dashboard.displayPrintf(14, "Color=%d,White=%d,Sonar=%.1f",
+                                (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                                (Integer)robot.lineFollowColorSensor.getWhiteValue().value,
+                                robot.sonarSensor.getData(0).value);
     }   //doSensorsTest
 
     private void doMotorsTest()
@@ -337,8 +336,8 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlDrive.displayPidInfo(11);
-        robot.pidCtrlTurn.displayPidInfo(13);
+        robot.encoderPidCtrl.displayPidInfo(11);
+        robot.gyroPidCtrl.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -372,8 +371,8 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                                 robot.driveBase.getXPosition(),
                                 robot.driveBase.getYPosition(),
                                 robot.driveBase.getHeading());
-        robot.pidCtrlDrive.displayPidInfo(11);
-        robot.pidCtrlTurn.displayPidInfo(13);
+        robot.encoderPidCtrl.displayPidInfo(11);
+        robot.gyroPidCtrl.displayPidInfo(13);
 
         if (sm.isReady())
         {
@@ -402,19 +401,20 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doLineFollow(Alliance alliance, double wallDistance)
     {
-        dashboard.displayPrintf(9, "Line Follow: %s, distance=%.1f",
+        dashboard.displayPrintf(9, "Line Follow: %s, wallDist=%.1f",
                                 alliance.toString(), wallDistance);
-        dashboard.displayPrintf(10, "Light=%.0f,Sonar=%.1f",
-                                robot.lightSensor.getData().value,
-                                robot.sonarSensor.getData().value);
+        dashboard.displayPrintf(10, "Color=%d,White=%d,Sonar=%.1f",
+                                (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                                (Integer)robot.lineFollowColorSensor.getWhiteValue().value,
+                                robot.sonarSensor.getData(0).value);
         dashboard.displayPrintf(11, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
-                                robot.colorSensor.red(),
-                                robot.colorSensor.green(),
-                                robot.colorSensor.blue(),
-                                robot.colorSensor.alpha(),
-                                robot.colorSensor.argb());
-        robot.pidCtrlSonar.displayPidInfo(12);
-        robot.pidCtrlLight.displayPidInfo(14);
+                                robot.beaconColorSensor.red(),
+                                robot.beaconColorSensor.green(),
+                                robot.beaconColorSensor.blue(),
+                                robot.beaconColorSensor.alpha(),
+                                robot.beaconColorSensor.argb());
+        robot.sonarPidCtrl.displayPidInfo(12);
+        robot.colorPidCtrl.displayPidInfo(14);
 
         if (sm.isReady())
         {
@@ -428,11 +428,11 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     // Limit all PID controllers to half power so we go slowly and hopefully
                     // not passing the line that much.
                     //
-                    robot.lightTrigger.setEnabled(true);
-                    robot.pidCtrlDrive.setOutputRange(-0.5, 0.5);
-                    robot.pidCtrlTurn.setOutputRange(-0.75, 0.75);
-                    robot.pidCtrlSonar.setOutputRange(-0.3, 0.3);
-                    robot.pidCtrlLight.setOutputRange(-0.5, 0.5);
+                    robot.colorTrigger.setEnabled(true);
+                    robot.encoderPidCtrl.setOutputRange(-0.5, 0.5);
+                    robot.gyroPidCtrl.setOutputRange(-0.75, 0.75);
+                    robot.sonarPidCtrl.setOutputRange(-0.3, 0.3);
+                    robot.colorPidCtrl.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(24.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
@@ -448,7 +448,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                         // Turn left to find the line and set to follow the
                         // right edge of the line.
                         //
-                        robot.pidCtrlLight.setInverted(true);
+                        robot.colorPidCtrl.setInverted(true);
                         robot.pidDrive.setTarget(0.0, -90.0, false, event);
                     }
                     else
@@ -457,7 +457,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                         // Turn right to find the line and set to follow the
                         // left edge of the line.
                         //
-                        robot.pidCtrlLight.setInverted(false);
+                        robot.colorPidCtrl.setInverted(false);
                         robot.pidDrive.setTarget(0.0, 90.0, false, event);
                     }
                     sm.addEvent(event);
@@ -470,9 +470,9 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     // Follow the line until we are at the given distance from
                     // the wall.
                     //
-                    robot.lightTrigger.setEnabled(false);
-                    robot.pidDriveLineFollow.setTarget(
-                            wallDistance, RobotInfo.LIGHT_THRESHOLD, false, event);
+                    robot.colorTrigger.setEnabled(false);
+                    robot.pidLineFollow.setTarget(
+                            wallDistance, RobotInfo.COLOR_LINE_EDGE_LEVEL, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
@@ -482,10 +482,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // We are done, restore everything.
                     //
-                    robot.pidCtrlDrive.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlTurn.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlSonar.setOutputRange(-1.0, 1.0);
-                    robot.pidCtrlLight.setOutputRange(-1.0, 1.0);
+                    robot.encoderPidCtrl.setOutputRange(-1.0, 1.0);
+                    robot.gyroPidCtrl.setOutputRange(-1.0, 1.0);
+                    robot.sonarPidCtrl.setOutputRange(-1.0, 1.0);
+                    robot.colorPidCtrl.setOutputRange(-1.0, 1.0);
                     sm.stop();
                     break;
             }

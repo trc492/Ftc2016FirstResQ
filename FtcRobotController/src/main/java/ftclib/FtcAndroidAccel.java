@@ -25,7 +25,6 @@ package ftclib;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.os.Trace;
 
 import hallib.HalUtil;
 import trclib.TrcAccelerometer;

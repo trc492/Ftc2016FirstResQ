@@ -36,7 +36,7 @@ package trclib;
  * if the heading data it provides wrap-around, it can set the UNWRAP_HEADING
  * options to enable the unwrapper to unwrap the heading data.
  */
-public abstract class TrcGyro extends TrcSensor
+public abstract class TrcGyro extends TrcSensor implements TrcSensorDataSource
 {
     //
     // Gyro data types.
@@ -764,5 +764,58 @@ public abstract class TrcGyro extends TrcSensor
 
         return data;
     }   //getRawData
+
+    //
+    // Implements TrcSensorDataSource interface.
+    //
+
+    /**
+     * This method returns the sensor data of the specified index.
+     *
+     * @param index specifies the data index.
+     * @return sensor data of the specified index.
+     */
+    @Override
+    public TrcSensor.SensorData getSensorData(int index)
+    {
+        final String funcName = "getSensorData";
+        TrcSensor.SensorData data = null;
+
+        switch (index)
+        {
+            case 0:
+                data = getXRotationRate();
+                break;
+
+            case 1:
+                data = getYRotationRate();
+                break;
+
+            case 2:
+                data = getZRotationRate();
+                break;
+
+            case 3:
+                data = getXHeading();
+                break;
+
+            case 4:
+                data = getYHeading();
+                break;
+
+            case 5:
+                data = getZHeading();
+                break;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=(time=%.3f,value=%f)", data.timestamp, data.value);
+        }
+
+        return data;
+    }   //getSensorData
 
 }   //class TrcGyro

@@ -35,7 +35,7 @@ package trclib;
  * an integrator. If it needs data integration, it can set the INTEGRATE or the
  * DOUBLE_INTEGRATE options.
  */
-public abstract class TrcAnalogInput extends TrcSensor
+public abstract class TrcAnalogInput extends TrcSensor implements TrcSensorDataSource
 {
     //
     // AnalogInput data type.
@@ -48,12 +48,13 @@ public abstract class TrcAnalogInput extends TrcSensor
     }   //enum DataType
 
     /**
-     * This abstract method returns the raw data with the specified type.
+     * This abstract method returns the raw data with the specified index and type.
      *
+     * @param index specifies the data index.
      * @param dataType specifies the data type.
      * @return raw data with the specified type.
      */
-    public abstract SensorData getRawData(DataType dataType);
+    public abstract SensorData getRawData(int index, DataType dataType);
 
     //
     // AnalogInput options.
@@ -72,14 +73,16 @@ public abstract class TrcAnalogInput extends TrcSensor
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
+     * @param numAxes specifies the number of axes.
      * @param options specifies the AnalogInput options. Multiple options can be OR'd together.
      *                ANALOGINPUT_INTEGRATE - do integration on sensor data.
      *                ANALOGINPUT_DOUBLE_INTEGRATE - do double integration on sensor data.
-     * @param filter specifies a filter object, null if none.
+     * @param filters specifies an array of filter objects, one for each axis, to filter
+     *                sensor data. If no filter is used, this can be set to null.
      */
-    public TrcAnalogInput(final String instanceName, int options, TrcFilter filter)
+    public TrcAnalogInput(final String instanceName, int numAxes, int options, TrcFilter[] filters)
     {
-        super(instanceName, 1, new TrcFilter[] {filter});
+        super(instanceName, numAxes, filters);
 
         if (debugEnabled)
         {
@@ -107,13 +110,14 @@ public abstract class TrcAnalogInput extends TrcSensor
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
+     * @param numAxes specifies the number of axes.
      * @param options specifies the AnalogInput options. Multiple options can be OR'd together.
      *                ANALOGINPUT_INTEGRATE - do integration on sensor data.
      *                ANALOGINPUT_DOUBLE_INTEGRATE - do double integration on sensor data.
      */
-    public TrcAnalogInput(final String instanceName, int options)
+    public TrcAnalogInput(final String instanceName, int numAxes, int options)
     {
-        this(instanceName, options, null);
+        this(instanceName, numAxes, options, null);
     }   //TrcAnalogInput
 
     /**
@@ -121,9 +125,9 @@ public abstract class TrcAnalogInput extends TrcSensor
      *
      * @param instanceName specifies the instance name.
      */
-    public TrcAnalogInput(final String instanceName)
+    public TrcAnalogInput(final String instanceName, int numAxes)
     {
-        this(instanceName, 0, null);
+        this(instanceName, numAxes, 0, null);
     }   //TrcAnalogInput
 
     /**
@@ -208,18 +212,19 @@ public abstract class TrcAnalogInput extends TrcSensor
     }   //setScale
 
     /**
-     * This method returns the processed sensor data.
+     * This method returns the processed sensor data of the specified index.
      *
+     * @param index specifies the data index.
      * @return processed data.
      */
-    public TrcSensor.SensorData getData()
+    public TrcSensor.SensorData getData(int index)
     {
         final String funcName = "getData";
-        TrcSensor.SensorData data = getData(0, DataType.INPUT_DATA);;
+        TrcSensor.SensorData data = getData(index, DataType.INPUT_DATA);;
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
         }
@@ -228,27 +233,28 @@ public abstract class TrcAnalogInput extends TrcSensor
     }   //getData
 
     /**
-     * This method returns the integrated sensor data.
+     * This method returns the integrated sensor data of the specified index.
      *
+     * @param index specifies the data index.
      * @return integrated sensor data.
      */
-    public TrcSensor.SensorData getIntegratedData()
+    public TrcSensor.SensorData getIntegratedData(int index)
     {
         final String funcName = "getIntegratedData";
         TrcSensor.SensorData data = null;
 
         if (dataIntegrator != null)
         {
-            data = dataIntegrator.getIntegratedData(0);
+            data = dataIntegrator.getIntegratedData(index);
         }
         else
         {
-            data = getRawData(DataType.DOUBLE_INTEGRATED_DATA);
+            data = getRawData(index, DataType.DOUBLE_INTEGRATED_DATA);
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
         }
@@ -257,27 +263,28 @@ public abstract class TrcAnalogInput extends TrcSensor
     }   //getIntegratedData
 
     /**
-     * This method returns the double integrated sensor data.
+     * This method returns the double integrated sensor data of the specified index.
      *
+     * @param index specifies the data index.
      * @return double integrated sensor data.
      */
-    public TrcSensor.SensorData getDoubleIntegratedData()
+    public TrcSensor.SensorData getDoubleIntegratedData(int index)
     {
         final String funcName = "getDoubleIntegratedData";
         TrcSensor.SensorData data = null;
 
         if (dataIntegrator != null)
         {
-            data = dataIntegrator.getDoubleIntegratedData(0);
+            data = dataIntegrator.getDoubleIntegratedData(index);
         }
         else
         {
-            data = getRawData(DataType.DOUBLE_INTEGRATED_DATA);
+            data = getRawData(index, DataType.DOUBLE_INTEGRATED_DATA);
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
                                "=(timestamp=%.3f,value=%f)", data.timestamp, data.value);
         }
@@ -290,20 +297,22 @@ public abstract class TrcAnalogInput extends TrcSensor
     //
 
     /**
-     * This method resets the integrator.
+     * This method resets the integrator of the specified index.
+     *
+     * @param index specifies the data index.
      */
-    public void resetIntegrator()
+    public void resetIntegrator(int index)
     {
         final String funcName = "resetIntegrator";
 
         if (dataIntegrator != null)
         {
-            dataIntegrator.reset(0);
+            dataIntegrator.reset(index);
         }
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //resetIntegrator
@@ -325,10 +334,7 @@ public abstract class TrcAnalogInput extends TrcSensor
         final String funcName = "getRawData";
         SensorData data = null;
 
-        if (index == 0)
-        {
-            data = getRawData((DataType)dataType);
-        }
+        data = getRawData(index, (DataType)dataType);
 
         if (debugEnabled)
         {
@@ -339,5 +345,21 @@ public abstract class TrcAnalogInput extends TrcSensor
 
         return data;
     }   //getRawData
+
+    //
+    // Implements TrcSensorDataSource interface.
+    //
+
+    /**
+     * This method returns the sensor data of the specified index.
+     *
+     * @param index specifies the data index.
+     * @return sensor data of the specified index.
+     */
+    @Override
+    public TrcSensor.SensorData getSensorData(int index)
+    {
+        return getData(index);
+    }   //getSensorData
 
 }   //class TrcAnalogInput

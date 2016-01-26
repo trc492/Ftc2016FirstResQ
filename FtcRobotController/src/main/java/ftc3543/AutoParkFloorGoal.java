@@ -21,7 +21,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoParkFloorGoal";
 
-    private FtcRobot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
+    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 

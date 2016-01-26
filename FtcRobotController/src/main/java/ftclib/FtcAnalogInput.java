@@ -49,12 +49,12 @@ public class FtcAnalogInput extends TrcAnalogInput
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
-     * @param filter specifies a filter object used for filtering sensor noise.
-     *               If none needed, it can be set to null.
+     * @param filters specifies an array of filter objects, one for each axis, to filter
+     *                sensor data. If no filter is used, this can be set to null.
      */
-    public FtcAnalogInput(HardwareMap hardwareMap, String instanceName, TrcFilter filter)
+    public FtcAnalogInput(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
-        super(instanceName, 0, filter);
+        super(instanceName, 1, 0, filters);
 
         if (debugEnabled)
         {
@@ -71,12 +71,12 @@ public class FtcAnalogInput extends TrcAnalogInput
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param filter specifies a filter object used for filtering sensor noise.
-     *               If none needed, it can be set to null.
+     * @param filters specifies an array of filter objects, one for each axis, to filter
+     *                sensor data. If no filter is used, this can be set to null.
      */
-    public FtcAnalogInput(String instanceName, TrcFilter filter)
+    public FtcAnalogInput(String instanceName, TrcFilter[] filters)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, filter);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, filters);
     }   //FtcUltrasonicSensor
 
     /**
@@ -104,10 +104,11 @@ public class FtcAnalogInput extends TrcAnalogInput
     /**
      * This method returns the raw sensor data of the specified type.
      *
+     * @param index specifies the data index (not used).
      * @return raw sensor data of the specified type.
      */
     @Override
-    public SensorData getRawData(DataType dataType)
+    public SensorData getRawData(int index, DataType dataType)
     {
         final String funcName = "getRawData";
         SensorData data = null;
