@@ -5,15 +5,15 @@ public class RobotInfo
     //
     // DriveBase subsystem.
     //
-    public static final double DRIVE_KP                         = 0.04; //TODO: needs verifying
+    public static final double DRIVE_KP                         = 0.03;//0.04; TODO: needs verifying
     public static final double DRIVE_KI                         = 0.0;
     public static final double DRIVE_KD                         = 0.0;
     public static final double DRIVE_KF                         = 0.0;
     public static final double DRIVE_TOLERANCE                  = 2.0;
     public static final double DRIVE_SETTLING                   = 0.2;
-    public static final double DRIVE_INCHES_PER_CLICK           = (67.0/4941.0);
+    public static final double DRIVE_INCHES_PER_CLICK           = (104.0/7416.5);
 
-    public static final double GYRO_KP                          = 0.10;
+    public static final double GYRO_KP                          = 0.04;//0.10;
     public static final double GYRO_KI                          = 0.0;
     public static final double GYRO_KD                          = 0.0;
     public static final double GYRO_KF                          = 0.0;
@@ -23,7 +23,7 @@ public class RobotInfo
     //
     // Line following PID control.
     //
-    public static final double SONAR_KP                         = 0.1;  //TODO: needs tuning
+    public static final double SONAR_KP                         = 0.05;//0.1;  TODO: needs tuning
     public static final double SONAR_KI                         = 0.0;
     public static final double SONAR_KD                         = 0.0;
     public static final double SONAR_KF                         = 0.0;
@@ -32,16 +32,18 @@ public class RobotInfo
     public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
     public static final double SONAR_BEACON_DISTANCE            = 2.0;
 
-    public static final double COLOR_KP                         = 0.01;
+    public static final double COLOR_KP                         = 0.12;//0.1;
     public static final double COLOR_KI                         = 0.0;
     public static final double COLOR_KD                         = 0.0;
     public static final double COLOR_KF                         = 0.0;
     public static final double COLOR_TOLERANCE                  = 2.0;
     public static final double COLOR_SETTLING                   = 0.2;
-    public static final double COLOR_RED_THRESHOLD              = 8.0;
-    public static final double COLOR_WHITE_THRESHOLD            = 12.0;
-    public static final double COLOR_DARK_LEVEL                 = 20.0;
-    public static final double COLOR_WHITE_LEVEL                = 30.0;
+    public static final double COLOR_BLACK                      = 0.0;
+    public static final double COLOR_BLUE                       = 3.0;
+    public static final double COLOR_RED                        = 10.0;
+    public static final double COLOR_WHITE                      = 16.0;
+    public static final double COLOR_DARK_LEVEL                 = 0.0;
+    public static final double COLOR_WHITE_LEVEL                = 10.0;
     public static final double COLOR_LINE_EDGE_LEVEL            = ((COLOR_DARK_LEVEL + COLOR_WHITE_LEVEL)/2.0);
     public static final double COLOR_LINE_EDGE_DEADBAND         = (COLOR_LINE_EDGE_LEVEL*0.25);
 
@@ -75,8 +77,8 @@ public class RobotInfo
     //
     public static final double WING_LEFT_RETRACT_POSITION       = 0.1;
     public static final double WING_LEFT_EXTEND_POSITION        = 0.75;
-    public static final double WING_RIGHT_RETRACT_POSITION      = 0.0;
-    public static final double WING_RIGHT_EXTEND_POSITION       = 0.65;
+    public static final double WING_RIGHT_RETRACT_POSITION      = 0.2;
+    public static final double WING_RIGHT_EXTEND_POSITION       = 0.6;
 
     //
     // ButtonPusher subsystem.

@@ -79,35 +79,41 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
         {
             robot.encoderPidCtrl.printPidInfo(tracer);
             robot.gyroPidCtrl.printPidInfo(tracer);
-            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, white=%d",
+            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, W/R/G/B=%d/%d/%d/%d",
                              elapsedTime,
                              (Integer)robot.lineFollowColorSensor.getColorNumber().value,
-                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
+                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value,
+                             (Integer)robot.lineFollowColorSensor.getRedValue().value,
+                             (Integer)robot.lineFollowColorSensor.getGreenValue().value,
+                             (Integer)robot.lineFollowColorSensor.getBlueValue().value);
         }
         else if (robot.pidLineFollow.isEnabled())
         {
             robot.sonarPidCtrl.printPidInfo(tracer);
             robot.colorPidCtrl.printPidInfo(tracer);
-            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, white=%d",
+            tracer.traceInfo(moduleName, "[%.3f] LineFollow: color=%d, W/R/G/B=%d/%d/%d/%d",
                              elapsedTime,
                              (Integer)robot.lineFollowColorSensor.getColorNumber().value,
-                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
+                             (Integer)robot.lineFollowColorSensor.getWhiteValue().value,
+                             (Integer)robot.lineFollowColorSensor.getRedValue().value,
+                             (Integer)robot.lineFollowColorSensor.getGreenValue().value,
+                             (Integer)robot.lineFollowColorSensor.getBlueValue().value);
+            dashboard.displayPrintf(3, "LineFollow:color=%d,white=%d",
+                                    (Integer)robot.lineFollowColorSensor.getColorNumber().value,
+                                    (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
+            robot.sonarPidCtrl.displayPidInfo(4);
+            robot.colorPidCtrl.displayPidInfo(6);
         }
 
         dashboard.displayPrintf(1, moduleName + ": %s,%s,delay=%.0f,pushButton=%s,option=%s",
                                 alliance.toString(), startPos.toString(), delay,
                                 Boolean.toString(pushButton), option.toString());
-        dashboard.displayPrintf(2, "LineFollow:color=%d,white=%d",
-                                (Integer)robot.lineFollowColorSensor.getColorNumber().value,
-                                (Integer)robot.lineFollowColorSensor.getWhiteValue().value);
-        dashboard.displayPrintf(3, "RGBAH: [%d,%d,%d,%d,%x]",
+        dashboard.displayPrintf(2, "RGBAH: [%d,%d,%d,%d,%x]",
                                 robot.beaconColorSensor.red(),
                                 robot.beaconColorSensor.green(),
                                 robot.beaconColorSensor.blue(),
                                 robot.beaconColorSensor.alpha(),
                                 robot.beaconColorSensor.argb());
-        robot.sonarPidCtrl.displayPidInfo(4);
-        robot.colorPidCtrl.displayPidInfo(6);
 
         if (sm.isReady())
         {
@@ -141,7 +147,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 70.0: 90.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 65.0: 90.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE);
@@ -154,31 +160,31 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     robot.colorTrigger.setEnabled(true);
                     robot.encoderPidCtrl.setOutputRange(-0.3, 0.3);
-                    robot.pidDrive.setTarget(25.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(15.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.CLEAR_DEBRIS);
                     break;
 
                 case CLEAR_DEBRIS:
                     robot.colorTrigger.setEnabled(false);
-                    robot.pidDrive.setTarget(16.0, 0.0, false, event, 2.0);
+                    robot.pidDrive.setTarget(20.0, 0.0, false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.BACK_TO_LINE);
                     break;
 
                 case BACK_TO_LINE:
-                    robot.encoderPidCtrl.setOutputRange(-0.5, 0.5);
                     robot.pidDrive.setTarget(-20.0,
-                                             alliance == FtcAuto.Alliance.RED_ALLIANCE? 10.0: -10.0,
+                                             alliance == FtcAuto.Alliance.RED_ALLIANCE? 5.0: -5.0,
                                              false, event, 2.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE_AGAIN);
                     break;
 
                 case FIND_LINE_AGAIN:
+                    robot.colorTrigger.setTriggerPoints(robot.color2Zones);
                     robot.colorTrigger.setEnabled(true);
-                    robot.encoderPidCtrl.setOutputRange(-0.3, 0.3);
-                    robot.pidDrive.setTarget(10.0, 0.0, false, event);
+                    robot.encoderPidCtrl.setOutputRange(-0.2, 0.2);
+                    robot.pidDrive.setTarget(15.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_LINE);
                     break;

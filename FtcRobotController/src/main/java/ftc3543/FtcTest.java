@@ -403,9 +403,12 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     {
         dashboard.displayPrintf(9, "Line Follow: %s, wallDist=%.1f",
                                 alliance.toString(), wallDistance);
-        dashboard.displayPrintf(10, "Color=%d,White=%d,Sonar=%.1f",
+        dashboard.displayPrintf(10, "Color=%d,W/R/G/B=%d/%d/%d/%d,Sonar=%.1f",
                                 (Integer)robot.lineFollowColorSensor.getColorNumber().value,
                                 (Integer)robot.lineFollowColorSensor.getWhiteValue().value,
+                                (Integer)robot.lineFollowColorSensor.getRedValue().value,
+                                (Integer)robot.lineFollowColorSensor.getGreenValue().value,
+                                (Integer)robot.lineFollowColorSensor.getBlueValue().value,
                                 robot.sonarSensor.getData(0).value);
         dashboard.displayPrintf(11, "Color: R=%d,G=%d,B=%d,Alpha=%d,Hue=%x",
                                 robot.beaconColorSensor.red(),

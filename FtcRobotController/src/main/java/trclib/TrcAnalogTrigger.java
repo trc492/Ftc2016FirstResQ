@@ -23,44 +23,32 @@
 
 package trclib;
 
-import java.util.IllegalFormatException;
-
 public class TrcAnalogTrigger implements TrcTaskMgr.Task
 {
     private static final String moduleName = "TrcAnalogTrigger";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    public enum Zone
-    {
-        UNKNOWN_ZONE,
-        LOW_ZONE,
-        MID_ZONE,
-        HIGH_ZONE
-    }   //enum Zone
-
     public interface TriggerHandler
     {
         public void AnalogTriggerEvent(
-                TrcAnalogTrigger analogTrigger,
-                Zone zone,
-                double value);
+                TrcAnalogTrigger analogTrigger, int zoneIndex, double zoneValue);
     }   //interface TriggerHandler
 
     private String instanceName;
     private TrcSensorDataSource sensor;
     private int dataIndex;
-    private double lowThreshold;
-    private double highThreshold;
+    private double[] thresholds;
     private TriggerHandler triggerHandler;
-    private Zone prevZone;
+    private boolean enabled = false;
+    private int zone = -1;
+    private double value = 0.0;
 
     public TrcAnalogTrigger(
             final String instanceName,
             TrcSensorDataSource sensor,
             int dataIndex,
-            double lowThreshold,
-            double highThreshold,
+            final double[] triggerPoints,
             TriggerHandler triggerHandler)
     {
         if (debugEnabled)
@@ -74,43 +62,34 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
 
         if (sensor == null || triggerHandler == null)
         {
-            throw new NullPointerException("Sensor/TriggerHandler must be provided");
+            throw new NullPointerException("Sensor/TriggerHandler cannot be null");
         }
 
+        setTriggerPoints(triggerPoints);
         this.instanceName = instanceName;
         this.sensor = sensor;
         this.dataIndex = dataIndex;
-        this.lowThreshold = lowThreshold;
-        this.highThreshold = highThreshold;
         this.triggerHandler = triggerHandler;
-        prevZone = Zone.UNKNOWN_ZONE;
     }   //TrcAnalogTrigger
 
-    public TrcAnalogTrigger(
-            final String instanceName,
-            TrcSensorDataSource sensor,
-            int dataIndex,
-            double threshold,
-            TriggerHandler triggerHandler)
+    public void setTriggerPoints(double[] triggerPoints)
     {
-        this(instanceName, sensor, dataIndex, threshold, threshold, triggerHandler);
-    }   //TrcAnalogTrigger
-
-    public void setThresholds(double lowThreshold, double highThreshold)
-    {
-        final String funcName = "setThreshold";
-
-        if (debugEnabled)
+        if (triggerPoints == null)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                    "lowThreshold=%f,highThreshold=%f",
-                    lowThreshold, highThreshold);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            throw new NullPointerException("TriggerPoints cannot be null");
         }
 
-        this.lowThreshold = lowThreshold;
-        this.highThreshold = highThreshold;
-    }   //setThresholds
+        if (triggerPoints.length < 2)
+        {
+            throw new IllegalArgumentException("zoneValues must have at least two elements.");
+        }
+
+        thresholds = new double[triggerPoints.length - 1];
+        for (int i = 0; i < thresholds.length; i++)
+        {
+            thresholds[i] = (triggerPoints[i] + triggerPoints[i + 1])/2.0;
+        }
+    }   //setTriggerPoints
 
     public void setEnabled(boolean enabled)
     {
@@ -124,6 +103,7 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
 
+        this.enabled = enabled;
         if (enabled)
         {
             TrcTaskMgr.getInstance().registerTask(
@@ -134,6 +114,21 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
             TrcTaskMgr.getInstance().unregisterTask(this, TrcTaskMgr.TaskType.PRECONTINUOUS_TASK);
         }
     }   //setEnabled
+
+    public boolean isEnabled()
+    {
+        return enabled;
+    }   //isEnabled
+
+    public int getZone()
+    {
+        return zone;
+    }   //getZone
+
+    public double getValue()
+    {
+        return value;
+    }   //getValue
 
     //
     // Implements TrcTaskMgr.Task
@@ -164,51 +159,59 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     {
         final String funcName = "preContinuousTask";
         TrcSensor.SensorData data = sensor.getSensorData(dataIndex);
-        double value;
+        double sample;
 
         if (data.value instanceof Integer)
         {
-            value = (double)(Integer)data.value;
+            sample = (double)(Integer)data.value;
         }
         else if (data.value instanceof Double)
         {
-            value = (Double)data.value;
+            sample = (Double)data.value;
         }
         else
         {
             throw new NumberFormatException("Sensor data must be either integer or double.");
         }
 
-        Zone zone;
-        if (value <= lowThreshold)
+        int currZone = -1;
+        if (sample < thresholds[0])
         {
-            zone = Zone.LOW_ZONE;
-        }
-        else if (value <= highThreshold)
-        {
-            zone = Zone.MID_ZONE;
+            currZone = 0;
         }
         else
         {
-            zone = Zone.HIGH_ZONE;
+            for (int i = 0; i < thresholds.length - 1; i++)
+            {
+                if (sample >= thresholds[i] && sample < thresholds[i + 1])
+                {
+                    currZone = i + 1;
+                    break;
+                }
+            }
+
+            if (currZone == -1)
+            {
+                currZone = thresholds.length;
+            }
         }
 
-        if (zone != prevZone)
+        if (currZone != zone)
         {
             //
             // We have crossed to another zone, let's notify somebody.
             //
-            prevZone = zone;
             if (triggerHandler != null)
             {
-                triggerHandler.AnalogTriggerEvent(this, zone, value);
+                triggerHandler.AnalogTriggerEvent(this, currZone, sample);
             }
+            zone = currZone;
+            value = sample;
 
             if (debugEnabled)
             {
                 dbgTrace.traceInfo(
-                        funcName, "%s entering %s (data=%f)",
-                        instanceName, zone.toString(), value);
+                        funcName, "%s entering zone %d (value=%f)", instanceName, zone, value);
             }
         }
     }   //preContinuousTask

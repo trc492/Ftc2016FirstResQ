@@ -97,9 +97,10 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
 
         getOpModeTracer().traceInfo(
                 getOpModeName(),
-                "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, pushButton=%s, beaconOption=%s",
+                "Strategy: %s(alliance=%s, startPos=%s, delay=%.0f, pushButton=%s, depositClimbers=%s, beaconOption=%s",
                 strategy.toString(), alliance.toString(), startPos.toString(), delay,
-                Boolean.toString(pushButton), beaconOption.toString());
+                Boolean.toString(pushButton), Boolean.toString(depositClimbers),
+                beaconOption.toString());
     }   //initRobot
 
     //

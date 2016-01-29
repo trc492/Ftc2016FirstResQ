@@ -15,6 +15,7 @@ import trclib.TrcDriveBase;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
+import trclib.TrcSensor;
 
 public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.TriggerHandler
 {
@@ -40,6 +41,9 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
     public TrcPidController gyroPidCtrl;
     public TrcPidDrive pidDrive;
 
+    public double[] color4Zones = {RobotInfo.COLOR_BLACK, RobotInfo.COLOR_BLUE,
+                                    RobotInfo.COLOR_RED, RobotInfo.COLOR_WHITE};
+    public double[] color2Zones = {RobotInfo.COLOR_RED, RobotInfo.COLOR_WHITE};
     public TrcPidController sonarPidCtrl;
     public TrcPidController colorPidCtrl;
     public TrcPidDrive pidLineFollow;
@@ -79,7 +83,7 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         beaconColorSensor = hardwareMap.colorSensor.get("colorSensor");
         beaconColorSensor.enableLed(false);
         lineFollowColorSensor = new FtcMRI2cColorSensor("i2cColorSensor", 0x40);
-        lineFollowColorSensor.setLEDEnabled(false);
+        lineFollowColorSensor.setLEDEnabled(true);
         sonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
         sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
         //
@@ -131,9 +135,7 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         pidLineFollow = new TrcPidDrive(
                 "pidLineFollow", driveBase, null, sonarPidCtrl, colorPidCtrl);
         colorTrigger = new TrcAnalogTrigger(
-                "colorTrigger", lineFollowColorSensor, 0,
-                RobotInfo.COLOR_RED_THRESHOLD,
-                RobotInfo.COLOR_WHITE_THRESHOLD, this);
+                "colorTrigger", lineFollowColorSensor, 0, color4Zones, this);
         //
         // Winch subsystem.
         //
@@ -164,8 +166,6 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
 
     public void startMode(TrcRobot.RunMode runMode)
     {
-        FtcOpMode.getOpModeTracer().traceInfo(
-                FtcOpMode.getOpModeName(), "Starting: %.3f", HalUtil.getCurrentTime());
         gyro.resetZIntegrator();
         gyro.setEnabled(true);
         lineFollowColorSensor.setLEDEnabled(true);
@@ -219,7 +219,8 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         }
         else if (pidCtrl == colorPidCtrl)
         {
-            input = (double)(Integer)lineFollowColorSensor.getWhiteValue().value;
+            TrcSensor.SensorData data = lineFollowColorSensor.getWhiteValue();
+            input = data.value != null? (double)(Integer)data.value: 0.0;
             //
             // Give it a deadband to minimize fish tailing.
             //
@@ -237,14 +238,19 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
     //
 
     @Override
-    public void AnalogTriggerEvent(
-            TrcAnalogTrigger analogTrigger, TrcAnalogTrigger.Zone zone, double value)
+    public void AnalogTriggerEvent(TrcAnalogTrigger analogTrigger, int zoneIndex, double zoneValue)
     {
-        if (analogTrigger == colorTrigger &&
-            zone == TrcAnalogTrigger.Zone.HIGH_ZONE &&
-            pidDrive.isEnabled())
+        if (analogTrigger == colorTrigger && pidDrive.isEnabled())
         {
-            pidDrive.cancel();
+            FtcOpMode.getOpModeTracer().traceInfo("Robot", "Entering zone %d (%.0f).",
+                                                  zoneIndex, zoneValue);
+            if (zoneIndex > 0)
+            {
+                //
+                // Encountering blue, red or white line, abort PID drive.
+                //
+                pidDrive.cancel();
+            }
         }
     }   //AnalogTriggerEvent
 
