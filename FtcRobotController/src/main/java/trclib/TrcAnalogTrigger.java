@@ -159,59 +159,62 @@ public class TrcAnalogTrigger implements TrcTaskMgr.Task
     {
         final String funcName = "preContinuousTask";
         TrcSensor.SensorData data = sensor.getSensorData(dataIndex);
-        double sample;
 
-        if (data.value instanceof Integer)
+        if (data.value != null)
         {
-            sample = (double)(Integer)data.value;
-        }
-        else if (data.value instanceof Double)
-        {
-            sample = (Double)data.value;
-        }
-        else
-        {
-            throw new NumberFormatException("Sensor data must be either integer or double.");
-        }
-
-        int currZone = -1;
-        if (sample < thresholds[0])
-        {
-            currZone = 0;
-        }
-        else
-        {
-            for (int i = 0; i < thresholds.length - 1; i++)
+            double sample;
+            if (data.value instanceof Integer)
             {
-                if (sample >= thresholds[i] && sample < thresholds[i + 1])
+                sample = (double)(Integer)data.value;
+            }
+            else if (data.value instanceof Double)
+            {
+                sample = (Double)data.value;
+            }
+            else
+            {
+                throw new NumberFormatException("Sensor data must be either integer or double.");
+            }
+
+            int currZone = -1;
+            if (sample < thresholds[0])
+            {
+                currZone = 0;
+            }
+            else
+            {
+                for (int i = 0; i < thresholds.length - 1; i++)
                 {
-                    currZone = i + 1;
-                    break;
+                    if (sample >= thresholds[i] && sample < thresholds[i + 1])
+                    {
+                        currZone = i + 1;
+                        break;
+                    }
+                }
+
+                if (currZone == -1)
+                {
+                    currZone = thresholds.length;
                 }
             }
 
-            if (currZone == -1)
+            if (currZone != zone)
             {
-                currZone = thresholds.length;
-            }
-        }
+                //
+                // We have crossed to another zone, let's notify somebody.
+                //
+                if (triggerHandler != null)
+                {
+                    triggerHandler.AnalogTriggerEvent(this, currZone, sample);
+                }
+                zone = currZone;
+                value = sample;
 
-        if (currZone != zone)
-        {
-            //
-            // We have crossed to another zone, let's notify somebody.
-            //
-            if (triggerHandler != null)
-            {
-                triggerHandler.AnalogTriggerEvent(this, currZone, sample);
-            }
-            zone = currZone;
-            value = sample;
-
-            if (debugEnabled)
-            {
-                dbgTrace.traceInfo(
-                        funcName, "%s entering zone %d (value=%f)", instanceName, zone, value);
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(
+                            funcName, "%s entering zone %d (value=%f)", instanceName, zone, value);
+                }
             }
         }
     }   //preContinuousTask

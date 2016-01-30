@@ -13,6 +13,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
 
+    private boolean reverseDrive = false;
     //
     // Implements FtcOpMode abstract method.
     //
@@ -66,7 +67,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         //
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
-        robot.driveBase.tankDrive(leftPower, rightPower);
+        robot.driveBase.tankDrive(leftPower, rightPower, reverseDrive);
         dashboard.displayPrintf(1, "leftPower=%.2f,rightPower=%.2f", leftPower, rightPower);
         dashboard.displayPrintf(2, "yPos=%.2f,heading=%.2f",
                                 robot.driveBase.getYPosition(), robot.driveBase.getHeading());
@@ -110,6 +111,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_Y:
+                    break;
+
+                case FtcGamepad.GAMEPAD_RBUMPER:
+                    reverseDrive = pressed;
                     break;
             }
         }
@@ -197,6 +202,10 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_LEFT:
+                    if (pressed)
+                    {
+                        robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_MIN_POSITION);
+                    }
                     break;
 
                 case FtcGamepad.GAMEPAD_DPAD_RIGHT:

@@ -21,7 +21,8 @@ public class Winch implements TrcPidController.PidInput,
     private HalDashboard dashboard;
     private FtcTouchSensor lowerLimitSwitch;
     private TrcDigitalTrigger lowerLimitTrigger;
-    private FtcDcMotor motor;
+    private FtcDcMotor winchMotor;
+    private FtcDcMotor feederMotor;
     private TrcPidController pidCtrl;
     private TrcPidMotor pidMotor;
     private FtcServo brake;
@@ -35,7 +36,9 @@ public class Winch implements TrcPidController.PidInput,
         lowerLimitSwitch = new FtcTouchSensor("winchLowerLimit");
         lowerLimitTrigger = new TrcDigitalTrigger("winchLowerLimit", lowerLimitSwitch, this);
         lowerLimitTrigger.setEnabled(true);
-        motor = new FtcDcMotor("winch", lowerLimitSwitch);
+        winchMotor = new FtcDcMotor("winch");// lowerLimitSwitch);
+        feederMotor = new FtcDcMotor("feeder");
+        winchMotor.setInverted(true);
         pidCtrl = new TrcPidController(
                 "winch",
                 RobotInfo.WINCH_KP, RobotInfo.WINCH_KI,
@@ -43,22 +46,23 @@ public class Winch implements TrcPidController.PidInput,
                 RobotInfo.WINCH_TOLERANCE,RobotInfo.WINCH_SETTLING,
                 this);
         pidCtrl.setAbsoluteSetPoint(true);
-        pidMotor = new TrcPidMotor("winch", motor, pidCtrl);
+        pidMotor = new TrcPidMotor("winch", feederMotor, winchMotor, pidCtrl);
         pidMotor.setPositionScale(RobotInfo.WINCH_INCHES_PER_CLICK);
         brake = new FtcServo("brake");
         setBrakeOn(false);
         tilterServo = new FtcServo("tilterServo");
         tilter = new TrcEnhancedServo("tilter", tilterServo);
-        tilter.setPosition(RobotInfo.WINCH_TILTER_MIN_POSITION);
+        tilterServo.setInverted(true);
+        tilter.setPosition(RobotInfo.WINCH_TILTER_START_POSITION);
         tilter.setStepMode(RobotInfo.WINCH_TILTER_MAX_STEPRATE,
                            RobotInfo.WINCH_TILTER_MIN_POSITION,
                            RobotInfo.WINCH_TILTER_MAX_POSITION);
-    }
+    }   //Winch
 
     public void zeroCalibrate()
     {
         pidMotor.zeroCalibrate(RobotInfo.WINCH_CAL_POWER);
-    }
+    }   //zeroCalibrate
 
     public void setPower(double power)
     {
@@ -70,6 +74,7 @@ public class Winch implements TrcPidController.PidInput,
             setBrakeOn(false);
         }
 
+        /*
         if (power > 0.0 && pidMotor.getPosition() >= RobotInfo.WINCH_MAX_LENGTH)
         {
             //
@@ -77,61 +82,62 @@ public class Winch implements TrcPidController.PidInput,
             //
             power = 0.0;
         }
+        */
 
         pidMotor.setPower(power);
-    }
+    }   //setPower
 
     public void setLength(double length)
     {
         pidMotor.setTarget(length, true);
-    }
+    }   //setLength
 
     public void setLength(double length, TrcEvent event, double timeout)
     {
         pidMotor.setTarget(length, event, timeout);
-    }
+    }   //setLength
 
     public double getLength()
     {
         return pidMotor.getPosition();
-    }
+    }   //getLength
 
     public double getEncoderPosition()
     {
-        return motor.getPosition();
-    }
+        return feederMotor.getPosition();
+    }   //getEncoderPosition
 
     public boolean isLowerLimitSwitchPressed()
     {
         return lowerLimitSwitch.isActive();
-    }
+    }   //isLowerLimitSwitchPressed
 
     public void setBrakeOn(boolean brakeOn)
     {
         brake.setPosition(
                 brakeOn? RobotInfo.WINCH_BRAKE_ON_POSITION: RobotInfo.WINCH_BRAKE_OFF_POSITION);
         this.brakeOn = brakeOn;
-    }
+    }   //setBrakeOn
 
     public void setTilterPosition(double position)
     {
         tilter.setPosition(position);
-    }
+    }   //setTilterPosition
 
     public double getTilterPosition()
     {
         return tilterServo.getPosition();
-    }
+    }   //getTilterPosition
 
     public void setTilterPower(double power)
     {
         tilter.setPower(power);
-    }
+    }   //setTilterPower
 
     public void displayDebugInfo(int lineNum)
     {
         pidCtrl.displayPidInfo(lineNum);
-    }
+    }   //displayDebugInfo
 
     //
     // Implements TrcPidController.PidInput.
@@ -159,7 +165,7 @@ public class Winch implements TrcPidController.PidInput,
     {
         if (digitalTrigger == lowerLimitTrigger)
         {
-            motor.resetPosition();
+            feederMotor.resetPosition();
         }
     }   //DigitalTriggerEvent
 

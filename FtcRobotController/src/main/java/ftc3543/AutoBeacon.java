@@ -147,7 +147,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Go forward fast.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 65.0: 90.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 65.0: 95.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.FIND_LINE);
@@ -261,6 +261,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     if (depositClimbers)
                     {
                         robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_EXTEND_POSITION);
+//                                                           RobotInfo.DEPOSITOR_STEPRATE);
                     }
                     //
                     // It takes sometime for the arm to move and deposit the climber.
@@ -287,8 +288,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         rightPusherExtended = false;
                     }
 
-                    robot.climberDepositor.setPosition(
-                            RobotInfo.DEPOSITOR_RETRACT_POSITION);
+                    robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_RETRACT_POSITION);
 
 
                     if (option == FtcAuto.BeaconOption.DO_NOTHING)
@@ -305,7 +305,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                         // First we need to back up a little bit so we have some room to turn.
                         //
                         robot.pidDrive.setTarget(
-                                -8.0, 0.0, false, event, 1.0);
+                                -6.0, 0.0, false, event, 1.0);
                         sm.addEvent(event);
                         sm.waitForEvents(State.MOVE_SOMEWHERE);
                     }
@@ -362,7 +362,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Go into the floor goal.
                     //
-                    robot.pidDrive.setTarget(-26.0, 0.0, false, event, 3.0);
+                    robot.pidDrive.setTarget(-24.0, 0.0, false, event, 3.0);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);
                     break;
@@ -371,7 +371,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     //
                     // Back up to mountain foothill.
                     //
-                    robot.pidDrive.setTarget(-40.0, 0.0, false, event);
+                    robot.pidDrive.setTarget(-42.0, 0.0, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_MOUNTAIN);
                     break;
@@ -381,7 +381,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     // Turn to face the mountain.
                     //
                     robot.pidDrive.setTarget(
-                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -80.0: 80.0,
+                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.GO_UP_MOUNTAIN);

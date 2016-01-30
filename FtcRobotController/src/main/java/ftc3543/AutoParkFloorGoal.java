@@ -79,7 +79,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     // Move forward towards the floor goal.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 60.0: 70.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 60.0: 82.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_FLOOR_GOAL);
@@ -89,9 +89,9 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     //
                     // Turn to face the floor goal.
                     //
-                    robot.pidDrive.setTarget(
-                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -50.0: 50.0,
-                            false, event);
+                    double angle = startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 40.0;
+                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE) angle = -angle;
+                    robot.pidDrive.setTarget(0.0, angle, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.GOTO_FLOOR_GOAL);
                     break;
@@ -101,7 +101,7 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
                     // Go into the floor goal.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 22.0: 45.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 23.0: 30.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);

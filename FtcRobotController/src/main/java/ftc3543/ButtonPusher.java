@@ -18,14 +18,16 @@ public class ButtonPusher implements TrcTaskMgr.Task
     }   //enum State
 
     private String instanceName;
+    private double travelTime;
     private FtcServo pusherServo;
     private TrcTimer timer;
     private TrcEvent event;
     private TrcStateMachine sm;
 
-    public ButtonPusher(String instanceName, boolean inverted)
+    public ButtonPusher(String instanceName, boolean inverted, double travelTime)
     {
         this.instanceName = instanceName;
+        this.travelTime = travelTime;
         pusherServo = new FtcServo(instanceName);
         pusherServo.setInverted(inverted);
         pusherServo.setPosition(TrcServo.CONTINUOUS_SERVO_STOP);
@@ -116,14 +118,14 @@ public class ButtonPusher implements TrcTaskMgr.Task
             {
                 case SET_FORWARD:
                     pusherServo.setPosition(TrcServo.CONTINUOUS_SERVO_FORWARD_MAX);
-                    timer.set(RobotInfo.PUSHER_EXTEND_TIME, event);
+                    timer.set(travelTime, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.SET_STOP);
                     break;
 
                 case SET_REVERSE:
                     pusherServo.setPosition(TrcServo.CONTINUOUS_SERVO_REVERSE_MAX);
-                    timer.set(RobotInfo.PUSHER_RETRACT_TIME, event);
+                    timer.set(travelTime, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.SET_STOP);
                     break;

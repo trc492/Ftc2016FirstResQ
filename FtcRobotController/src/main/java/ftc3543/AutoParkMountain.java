@@ -78,7 +78,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     // Move forward towards the mountain.
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 76.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 45.0: 76.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.TURN_TO_MOUNTAIN);
@@ -88,9 +88,9 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     //
                     // Turn to face the mountain.
                     //
-                    robot.pidDrive.setTarget(
-                            0.0, alliance == FtcAuto.Alliance.RED_ALLIANCE? -90.0: 90.0,
-                            false, event);
+                    double angle = startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 95.0: 90.0;
+                    if (alliance == FtcAuto.Alliance.RED_ALLIANCE) angle = -angle;
+                    robot.pidDrive.setTarget(0.0, angle, false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.GOTO_MOUNTAIN);
                     break;
@@ -101,7 +101,7 @@ public class AutoParkMountain implements TrcRobot.AutoStrategy
                     // to climb up the mountain
                     //
                     robot.pidDrive.setTarget(
-                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 50.0: 70.0, 0.0,
+                            startPos == FtcAuto.StartPosition.NEAR_MOUNTAIN? 40.0: 40.0, 0.0,
                             false, event);
                     sm.addEvent(event);
                     sm.waitForEvents(State.DONE);

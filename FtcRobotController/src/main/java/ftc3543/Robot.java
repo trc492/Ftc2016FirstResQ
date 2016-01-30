@@ -12,6 +12,7 @@ import ftclib.FtcUltrasonicSensor;
 import hallib.HalUtil;
 import trclib.TrcAnalogTrigger;
 import trclib.TrcDriveBase;
+import trclib.TrcEnhancedServo;
 import trclib.TrcPidController;
 import trclib.TrcPidDrive;
 import trclib.TrcRobot;
@@ -57,7 +58,8 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
     //
     // Climber Depositor subsystem.
     //
-    public FtcServo climberDepositor;
+    public FtcServo climberDepositorServo;
+    public TrcEnhancedServo climberDepositor;
 
     //
     // Climber Release subsystem.
@@ -140,13 +142,13 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         // Winch subsystem.
         //
         winch = new Winch();
-        winch.zeroCalibrate();
+//        winch.zeroCalibrate();
         //
         // Climber Depositor subsystem.
         //
-        climberDepositor = new FtcServo("depositorServo");
-        climberDepositor.setInverted(true);
-        climberDepositor.setPosition(RobotInfo.DEPOSITOR_RETRACT_POSITION);
+        climberDepositorServo = new FtcServo("depositorServo");
+        climberDepositor = new TrcEnhancedServo("depositor", climberDepositorServo);
+        climberDepositor.setPosition(RobotInfo.DEPOSITOR_MIN_POSITION);
         //
         // Climber Release subsystem.
         //
@@ -158,8 +160,10 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         //
         // ButtonPusher subsystem.
         //
-        leftButtonPusher = new ButtonPusher("leftPusher", true);
-        rightButtonPusher = new ButtonPusher("rightPusher", false);
+        leftButtonPusher = new ButtonPusher("leftPusher", true,
+                                            RobotInfo.PUSHER_LEFT_TRAVEL_TIME);
+        rightButtonPusher = new ButtonPusher("rightPusher", false,
+                                             RobotInfo.PUSHER_RIGHT_TRAVEL_TIME);
         leftButtonPusher.stop();
         rightButtonPusher.stop();
     }   //Robot
@@ -172,6 +176,8 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         sonarSensor.setEnabled(true);
         prevSonarValue = (Double)sonarSensor.getData(0).value;
         driveBase.resetPosition();
+        climberDepositor.setPosition(RobotInfo.DEPOSITOR_RETRACT_POSITION);
+        winch.setTilterPosition(RobotInfo.WINCH_TILTER_MIN_POSITION);
     }   //startMode
 
     public void stopMode(TrcRobot.RunMode runMode)
