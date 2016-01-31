@@ -209,6 +209,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
                     robot.colorTrigger.setEnabled(false);
                     robot.sonarPidCtrl.setOutputRange(-0.3, 0.3);;
                     robot.colorPidCtrl.setOutputRange(-0.5, 0.5);
+                    robot.colorPidCtrl.setInverted(alliance == FtcAuto.Alliance.RED_ALLIANCE);
                     robot.pidLineFollow.setTarget(
                             RobotInfo.SONAR_BEACON_DISTANCE,
                             RobotInfo.COLOR_LINE_EDGE_LEVEL,

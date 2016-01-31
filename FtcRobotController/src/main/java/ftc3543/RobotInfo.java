@@ -32,7 +32,7 @@ public class RobotInfo
     public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
     public static final double SONAR_BEACON_DISTANCE            = 2.0;
 
-    public static final double COLOR_KP                         = 0.1;
+    public static final double COLOR_KP                         = 0.125;
     public static final double COLOR_KI                         = 0.0;
     public static final double COLOR_KD                         = 0.0;
     public static final double COLOR_KF                         = 0.0;
