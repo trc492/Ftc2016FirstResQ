@@ -158,26 +158,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
         return idCode;
     }   //getManufacturerCode
 
-    /**
-     * This method sends a command to the device.
-     *
-     * @param command specifies the command byte.
-     */
-    protected void sendCommand(byte command)
-    {
-        final String funcName = "sendCommand";
-        byte[] data = new byte[1];
-
-        data[0] = command;
-        sendWriteCommand(REG_COMMAND, 1, data);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //sendCommand
-
     //
     // Implements TrcI2cDevice.CompletionHandler interface.
     //

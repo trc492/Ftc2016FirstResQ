@@ -1,6 +1,7 @@
 /*
  * Titan Robotics Framework Library
  * Copyright (c) 2016 Titan Robotics Club (http://www.titanrobotics.net)
+ * Contributed by FTC team 1001
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,64 +32,77 @@ import trclib.TrcSensor;
 import trclib.TrcSensorDataSource;
 
 /**
- * This class implements the Modern Robotics Color Sensor extending FtcI2cDevice.
+ * This class implements the AdaFruit Color Sensor extending FtcI2cDevice.
  * It provides the TrcI2cDevice.CompletionHandler interface to read the received data.
  */
-public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.CompletionHandler,
-                                                                   TrcSensorDataSource
+public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice.CompletionHandler,
+                                                                    TrcSensorDataSource
 {
-    private static final String moduleName = "FtcMRI2cColorSensor";
+    private static final String moduleName = "FtcAdaFruitColorSensor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    public static final int DEF_I2CADDRESS          = 0x3c;
+    public static final int DEF_I2CADDRESS          = (0x29 << 1);
+    public static final int ALTERNATE_I2CADDRESS    = (0x39 << 1);
 
     //
-    // I2C registers.
+    // AdaFruit RGB Color Sensor Registers.
     //
-    private static final int REG_COLOR_NUMBER       = 0x04;
-    private static final int REG_RED                = 0x05;
-    private static final int REG_GREEN              = 0x06;
-    private static final int REG_BLUE               = 0x07;
-    private static final int REG_WHITE              = 0x08;
-    private static final int DATA_LENGTH            = (REG_WHITE - REG_COLOR_NUMBER + 1);
+    private static final int REG_ENABLE     = 0x00; //Enables states and interrupts (R/W).
+    private static final int REG_ATIME      = 0x01; //RGBC time (R/W).
+    private static final int REG_WTIME      = 0x03; //Wait time (R/W).
+    private static final int REG_AILTL      = 0x04; //Clear interrupt low threshold low byte (R/W).
+    private static final int REG_AILTH      = 0x05; //Clear interrupt low threshold high byte (R/W).
+    private static final int REG_AIHTL      = 0x06; //Clear interrupt high threshold low byte (R/W).
+    private static final int REG_AIHTH      = 0x07; //Clear interrupt high threshold high byte (R/W).
+    private static final int REG_PERS       = 0x0c; //Interrupt persistence filter (R/W).
+    private static final int REG_CONFIG     = 0x0d; //Configuration (R/W).
+    private static final int REG_CONTROL    = 0x0f; //Control (R/W).
+    private static final int REG_ID         = 0x12; //Device ID (R).
+    private static final int REG_STATUS     = 0x13; //Device status (R).
+    private static final int REG_CDATAL     = 0x14; //Clear data low byte (R).
+    private static final int REG_CDATAH     = 0x15; //Clear data high byte (R).
+    private static final int REG_RDATAL     = 0x16; //Red data low byte (R).
+    private static final int REG_RDATAH     = 0x17; //Red data high byte (R).
+    private static final int REG_GDATAL     = 0x18; //Green data low byte (R).
+    private static final int REG_GDATAH     = 0x19; //Green data high byte (R).
+    private static final int REG_BDATAL     = 0x1a; //Blue data low byte (R).
+    private static final int REG_BDATAH     = 0x1b; //Blue data high byte (R).
 
-    //
-    // Commands.
-    //
-    private static final byte CMD_ENABLE_LED        = 0x00;
-    private static final byte CMD_DISABLE_LED       = 0x01;
-    private static final byte CMD_SET_50HZ_MODE     = 0x35;
-    private static final byte CMD_SET_60HZ_MODE     = 0x36;
-    private static final byte CMD_CAL_BLACKLEVEL    = 0x42;
-    private static final byte CMD_CAL_WHITEBAL      = 0x43;
+    private static final int REG_START_READ = REG_STATUS;
+    private static final int DATA_LENGTH    = (REG_BDATAH - REG_START_READ + 1);
 
-    //
-    // Color Numbers.
-    //
-    private static final byte COLORNUM_BLACK        = 0;
-    private static final byte COLORNUM_PURPLE       = 1;
-    private static final byte COLORNUM_PURPLE_BLUE  = 2;
-    private static final byte COLORNUM_BLUE         = 3;
-    private static final byte COLORNUM_BLUE_GREEN   = 4;
-    private static final byte COLORNUM_GREEN        = 5;
-    private static final byte COLORNUM_GREEN_YELLOW = 6;
-    private static final byte COLORNUM_YELLOW       = 7;
-    private static final byte COLORNUM_YELLOW_ORANGE= 8;
-    private static final byte COLORNUM_ORANGE       = 9;
-    private static final byte COLORNUM_ORANGE_RED   = 10;
-    private static final byte COLORNUM_RED          = 11;
-    private static final byte COLORNUM_PINK         = 12;
-    private static final byte COLORNUM_LIGHT_PINK   = 13;
-    private static final byte COLORNUM_LIGHT_YELLOW = 14;
-    private static final byte COLORNUM_LIGHT_BLUE   = 15;
-    private static final byte COLORNUM_WHITE        = 16;
+    private static final byte ENABLE_PON    = ((byte)(1 << 0)); //Power ON.
+    private static final byte ENABLE_AEN    = ((byte)(1 << 1)); //RGBC enable.
+    private static final byte ENABLE_WEN    = ((byte)(1 << 3)); //RGBC enable.
+    private static final byte ENABLE_AIEN   = ((byte)(1 << 4)); //RGBC interrupt enable.
 
-    private TrcSensor.SensorData colorNumber = new TrcSensor.SensorData(0.0, null);
+    private static final byte ATIME_1_CYCLE = ((byte)0xff);     //2.4 ms
+    private static final byte ATIME_10_CYCLE= ((byte)0xf6);     //24 ms
+    private static final byte ATIME_42_CYCLE= ((byte)0xd5);     //101 ms
+    private static final byte ATIME_64_CYCLE= ((byte)0xc0);     //154 ms
+    private static final byte ATIME_256_CYCLE=((byte)0x00);     //700 ms
+
+    private static final byte WTIME_1_CYCLE = ((byte)0xff);     //2.4 ms
+    private static final byte WTIME_85_CYCLE= ((byte)0xab);     //204 ms
+    private static final byte WTIME_256_CYCLE=((byte)0x00);     //614 ms
+
+    private static final byte CONFIG_WLONG  = ((byte)(1 << 1)); //Wait Long.
+
+    private static final byte CONTROL_AGAIN_1X  = 0x00;         //1X gain.
+    private static final byte CONTROL_AGAIN_4X  = 0x01;         //4X gain.
+    private static final byte CONTROL_AGAIN_16X = 0x02;         //16X gain.
+    private static final byte CONTROL_AGAIN_60X = 0x03;         //60X gain.
+
+    private static final byte STATUS_AVALID = ((byte)(1 << 0)); //RGBC Valid.
+    private static final byte STATUS_AINT   = ((byte)(1 << 4)); //RGBC clear channel Interrupt.
+
+    private int deviceID = 0;
+    private int deviceStatus = 0;
+    private TrcSensor.SensorData clearValue = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData redValue = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData greenValue = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData blueValue = new TrcSensor.SensorData(0.0, null);
-    private TrcSensor.SensorData whiteValue = new TrcSensor.SensorData(0.0, null);
 
     /**
      * Constructor: Creates an instance of the object.
@@ -97,7 +111,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcMRI2cColorSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress)
+    public FtcAdaFruitColorSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress)
     {
         super(hardwareMap, instanceName, i2cAddress);
 
@@ -110,8 +124,10 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(REG_COLOR_NUMBER, DATA_LENGTH, this);
-    }   //FtcMRI2cColorSensor
+        setSensorEnabled(true);
+        read(REG_ID, 1, this);
+        read(REG_START_READ, DATA_LENGTH, this);
+    }   //FtcAdaFruitColorSensor
 
     /**
      * Constructor: Creates an instance of the object.
@@ -119,96 +135,111 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcMRI2cColorSensor(String instanceName, int i2cAddress)
+    public FtcAdaFruitColorSensor(String instanceName, int i2cAddress)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, i2cAddress);
-    }   //FtcMRI2cColorSensor
+    }   //FtcAdaFruitColorSensor
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
      */
-    public FtcMRI2cColorSensor(String instanceName)
+    public FtcAdaFruitColorSensor(String instanceName)
     {
         this(instanceName, DEF_I2CADDRESS);
-    }   //FtcMRI2cColorSensor
+    }   //FtcAdaFruitColorSensor
 
     /**
-     * This method turns on the internal LED to illuminate the target surface or turns off
-     * the internal LED and reads from external light sources.
+     * This method enables/disables the sensor.
      *
-     * @param enabled specifies true to turn on internal LED, false otherwise.
+     * @param enabled specifies true to enable sensor, false otherwise.
      */
-    public void setLEDEnabled(boolean enabled)
+    public void setSensorEnabled(boolean enabled)
     {
-        sendByteCommand(REG_COMMAND, enabled? CMD_ENABLE_LED: CMD_DISABLE_LED);
-    }   //setLEDEnabled
+        sendByteCommand(REG_ENABLE, enabled? (byte)(ENABLE_PON | ENABLE_AEN): 0);
+    }   //setSensorEnabled
 
     /**
-     * This method sets the operating frequency to 50Hz. This setting is saved in EEPROM.
-     * This function is provided to enable the sampling to coincide with the normal flickering
-     * associated with mains electrical A/C artificial lighting, and helps minimize signal
-     * noise issues. Call this method when used in countries with 50Hz A/C electric current
-     * frequency. When Frequency Mode set is complete, the LED will blink off briefly and then
-     * the previous measurement mode will resume.
-     */
-    public void set50HzMode()
-    {
-        sendByteCommand(REG_COMMAND, CMD_SET_50HZ_MODE);
-    }   //set50HzMode
-
-    /**
-     * This method sets the operating frequency to 60Hz. This setting is saved in EEPROM.
-     * This function is provided to enable the sampling to coincide with the normal flickering
-     * associated with mains electrical A/C artificial lighting, and helps minimize signal
-     * noise issues. Call this method when used in countries with 60Hz A/C electric current
-     * frequency. When Frequency Mode set is complete, the LED will blink off briefly and then
-     * the previous measurement mode will resume.
-     */
-    public void set60HzMode()
-    {
-        sendByteCommand(REG_COMMAND, CMD_SET_60HZ_MODE);
-    }   //set60HzMode
-
-    /**
-     * This method calibrates the black level. It runs 64 measurement cycles to obtain an
-     * average value for each of the 3 color channels. The three values obtained are stored
-     * in EEPROM and will subsequently be subtracted from all future measurements. When the
-     * black level calibration is complete, the LED will blink off briefly and then the previous
-     * measurement mode will resume with the command byte being set to 00H or 01H. During the
-     * black level calibration, the sensor should be placed such that no surface is within 5 feet
-     * (1.5m) of the sensor element.
-     */
-    public void calibrateBlackLevel()
-    {
-        sendByteCommand(REG_COMMAND, CMD_CAL_BLACKLEVEL);
-    }   //calibrateBlackLevel
-
-    /**
-     * This method calibrates the white balance. It runs 64 measurement cycles to obtain an
-     * average value for each of the 3 color channels. The values obtained are adjusted according
-     * to the stored black level calibration values and stored in EEPROM. When the white balance
-     * calibration is complete, the LED will blink off briefly and then previous measurement mode
-     * will resume. During white balance calibration, the sensor must be placed approximately 2
-     * inches (5cm) from a white target. This target must be as white as possible. At least 3
-     * layers of high quality copy paper make a good white target.
-     */
-    public void calibrateWhiteBalance()
-    {
-        sendByteCommand(REG_COMMAND, CMD_CAL_WHITEBAL);
-    }   //calibrateWhiteBalance
-
-    /**
-     * This method returns the color number.
+     * This method sets the RGBC time.
      *
-     * @return color number.
+     * @param aTime specifies the RGBC time cycles (see ATIME_*).
      */
-    public TrcSensor.SensorData getColorNumber()
+    public void setATime(byte aTime)
     {
-        final String funcName = "getColorNumber";
+        sendByteCommand(REG_ATIME, aTime);
+    }   //setATime
+
+    /**
+     * This method sets the wait time.
+     *
+     * @param wTime specifies the wait time cycles (see WTIME_*).
+     */
+    public void setWTime(byte wTime)
+    {
+        sendByteCommand(REG_WTIME, wTime);
+    }   //setWTime
+
+    /**
+     * This method sets the low threshold for the Clear Interrupt.
+     *
+     * @param threshold specifies the low threshold value.
+     */
+    public void setClearInterruptLowThreshold(short threshold)
+    {
+        sendWordCommand(REG_AILTL, threshold);
+    }   //setClearInterruptLowThreshold
+
+    /**
+     * This method sets the high threshold for the Clear Interrupt.
+     *
+     * @param threshold specifies the high threshold value.
+     */
+    public void setClearInterruptHighThreshold(short threshold)
+    {
+        sendWordCommand(REG_AIHTL, threshold);
+    }   //setClearInterruptHighThreshold
+
+    /**
+     * This method sets the RGBC gain control.
+     *
+     * @param aGain specifies the RGBC gain value.
+     */
+    public void setAGain(byte aGain)
+    {
+        sendByteCommand(REG_CONTROL, aGain);
+    }   //setAGain
+
+    /**
+     * This method returns the device ID.
+     *
+     * @return device ID.
+     */
+    public int getID()
+    {
+        return deviceID;
+    }   //getID
+
+    /**
+     * This method returns the device status.
+     *
+     * @return device status.
+     */
+    public int getStatus()
+    {
+        return deviceStatus;
+    }   //getStatus
+
+    /**
+     * This method returns the clear value.
+     *
+     * @return clear value.
+     */
+    public TrcSensor.SensorData getClearValue()
+    {
+        final String funcName = "getClearValue";
         TrcSensor.SensorData data =
-                new TrcSensor.SensorData(colorNumber.timestamp, colorNumber.value);
+                new TrcSensor.SensorData(clearValue.timestamp, clearValue.value);
 
         if (debugEnabled)
         {
@@ -218,7 +249,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         }
 
         return data;
-    }   //getColorNumber
+    } //getClearValue
 
     /**
      * This method returns the red value.
@@ -239,7 +270,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         }
 
         return data;
-    }   //getRedValue
+    } //getRedValue
 
     /**
      * This method returns the green value.
@@ -260,7 +291,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         }
 
         return data;
-    }   //getGreenValue
+    } //getGreenValue
 
     /**
      * This method returns the blue value.
@@ -281,28 +312,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         }
 
         return data;
-    }   //getBlueValue
-
-    /**
-     * This method returns the white value.
-     *
-     * @return white value.
-     */
-    public TrcSensor.SensorData getWhiteValue()
-    {
-        final String funcName = "getWhiteValue";
-        TrcSensor.SensorData data =
-                new TrcSensor.SensorData(whiteValue.timestamp, whiteValue.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%d)", data.timestamp, (Integer)data.value);
-        }
-
-        return data;
-    }   //getWhiteValue
+    } //getBlueValue
 
     //
     // Implements TrcI2cDevice.CompletionHandler interface.
@@ -325,49 +335,58 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_COLOR_NUMBER && length == DATA_LENGTH)
+        if (regAddress == REG_ID && length == 1)
+        {
+            if (!timedout)
+            {
+                deviceID = data[REG_ID - REG_START_READ];
+            }
+            else
+            {
+                repeat = true;
+            }
+        }
+        else if (regAddress == REG_START_READ && length == DATA_LENGTH)
         {
             if (!timedout)
             {
                 //
                 // Read these repeatedly.
                 //
-                colorNumber.timestamp = timestamp;
-                colorNumber.value = (int)data[REG_COLOR_NUMBER - REG_COLOR_NUMBER] & 0xff;
-
-                redValue.timestamp = timestamp;
-                redValue.value = (int)data[REG_RED - REG_COLOR_NUMBER] & 0xff;
-
-                greenValue.timestamp = timestamp;
-                greenValue.value = (int)data[REG_GREEN - REG_COLOR_NUMBER] & 0xff;
-
-                blueValue.timestamp = timestamp;
-                blueValue.value = (int)data[REG_BLUE - REG_COLOR_NUMBER] & 0xff;
-
-                whiteValue.timestamp = timestamp;
-                whiteValue.value = (int)data[REG_WHITE - REG_COLOR_NUMBER] & 0xff;
+                deviceStatus = data[REG_STATUS - REG_START_READ];
+                if ((deviceStatus & STATUS_AVALID) != 0)
+                {
+                    clearValue.timestamp = timestamp;
+                    clearValue.value = data[REG_CDATAL - REG_START_READ] |
+                                       (data[REG_CDATAH - REG_START_READ] << 8);
+                    redValue.timestamp = timestamp;
+                    redValue.value = data[REG_RDATAL - REG_START_READ] |
+                                     (data[REG_RDATAH - REG_START_READ] << 8);
+                    greenValue.timestamp = timestamp;
+                    greenValue.value = data[REG_GDATAL - REG_START_READ] |
+                                       (data[REG_GDATAH - REG_START_READ] << 8);
+                    blueValue.timestamp = timestamp;
+                    blueValue.value = data[REG_BDATAL - REG_START_READ] |
+                                      (data[REG_BDATAH - REG_START_READ] << 8);
+                }
             }
             repeat = true;
-        }
-        else
-        {
-            repeat = super.readCompletion(regAddress, length, timestamp, data, timedout);
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK,
-                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s",
+                                "regAddr=%x,len=%d,timestamp=%.3f,timedout=%s" ,
                                 regAddress, length, timestamp, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
-            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)=%s",
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)= %s",
                                funcName, regAddress, length, timestamp, data.length,
                                Boolean.toString(timedout), Boolean.toString(repeat));
         }
 
         return repeat;
-    }   //readCompletion
+    } //readCompletion
 
     /**
      * This method is called to notify the completion of the write operation.
@@ -379,7 +398,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
     @Override
     public void writeCompletion(int regAddress, int length, boolean timedout)
     {
-    }   //writeCompletion
+    } //writeCompletion
 
     //
     // Implements TrcSensorDataSource interface.
@@ -400,7 +419,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         switch (index)
         {
             case 0:
-                data = getColorNumber();
+                data = getClearValue();
                 break;
 
             case 1:
@@ -414,10 +433,6 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
             case 3:
                 data = getBlueValue();
                 break;
-
-            case 4:
-                data = getWhiteValue();
-                break;
         }
 
         if (debugEnabled)
@@ -428,6 +443,6 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         }
 
         return data;
-    }   //getSensorData
+    } //getSensorData
 
-}   //class FtcMRI2cColorSensor
+}   //class FtcAdaFruitColorSensor
