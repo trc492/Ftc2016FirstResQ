@@ -234,49 +234,6 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
     }   //setEnabled
 
     /**
-     * This method sends a byte command to the device.
-     *
-     * @param regAddress specifies the register address to write to.
-     * @param command specifies the command byte.
-     */
-    public void sendByteCommand(int regAddress, byte command)
-    {
-        final String funcName = "sendByteCommand";
-        byte[] data = new byte[1];
-
-        data[0] = command;
-        sendWriteCommand(regAddress, 1, data);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //sendByteCommand
-
-    /**
-     * This method sends a 16-bit command to the device.
-     *
-     * @param regAddress specifies the register address to write to.
-     * @param command specifies the 16-bit command.
-     */
-    public void sendWordCommand(int regAddress, short command)
-    {
-        final String funcName = "sendWordCommand";
-        byte[] data = new byte[2];
-
-        data[0] = (byte)(command & 0xff);
-        data[1] = (byte)(command >> 8);
-        sendWriteCommand(regAddress, 2, data);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-    }   //sendWordCommand
-
-    /**
      * This method queues the read request.
      *
      * @param regAddress specifies the register address to read from.
@@ -387,6 +344,49 @@ public abstract class TrcI2cDevice implements TrcTaskMgr.Task
     {
         write(regAddress, length, writeBuffer, null, 0.0);
     }   //write
+
+    /**
+     * This method sends a byte command to the device.
+     *
+     * @param regAddress specifies the register address to write to.
+     * @param command specifies the command byte.
+     */
+    public void sendByteCommand(int regAddress, byte command)
+    {
+        final String funcName = "sendByteCommand";
+        byte[] data = new byte[1];
+
+        data[0] = command;
+        write(regAddress, 1, data);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //sendByteCommand
+
+    /**
+     * This method sends a 16-bit command to the device.
+     *
+     * @param regAddress specifies the register address to write to.
+     * @param command specifies the 16-bit command.
+     */
+    public void sendWordCommand(int regAddress, short command)
+    {
+        final String funcName = "sendWordCommand";
+        byte[] data = new byte[2];
+
+        data[0] = (byte)(command & 0xff);
+        data[1] = (byte)(command >> 8);
+        write(regAddress, 2, data);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "command=%x", command);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+    }   //sendWordCommand
 
     //
     // Implements TrcTaskMgr.Task
