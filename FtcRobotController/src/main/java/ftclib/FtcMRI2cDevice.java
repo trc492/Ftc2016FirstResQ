@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
+import trclib.TrcUtil;
 
 /**
  * This class implements the common features of all Modern Robotics I2C devices. Typically,
@@ -47,7 +48,10 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
     protected static final int REG_ID_CODE              = 0x02;
     protected static final int REG_COMMAND              = 0x03;
     protected static final int REG_SET_I2C_ADDRESS      = 0x70;
-    protected static final int HEADER_LENGTH            = (REG_ID_CODE - REG_FIRMWARE_REVISION + 1);
+
+    private static final int HEADER_START               = REG_FIRMWARE_REVISION;
+    private static final int HEADER_END                 = REG_ID_CODE;
+    private static final int HEADER_LENGTH              = (HEADER_END - HEADER_START + 1);
 
     protected static final byte MANUFACTURER_CODE       = 0x4d;
 
@@ -81,7 +85,7 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(REG_FIRMWARE_REVISION, HEADER_LENGTH, this);
+        read(HEADER_START, HEADER_LENGTH, this);
     }   //FtcMRI2cColorSensor
 
     /**
@@ -179,7 +183,7 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_FIRMWARE_REVISION && length == HEADER_LENGTH)
+        if (regAddress == HEADER_START && length == HEADER_LENGTH)
         {
             if (timedout)
             {
@@ -190,9 +194,10 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
                 //
                 // These only need to be read once, so no repeat.
                 //
-                firmwareRev = data[REG_FIRMWARE_REVISION - REG_FIRMWARE_REVISION] & 0xff;
-                manufacturerCode = data[REG_MANUFACTURER_CODE - REG_FIRMWARE_REVISION] & 0xff;
-                idCode = data[REG_ID_CODE - REG_FIRMWARE_REVISION] & 0xff;
+                firmwareRev = TrcUtil.bytesToInt(data[REG_FIRMWARE_REVISION - HEADER_START]);
+                manufacturerCode =
+                        TrcUtil.bytesToInt(data[REG_MANUFACTURER_CODE - HEADER_START]);
+                idCode = TrcUtil.bytesToInt(data[REG_ID_CODE - HEADER_START]);
             }
         }
 

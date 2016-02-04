@@ -80,28 +80,6 @@ public class HalDashboard
     }   //HalDashboard
 
     /**
-     * This static method allows the caller to get an instance of
-     * the dashboard so that it can display information on its
-     * display. If no instance found, it will create one. Typically,
-     * this is called by FtcOpMode to create one global instance
-     * of HalDashboard.
-     *
-     * @param telemetry specifies the Telemetry object.
-     * @return global instance of the dashboard object.
-     */
-    /*
-    public static HalDashboard getInstance(Telemetry telemetry)
-    {
-        if (instance == null)
-        {
-            instance = new HalDashboard(telemetry);
-        }
-
-        return instance;
-    }   //getInstance
-    */
-
-    /**
      * This static method allows any class to get an instance of
      * the dashboard so that it can display information on its
      * display.

@@ -30,6 +30,7 @@ import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
 import trclib.TrcSensorDataSource;
+import trclib.TrcUtil;
 
 /**
  * This class implements the AdaFruit Color Sensor extending FtcI2cDevice.
@@ -69,12 +70,13 @@ public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice
     private static final int REG_BDATAL     = 0x1a; //Blue data low byte (R).
     private static final int REG_BDATAH     = 0x1b; //Blue data high byte (R).
 
-    private static final int REG_START_READ = REG_STATUS;
-    private static final int DATA_LENGTH    = (REG_BDATAH - REG_START_READ + 1);
+    private static final int READ_START     = REG_STATUS;
+    private static final int READ_END       = REG_BDATAH;
+    private static final int READ_LENGTH    = (READ_END - READ_START + 1);
 
     private static final byte ENABLE_PON    = ((byte)(1 << 0)); //Power ON.
     private static final byte ENABLE_AEN    = ((byte)(1 << 1)); //RGBC enable.
-    private static final byte ENABLE_WEN    = ((byte)(1 << 3)); //RGBC enable.
+    private static final byte ENABLE_WEN    = ((byte)(1 << 3)); //Wait enable.
     private static final byte ENABLE_AIEN   = ((byte)(1 << 4)); //RGBC interrupt enable.
 
     private static final byte ATIME_1_CYCLE = ((byte)0xff);     //2.4 ms
@@ -126,7 +128,7 @@ public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice
 
         setSensorEnabled(true);
         read(REG_ID, 1, this);
-        read(REG_START_READ, DATA_LENGTH, this);
+        read(READ_START, READ_LENGTH, this);
     }   //FtcAdaFruitColorSensor
 
     /**
@@ -339,35 +341,35 @@ public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice
         {
             if (!timedout)
             {
-                deviceID = data[REG_ID - REG_START_READ];
+                deviceID = TrcUtil.bytesToInt(data[0]);
             }
             else
             {
                 repeat = true;
             }
         }
-        else if (regAddress == REG_START_READ && length == DATA_LENGTH)
+        else if (regAddress == READ_START && length == READ_LENGTH)
         {
             if (!timedout)
             {
                 //
                 // Read these repeatedly.
                 //
-                deviceStatus = data[REG_STATUS - REG_START_READ];
+                deviceStatus = TrcUtil.bytesToInt(data[REG_STATUS - READ_START]);
                 if ((deviceStatus & STATUS_AVALID) != 0)
                 {
                     clearValue.timestamp = timestamp;
-                    clearValue.value = data[REG_CDATAL - REG_START_READ] |
-                                       (data[REG_CDATAH - REG_START_READ] << 8);
+                    clearValue.value = TrcUtil.bytesToInt(data[REG_CDATAL - READ_START],
+                                                          data[REG_CDATAH - READ_START]);
                     redValue.timestamp = timestamp;
-                    redValue.value = data[REG_RDATAL - REG_START_READ] |
-                                     (data[REG_RDATAH - REG_START_READ] << 8);
+                    redValue.value = TrcUtil.bytesToInt(data[REG_RDATAL - READ_START],
+                                                        data[REG_RDATAH - READ_START]);
                     greenValue.timestamp = timestamp;
-                    greenValue.value = data[REG_GDATAL - REG_START_READ] |
-                                       (data[REG_GDATAH - REG_START_READ] << 8);
+                    greenValue.value = TrcUtil.bytesToInt(data[REG_GDATAL - READ_START],
+                                                          data[REG_GDATAH - READ_START]);
                     blueValue.timestamp = timestamp;
-                    blueValue.value = data[REG_BDATAL - REG_START_READ] |
-                                      (data[REG_BDATAH - REG_START_READ] << 8);
+                    blueValue.value = TrcUtil.bytesToInt(data[REG_BDATAL - READ_START],
+                                                         data[REG_BDATAH - READ_START]);
                 }
             }
             repeat = true;
@@ -380,7 +382,7 @@ public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice
                                 regAddress, length, timestamp, Boolean.toString(timedout));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK,
                                "=%s", Boolean.toString(repeat));
-            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)= %s",
+            dbgTrace.traceInfo(funcName, "%s(addr=%x,len=%d,time=%.3f,size=%d,timedout=%s)=%s",
                                funcName, regAddress, length, timestamp, data.length,
                                Boolean.toString(timedout), Boolean.toString(repeat));
         }

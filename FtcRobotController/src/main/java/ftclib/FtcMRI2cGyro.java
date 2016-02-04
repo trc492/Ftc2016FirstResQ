@@ -29,6 +29,7 @@ import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
 import trclib.TrcSensorDataSource;
+import trclib.TrcUtil;
 
 /**
  * This class implements the Modern Robotics Gyro extending FtcI2cDevice.
@@ -61,7 +62,10 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
     private static final int REG_Z_OFFSET_MSB       = 0x0f;
     private static final int REG_Z_SCALING_LSB      = 0x10;
     private static final int REG_Z_SCALING_MSB      = 0x11;
-    private static final int DATA_LENGTH            = (REG_Z_SCALING_MSB - REG_HEADING_LSB + 1);
+
+    private static final int READ_START             = REG_HEADING_LSB;
+    private static final int READ_END               = REG_Z_SCALING_MSB;
+    private static final int READ_LENGTH            = (READ_START - READ_END + 1);
 
     private static final int CMD_MEASUREMENT_MODE   = 0x00;
     private static final int CMD_RESET_OFFSET_CAL   = 0x4e;
@@ -98,7 +102,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
         }
 
         resetZIntegrator();
-        read(REG_HEADING_LSB, DATA_LENGTH, this);
+        read(READ_START, READ_LENGTH, this);
     }   //FtcMRI2cGyro
 
     /**
@@ -345,47 +349,46 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_HEADING_LSB && length == DATA_LENGTH)
+        if (regAddress == READ_START && length == READ_LENGTH)
         {
             if (!timedout)
             {
                 //
                 // Read these repeatedly.
                 //
-                int value = (int)(short)((data[REG_HEADING_LSB - REG_HEADING_LSB] & 0xff) |
-                                         ((data[REG_HEADING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                int value = TrcUtil.bytesToInt(data[REG_HEADING_LSB - READ_START]);
                 heading.timestamp = timestamp;
                 heading.value = (360 - value)%360;
 
                 integratedZ.timestamp = timestamp;
                 integratedZ.value =
-                        -(int)(short)((data[REG_INTEGRATED_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                      ((data[REG_INTEGRATED_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        -TrcUtil.bytesToInt(data[REG_INTEGRATED_Z_LSB - READ_START],
+                                            data[REG_INTEGRATED_Z_MSB - READ_START]);
 
                 rawX.timestamp = timestamp;
                 rawX.value =
-                        -(int)(short)((data[REG_RAW_X_LSB - REG_HEADING_LSB] & 0xff) |
-                                      ((data[REG_RAW_X_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        -TrcUtil.bytesToInt(data[REG_RAW_X_LSB - READ_START],
+                                            data[REG_RAW_X_MSB - READ_START]);
 
                 rawY.timestamp = timestamp;
                 rawY.value =
-                        -(int)(short)((data[REG_RAW_Y_LSB - REG_HEADING_LSB] & 0xff) |
-                                      ((data[REG_RAW_Y_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        -TrcUtil.bytesToInt(data[REG_RAW_Y_LSB - READ_START],
+                                            data[REG_RAW_Y_MSB - READ_START]);
 
                 rawZ.timestamp = timestamp;
                 rawZ.value =
-                        -(int)(short)((data[REG_RAW_Z_LSB - REG_HEADING_LSB] & 0xff) |
-                                      ((data[REG_RAW_Z_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        -TrcUtil.bytesToInt(data[REG_RAW_Z_LSB - READ_START],
+                                            data[REG_RAW_Z_MSB - READ_START]);
 
                 zOffset.timestamp = timestamp;
                 zOffset.value =
-                        (int)(short)((data[REG_Z_OFFSET_LSB - REG_HEADING_LSB] & 0xff) |
-                                     ((data[REG_Z_OFFSET_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        TrcUtil.bytesToInt(data[REG_Z_OFFSET_LSB - READ_START],
+                                           data[REG_Z_OFFSET_MSB - READ_START]);
 
                 zScaling.timestamp = timestamp;
                 zScaling.value =
-                        (int)(short)((data[REG_Z_SCALING_LSB - REG_HEADING_LSB] & 0xff) |
-                                     ((data[REG_Z_SCALING_MSB - REG_HEADING_LSB] & 0xff) << 8));
+                        TrcUtil.bytesToInt(data[REG_Z_SCALING_LSB - READ_START],
+                                           data[REG_Z_SCALING_MSB - READ_START]);
             }
             repeat = true;
         }

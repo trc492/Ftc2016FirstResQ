@@ -29,6 +29,7 @@ import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
 import trclib.TrcSensorDataSource;
+import trclib.TrcUtil;
 
 /**
  * This class implements the Modern Robotics Color Sensor extending FtcI2cDevice.
@@ -51,7 +52,10 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
     private static final int REG_GREEN              = 0x06;
     private static final int REG_BLUE               = 0x07;
     private static final int REG_WHITE              = 0x08;
-    private static final int DATA_LENGTH            = (REG_WHITE - REG_COLOR_NUMBER + 1);
+
+    private static final int READ_START             = REG_COLOR_NUMBER;
+    private static final int READ_END               = REG_WHITE;
+    private static final int READ_LENGTH            = (READ_END - READ_START + 1);
 
     //
     // Commands.
@@ -110,7 +114,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(REG_COLOR_NUMBER, DATA_LENGTH, this);
+        read(READ_START, READ_LENGTH, this);
     }   //FtcMRI2cColorSensor
 
     /**
@@ -325,7 +329,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
         final String funcName = "readCompletion";
         boolean repeat = false;
 
-        if (regAddress == REG_COLOR_NUMBER && length == DATA_LENGTH)
+        if (regAddress == READ_START && length == READ_LENGTH)
         {
             if (!timedout)
             {
@@ -333,19 +337,19 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcI2cDevice.
                 // Read these repeatedly.
                 //
                 colorNumber.timestamp = timestamp;
-                colorNumber.value = (int)data[REG_COLOR_NUMBER - REG_COLOR_NUMBER] & 0xff;
+                colorNumber.value = TrcUtil.bytesToInt(data[REG_COLOR_NUMBER - READ_START]);
 
                 redValue.timestamp = timestamp;
-                redValue.value = (int)data[REG_RED - REG_COLOR_NUMBER] & 0xff;
+                redValue.value = TrcUtil.bytesToInt(data[REG_RED - READ_START]);
 
                 greenValue.timestamp = timestamp;
-                greenValue.value = (int)data[REG_GREEN - REG_COLOR_NUMBER] & 0xff;
+                greenValue.value = TrcUtil.bytesToInt(data[REG_GREEN - READ_START]);
 
                 blueValue.timestamp = timestamp;
-                blueValue.value = (int)data[REG_BLUE - REG_COLOR_NUMBER] & 0xff;
+                blueValue.value = TrcUtil.bytesToInt(data[REG_BLUE - READ_START]);
 
                 whiteValue.timestamp = timestamp;
-                whiteValue.value = (int)data[REG_WHITE - REG_COLOR_NUMBER] & 0xff;
+                whiteValue.value = TrcUtil.bytesToInt(data[REG_WHITE - READ_START]);
             }
             repeat = true;
         }

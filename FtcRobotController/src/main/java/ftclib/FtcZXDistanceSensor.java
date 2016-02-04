@@ -29,6 +29,7 @@ import trclib.TrcDbgTrace;
 import trclib.TrcI2cDevice;
 import trclib.TrcSensor;
 import trclib.TrcSensorDataSource;
+import trclib.TrcUtil;
 
 /**
  * This class implements the ZX Distance sensor extending FtcI2cDevice.
@@ -48,18 +49,18 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
     //
     // GestureSense XZ01 Sensor I2C Register Map Version 1.
     //
-    private static final int ZXREG_STATUS           = 0x00;     //Sensor and Gesture Status
-    private static final int ZXREG_DRE              = 0x01;     //Data Ready Enable Bitmap
-    private static final int ZXREG_DRCFG            = 0x02;     //Data Ready Configuration
-    private static final int ZXREG_GESTURE          = 0x04;     //Last Detected Gesture
-    private static final int ZXREG_GSPEED           = 0x05;     //Last Detected Gesture Speed
-    private static final int ZXREG_DCM              = 0x06;     //Data Confidence Metric
-    private static final int ZXREG_XPOS             = 0x08;     //X Coordinate
-    private static final int ZXREG_ZPOS             = 0x0a;     //Z Coordinate
-    private static final int ZXREG_LRNG             = 0x0c;     //Left Emitter Ranging Data
-    private static final int ZXREG_RRNG             = 0x0e;     //Right Emitter Ranging Data
-    private static final int ZXREG_REGVER           = 0xfe;     //Register Map Version
-    private static final int ZXREG_MODEL            = 0xff;     //Sensor Model ID
+    private static final int REG_STATUS             = 0x00;     //Sensor and Gesture Status
+    private static final int REG_DRE                = 0x01;     //Data Ready Enable Bitmap
+    private static final int REG_DRCFG              = 0x02;     //Data Ready Configuration
+    private static final int REG_GESTURE            = 0x04;     //Last Detected Gesture
+    private static final int REG_GSPEED             = 0x05;     //Last Detected Gesture Speed
+    private static final int REG_DCM                = 0x06;     //Data Confidence Metric
+    private static final int REG_XPOS               = 0x08;     //X Coordinate
+    private static final int REG_ZPOS               = 0x0a;     //Z Coordinate
+    private static final int REG_LRNG               = 0x0c;     //Left Emitter Ranging Data
+    private static final int REG_RRNG               = 0x0e;     //Right Emitter Ranging Data
+    private static final int REG_REGVER             = 0xfe;     //Register Map Version
+    private static final int REG_MODEL              = 0xff;     //Sensor Model ID
 
     //
     // Register 0x00 - STATUS:
@@ -301,9 +302,9 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        read(ZXREG_REGVER, 1, this);
-        read(ZXREG_MODEL, 1, this);
-        read(ZXREG_STATUS, 1, this);
+        read(REG_REGVER, 1, this);
+        read(REG_MODEL, 1, this);
+        read(REG_STATUS, 1, this);
     }   //FtcZXDistanceSensor
 
     /**
@@ -530,95 +531,95 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
 
         switch (regAddress)
         {
-            case ZXREG_REGVER:
+            case REG_REGVER:
                 if (timedout)
                 {
                     repeat = true;
                 }
                 else
                 {
-                    regMapVersion = data[0] & 0xff;
+                    regMapVersion = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_MODEL:
+            case REG_MODEL:
                 if (timedout)
                 {
                     repeat = true;
                 }
                 else
                 {
-                    modelVersion = data[0] & 0xff;
+                    modelVersion = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_STATUS:
+            case REG_STATUS:
                 if (!timedout)
                 {
-                    deviceStatus = data[0] & 0xff;
+                    deviceStatus = TrcUtil.bytesToInt(data[0]);
 
                     if ((deviceStatus & STATUS_GESTURES) != 0)
                     {
-                        read(ZXREG_GESTURE, 1, this);
-                        read(ZXREG_GSPEED, 1, this);
+                        read(REG_GESTURE, 1, this);
+                        read(REG_GSPEED, 1, this);
                     }
 
                     if ((deviceStatus & STATUS_DAV) != 0)
                     {
-                        read(ZXREG_XPOS, 1, this);
-                        read(ZXREG_ZPOS, 1, this);
-                        read(ZXREG_LRNG, 1, this);
-                        read(ZXREG_RRNG, 1, this);
+                        read(REG_XPOS, 1, this);
+                        read(REG_ZPOS, 1, this);
+                        read(REG_LRNG, 1, this);
+                        read(REG_RRNG, 1, this);
                     }
                 }
                 repeat = true;
                 break;
 
-            case ZXREG_GESTURE:
+            case REG_GESTURE:
                 if (!timedout)
                 {
                     gesture.timestamp = timestamp;
-                    gesture.value = Gesture.getGesture((int)data[0] & 0xff);
+                    gesture.value = Gesture.getGesture(TrcUtil.bytesToInt(data[0]));
                 }
                 break;
 
-            case ZXREG_GSPEED:
+            case REG_GSPEED:
                 if (!timedout)
                 {
                     gestureSpeed.timestamp = timestamp;
-                    gestureSpeed.value = (int)data[0] & 0xff;
+                    gestureSpeed.value = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_XPOS:
+            case REG_XPOS:
                 if (!timedout)
                 {
                     xPos.timestamp = timestamp;
-                    xPos.value = (int)data[0] & 0xff;
+                    xPos.value = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_ZPOS:
+            case REG_ZPOS:
                 if (!timedout)
                 {
                     zPos.timestamp = timestamp;
-                    zPos.value = (int)data[0] & 0xff;
+                    zPos.value = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_LRNG:
+            case REG_LRNG:
                 if (!timedout)
                 {
                     leftRangingData.timestamp = timestamp;
-                    leftRangingData.value = (int)data[0] & 0xff;
+                    leftRangingData.value = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 
-            case ZXREG_RRNG:
+            case REG_RRNG:
                 if (!timedout)
                 {
                     rightRangingData.timestamp = timestamp;
-                    rightRangingData.value = (int)data[0] & 0xff;
+                    rightRangingData.value = TrcUtil.bytesToInt(data[0]);
                 }
                 break;
 

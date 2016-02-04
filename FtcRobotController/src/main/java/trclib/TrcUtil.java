@@ -130,4 +130,29 @@ public class TrcUtil
         return Math.abs(value) >= deadband? value: 0.0;
     }   //applyDeadband
 
+    /**
+     * This method combines two bytes into an integer.
+     *
+     * @param low specifies the low byte.
+     * @param high specifies the high byte.
+     *
+     * @return the converted interger.
+     */
+    public static int bytesToInt(byte low, byte high)
+    {
+        return ((int)low & 0xff) | (((int)high & 0xff) << 8);
+    }   //bytesToInt
+
+    /**
+     * This method converts a byte into an integer.
+     *
+     * @param data specifies the byte data.
+     *
+     * @return the convertyed interger.
+     */
+    public static int bytesToInt(byte data)
+    {
+        return bytesToInt(data, (byte)0);
+    }   //bytesToInt
+
 }   //class TrcUtil
