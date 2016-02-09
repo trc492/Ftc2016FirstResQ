@@ -49,26 +49,27 @@ public class FtcAdaFruitColorSensor extends FtcI2cDevice implements TrcI2cDevice
     //
     // AdaFruit RGB Color Sensor Registers.
     //
-    private static final int REG_ENABLE     = 0x00; //Enables states and interrupts (R/W).
-    private static final int REG_ATIME      = 0x01; //RGBC time (R/W).
-    private static final int REG_WTIME      = 0x03; //Wait time (R/W).
-    private static final int REG_AILTL      = 0x04; //Clear interrupt low threshold low byte (R/W).
-    private static final int REG_AILTH      = 0x05; //Clear interrupt low threshold high byte (R/W).
-    private static final int REG_AIHTL      = 0x06; //Clear interrupt high threshold low byte (R/W).
-    private static final int REG_AIHTH      = 0x07; //Clear interrupt high threshold high byte (R/W).
-    private static final int REG_PERS       = 0x0c; //Interrupt persistence filter (R/W).
-    private static final int REG_CONFIG     = 0x0d; //Configuration (R/W).
-    private static final int REG_CONTROL    = 0x0f; //Control (R/W).
-    private static final int REG_ID         = 0x12; //Device ID (R).
-    private static final int REG_STATUS     = 0x13; //Device status (R).
-    private static final int REG_CDATAL     = 0x14; //Clear data low byte (R).
-    private static final int REG_CDATAH     = 0x15; //Clear data high byte (R).
-    private static final int REG_RDATAL     = 0x16; //Red data low byte (R).
-    private static final int REG_RDATAH     = 0x17; //Red data high byte (R).
-    private static final int REG_GDATAL     = 0x18; //Green data low byte (R).
-    private static final int REG_GDATAH     = 0x19; //Green data high byte (R).
-    private static final int REG_BDATAL     = 0x1a; //Blue data low byte (R).
-    private static final int REG_BDATAH     = 0x1b; //Blue data high byte (R).
+    private static final int REG_COMMAND_BIT= 0x80;                     //Must OR into the reg address.
+    private static final int REG_ENABLE     = (0x00 | REG_COMMAND_BIT); //Enables states and interrupts (R/W).
+    private static final int REG_ATIME      = (0x01 | REG_COMMAND_BIT); //RGBC time (R/W).
+    private static final int REG_WTIME      = (0x03 | REG_COMMAND_BIT); //Wait time (R/W).
+    private static final int REG_AILTL      = (0x04 | REG_COMMAND_BIT); //Clear interrupt low threshold low byte (R/W).
+    private static final int REG_AILTH      = (0x05 | REG_COMMAND_BIT); //Clear interrupt low threshold high byte (R/W).
+    private static final int REG_AIHTL      = (0x06 | REG_COMMAND_BIT); //Clear interrupt high threshold low byte (R/W).
+    private static final int REG_AIHTH      = (0x07 | REG_COMMAND_BIT); //Clear interrupt high threshold high byte (R/W).
+    private static final int REG_PERS       = (0x0c | REG_COMMAND_BIT); //Interrupt persistence filter (R/W).
+    private static final int REG_CONFIG     = (0x0d | REG_COMMAND_BIT); //Configuration (R/W).
+    private static final int REG_CONTROL    = (0x0f | REG_COMMAND_BIT); //Control (R/W).
+    private static final int REG_ID         = (0x12 | REG_COMMAND_BIT); //Device ID (R).
+    private static final int REG_STATUS     = (0x13 | REG_COMMAND_BIT); //Device status (R).
+    private static final int REG_CDATAL     = (0x14 | REG_COMMAND_BIT); //Clear data low byte (R).
+    private static final int REG_CDATAH     = (0x15 | REG_COMMAND_BIT); //Clear data high byte (R).
+    private static final int REG_RDATAL     = (0x16 | REG_COMMAND_BIT); //Red data low byte (R).
+    private static final int REG_RDATAH     = (0x17 | REG_COMMAND_BIT); //Red data high byte (R).
+    private static final int REG_GDATAL     = (0x18 | REG_COMMAND_BIT); //Green data low byte (R).
+    private static final int REG_GDATAH     = (0x19 | REG_COMMAND_BIT); //Green data high byte (R).
+    private static final int REG_BDATAL     = (0x1a | REG_COMMAND_BIT); //Blue data low byte (R).
+    private static final int REG_BDATAH     = (0x1b | REG_COMMAND_BIT); //Blue data high byte (R).
 
     private static final int READ_START     = REG_STATUS;
     private static final int READ_END       = REG_BDATAH;
