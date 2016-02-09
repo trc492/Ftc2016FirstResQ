@@ -375,8 +375,8 @@ public abstract class TrcSensor
     //
 
     /**
-     * This method calls the built-in calibrator to calibrates the gyro.
-     * This method can be overridden by the platform dependent gyro to
+     * This method calls the built-in calibrator to calibrates the sensor.
+     * This method can be overridden by the platform dependent sensor to
      * provide its own calibration.
      *
      * @param dataType specifies the data type needed calibration.
