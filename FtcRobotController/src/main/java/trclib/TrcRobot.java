@@ -80,16 +80,20 @@ public class TrcRobot
          * This method is called periodically about 50 times a second. Typically, you put code
          * that doesn't require frequent update here. For example, TeleOp joystick code can be
          * put here since human responses are considered slow.
+         * 
+         * @param elapsedTime specifies the elapsed time since the mode started.
          */
-        public void runPeriodic();
+        public void runPeriodic(double elapsedTime);
 
         /**
          * This method is called periodically as fast as the control system allows. Typically,
          * you put code that requires servicing at a higher frequency here. To make the robot
          * as responsive and as accurate as possible especially in autonomous mode, you will
          * typically put that code here.
+         * 
+         * @param elapsedTime specifies the elapsed time since the mode started.
          */
-        public void runContinuous();
+        public void runContinuous(double elapsedTime);
 
     }   //interface RobotMode
 

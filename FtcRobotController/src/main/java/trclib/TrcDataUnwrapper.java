@@ -23,8 +23,6 @@
 
 package trclib;
 
-import ftclib.FtcOpMode;
-
 /**
  * This class unwraps data for sensors that have one or more axes. Some value
  * sensors such as the Modern Robotics gyro returns the heading values between

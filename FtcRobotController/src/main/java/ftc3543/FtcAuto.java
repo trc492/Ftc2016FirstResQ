@@ -121,11 +121,11 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
     }   //stopMode
 
     @Override
-    public void runContinuous()
+    public void runContinuous(double elapsedTime)
     {
         if (autoStrategy != null)
         {
-            autoStrategy.autoPeriodic(FtcOpMode.getElapsedTime());
+            autoStrategy.autoPeriodic(elapsedTime);
         }
     }   //runContinuous
 

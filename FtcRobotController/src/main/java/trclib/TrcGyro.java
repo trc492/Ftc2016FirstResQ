@@ -23,6 +23,8 @@
 
 package trclib;
 
+import hallib.HalGyro;
+
 /**
  * This class implements a platform independent gyro. Typically, this
  * class is extended by a platform dependent gyro class. The platform
@@ -36,7 +38,8 @@ package trclib;
  * if the heading data it provides wrap-around, it can set the UNWRAP_HEADING
  * options to enable the unwrapper to unwrap the heading data.
  */
-public abstract class TrcGyro extends TrcSensor implements TrcSensorDataSource
+public abstract class TrcGyro extends TrcSensor implements HalGyro,
+                                                           TrcSensorDataSource
 {
     //
     // Gyro data types.

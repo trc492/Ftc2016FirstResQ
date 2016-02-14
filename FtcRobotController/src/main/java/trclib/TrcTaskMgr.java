@@ -207,14 +207,6 @@ public class TrcTaskMgr
         }   //removeTaskType
 
         /**
-         * This method removes all types from the task object.
-         */
-        public void removeAllTaskTypes()
-        {
-            taskTypes.clear();
-        }   //removeAllTaskTypes
-
-        /**
          * This method checks if the given task is associated with this task object.
          *
          * @param task specifies the task to be checked against.

@@ -418,7 +418,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
 
         if ((flags & PIDDRIVEF_SET_HEADING) != 0)
         {
-            driveBase.mecanumDrive_Cartesian(manualX, manualY, turnPower);
+            driveBase.mecanumDrive_Cartesian(manualX, manualY, turnPower, false, 0.0);
         }
         else if (expired ||
                  turnOnTarget &&
@@ -436,7 +436,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
             }
             else if (xPidCtrl != null)
             {
-                driveBase.mecanumDrive_Cartesian(0.0, 0.0, 0.0);
+                driveBase.mecanumDrive_Cartesian(0.0, 0.0, 0.0, false, 0.0);
             }
             else
             {
@@ -445,7 +445,7 @@ public class TrcPidDrive implements TrcTaskMgr.Task
         }
         else if (xPidCtrl != null)
         {
-            driveBase.mecanumDrive_Cartesian(xPower, yPower, turnPower);
+            driveBase.mecanumDrive_Cartesian(xPower, yPower, turnPower, false, 0.0);
         }
         else
         {

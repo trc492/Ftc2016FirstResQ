@@ -26,8 +26,8 @@ package ftclib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import hallib.HalMotorController;
 import trclib.TrcDigitalInput;
-import trclib.TrcMotorController;
 import trclib.TrcDbgTrace;
 
 /**
@@ -39,18 +39,19 @@ import trclib.TrcDbgTrace;
  * It also provides a software encoder reset without switching the Modern
  * Robotics motor controller mode which is problematic.
  */
-public class FtcDcMotor extends TrcMotorController
+public class FtcDcMotor implements HalMotorController
 {
     private static final String moduleName = "FtcDcMotor";
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
+    private String instanceName;
     private TrcDigitalInput reverseLimitSwitch = null;
     private TrcDigitalInput forwardLimitSwitch = null;
     private DcMotor motor;
     private int zeroEncoderValue;
     private int positionSensorSign = 1;
-    private boolean brakeMode = true;
+    private boolean brakeModeEnabled = true;
 
     /**
      * Constructor: Create an instance of the object.
@@ -66,7 +67,7 @@ public class FtcDcMotor extends TrcMotorController
             TrcDigitalInput reverseLimitSwitch,
             TrcDigitalInput forwardLimitSwitch)
     {
-        super(instanceName);
+        this.instanceName = instanceName;
 
         if (debugEnabled)
         {
@@ -124,142 +125,23 @@ public class FtcDcMotor extends TrcMotorController
         this(instanceName, null, null);
     }   //FtcDcMotor
 
+    /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
+
     //
-    // Implements TrcMotorController abstract methods.
+    // Implements HalMotorController interface.
     //
 
     /**
-     * This method sets the motor power. If limit switches are present,
-     * it will make sure the motor won't move into the direction where
-     * the limit switch is activated.
-     *
-     * @param power specifies the motor power in the range of -1.0 to 1.0.
-     */
-    @Override
-    public void setPower(double power)
-    {
-        final String funcName = "setPower";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "power=%f", power);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        //
-        // If we have limit switches, respect them.
-        //
-        if (power > 0.0 && forwardLimitSwitch != null && forwardLimitSwitch.isActive() ||
-            power < 0.0 && reverseLimitSwitch != null && reverseLimitSwitch.isActive())
-        {
-            power = 0.0;
-        }
-
-        if (power != 0.0 || brakeMode)
-        {
-            motor.setPower(power);
-        }
-        else
-        {
-            motor.setPowerFloat();
-        }
-    }   //setPower
-
-    /**
-     * This method enables/disables motor brake mode. In motor brake mode, setPower(0) would
-     * stop the motor very abruptly by shorting the motor wires together using the generated
-     * back EMF to s5op the motor. When brakMode is false (i.e. float mode), the motor wires
-     * are just disconnected from the motor controller so the motor will stop gradually.
-     *
-     * @param brakeMode specifies true to enable brake mode, false otherwise.
-     */
-    public void setBrakeMode(boolean brakeMode)
-    {
-        final String funcName = "setBrakeMode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "brakeMode=%s", Boolean.toString(brakeMode));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        this.brakeMode = brakeMode;
-    }   //setBrakeMode
-
-    /**
-     * This method inverts the motor direction.
-     *
-     * @param inverted specifies true to invert motor direction, false otherwise.
-     */
-    @Override
-    public void setInverted(boolean inverted)
-    {
-        final String funcName = "setInverted";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        motor.setDirection(inverted? DcMotor.Direction.REVERSE: DcMotor.Direction.FORWARD);
-    }   //setInverted
-
-    /**
-     * This method resets the motor position sensor, typically an encoder.
-     */
-    @Override
-    public void resetPosition()
-    {
-        final String funcName = "resetPosition";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        //
-        // Modern Robotics motor controllers supports resetting encoders
-        // by setting the motor controller mode. This is a long operation
-        // and has side effect of disabling the motor controller unless
-        // you do another setMode to re-enable it. For example:
-        //      motor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        //      motor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        // It is a lot more efficient doing it in software.
-        //
-        zeroEncoderValue = motor.getCurrentPosition();
-    }   //resetPosition
-
-    /**
-     * This method inverts the position sensor direction. This may be rare but
-     * there are scenarios where the motor encoder may be mounted somewhere in
-     * the power train that it rotates opposite to the motor rotation. This will
-     * cause the encoder reading to go down when the motor is receiving positive
-     * power. This method can correct this situation.
-     *
-     * @param inverted specifies true to invert position sensor direction,
-     *                 false otherwise.
-     */
-    @Override
-    public void setPositionSensorInverted(boolean inverted)
-    {
-        final String funcName = "setPositionSensorInverted";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        positionSensorSign = inverted? -1: 1;
-    }   //setPositionSensorInverted
-
-    /**
-     * This method returns the motor position by reading the position sensor.
+     * This method returns the motor position by reading the position sensor. The position
+     * sensor can be an encoder or a potentiometer.
      *
      * @return current motor position.
      */
@@ -300,55 +182,188 @@ public class FtcDcMotor extends TrcMotorController
     }   //getSpeed
 
     /**
-     * This method returns the state of the reverse limit switch.
+     * This method returns the state of the forward limit switch.
      *
-     * @return true if reverse limit switch is activated, false otherwise.
+     * @return true if forward limit switch is closed, false otherwise.
      */
     @Override
-    public boolean isReverseLimitSwitchActive()
+    public boolean isFwdLimitSwitchClosed()
     {
-        final String funcName = "isReverseLimitSwitchActive";
-        boolean isActive = false;
-
-        if (reverseLimitSwitch != null)
-        {
-            isActive = reverseLimitSwitch.isActive();
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(isActive));
-        }
-
-        return isActive;
-    }   //isReverseLimitSwitchActive
-
-    /**
-     * This method returns the forward limit switch state.
-     *
-     * @return true if forward limit switch is activated, falsse otherwise.
-     */
-    @Override
-    public boolean isForwardLimitSwitchActive()
-    {
-        final String funcName = "isForwardLimitSwitchActive";
-        boolean isActive = false;
+        final String funcName = "isFwdLimitSwitchClosed";
+        boolean isClosed = false;
 
         if (forwardLimitSwitch != null)
         {
-            isActive = forwardLimitSwitch.isActive();
+            isClosed = forwardLimitSwitch.isActive();
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(isActive));
+                               "=%s", Boolean.toString(isClosed));
         }
 
-        return isActive;
-    }   //isForwardLimitSwitchActive
+        return isClosed;
+    }   //isFwdLimitSwitchClosed
+
+    /**
+     * This method returns the state of the reverse limit switch.
+     *
+     * @return true if reverse limit switch is closed, false otherwise.
+     */
+    @Override
+    public boolean isRevLimitSwitchClosed()
+    {
+        final String funcName = "isRevLimitSwitchClosed";
+        boolean isClosed = false;
+
+        if (reverseLimitSwitch != null)
+        {
+            isClosed = reverseLimitSwitch.isActive();
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(isClosed));
+        }
+
+        return isClosed;
+    }   //isRevLimitSwitchClosed
+
+    /**
+     * This method resets the motor position sensor, typically an encoder.
+     */
+    @Override
+    public void resetPosition()
+    {
+        final String funcName = "resetPosition";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        //
+        // Modern Robotics motor controllers supports resetting encoders
+        // by setting the motor controller mode. This is a long operation
+        // and has side effect of disabling the motor controller unless
+        // you do another setMode to re-enable it. For example:
+        //      motor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        //      motor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        // It is a lot more efficient doing it in software.
+        //
+        zeroEncoderValue = motor.getCurrentPosition();
+    }   //resetPosition
+
+    /**
+     * This method enables/disables motor brake mode. In motor brake mode, set power to 0 would
+     * stop the motor very abruptly by shorting the motor wires together using the generated
+     * back EMF to stop the motor. When brakMode is false (i.e. float/coast mode), the motor wires
+     * are just disconnected from the motor controller so the motor will stop gradually.
+     *
+     * @param enabled specifies true to enable brake mode, false otherwise.
+     */
+    @Override
+    public void setBrakeModeEnabled(boolean enabled)
+    {
+        final String funcName = "setBrakeModeEnabled";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "enabled=%s", Boolean.toString(enabled));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        this.brakeModeEnabled = enabled;
+    }   //setBrakeModeEnabled
+
+    /**
+     * This method inverts the motor direction.
+     *
+     * @param inverted specifies true to invert motor direction, false otherwise.
+     */
+    @Override
+    public void setInverted(boolean inverted)
+    {
+        final String funcName = "setInverted";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "inverted=%s", Boolean.toString(inverted));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        motor.setDirection(inverted? DcMotor.Direction.REVERSE: DcMotor.Direction.FORWARD);
+    }   //setInverted
+
+    /**
+     * This method sets the output of the motor controller. Typically, the output is power.
+     * However, some motor controllers are capable of other operating modes such as position,
+     * speed, voltage, current, etc. When operating in those modes, output specifies the
+     * appropriate value for that operating mode.
+     *
+     * @param output specifies the output for the motor controller. If the output is power, it
+     *               is in the range of -1.0 to 1.0.
+     */
+    @Override
+    public void setOutput(double output)
+    {
+        final String funcName = "setOutput";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "output=%f", output);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        //
+        // If we have limit switches, respect them.
+        //
+        if (output > 0.0 && forwardLimitSwitch != null && forwardLimitSwitch.isActive() ||
+            output < 0.0 && reverseLimitSwitch != null && reverseLimitSwitch.isActive())
+        {
+            output = 0.0;
+        }
+
+        if (output != 0.0 || brakeModeEnabled)
+        {
+            motor.setPower(output);
+        }
+        else
+        {
+            motor.setPowerFloat();
+        }
+    }   //setOutput
+
+    /**
+     * This method inverts the position sensor direction. This may be rare but
+     * there are scenarios where the motor encoder may be mounted somewhere in
+     * the power train that it rotates opposite to the motor rotation. This will
+     * cause the encoder reading to go down when the motor is receiving positive
+     * power. This method can correct this situation.
+     *
+     * @param inverted specifies true to invert position sensor direction,
+     *                 false otherwise.
+     */
+    @Override
+    public void setPositionSensorInverted(boolean inverted)
+    {
+        final String funcName = "setPositionSensorInverted";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
+                                "inverted=%s", Boolean.toString(inverted));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        positionSensorSign = inverted? -1: 1;
+    }   //setPositionSensorInverted
 
 }   //class FtcDcMotor

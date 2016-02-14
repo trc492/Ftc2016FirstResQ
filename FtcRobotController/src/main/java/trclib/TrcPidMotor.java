@@ -23,6 +23,7 @@
 
 package trclib;
 
+import hallib.HalMotorController;
 import hallib.HalUtil;
 
 /**
@@ -44,12 +45,12 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     private static final double MAX_MOTOR_POWER = 1.0;
 
     private String instanceName;
-    private TrcMotorController motor1;
-    private TrcMotorController motor2;
+    private HalMotorController motor1;
+    private HalMotorController motor2;
     private TrcPidController pidCtrl;
 
-    private double syncConstant = 0.0;
     private boolean active = false;
+    private double syncGain = 0.0;
     private double positionScale = 1.0;
     private boolean holdTarget = false;
     private TrcEvent notifyEvent = null;
@@ -74,12 +75,15 @@ public class TrcPidMotor implements TrcTaskMgr.Task
      * @param motor1 specifies motor1 object.
      * @param motor2 specifies motor2 object.
      *               If there is only one motor, this can be set to nul.
+     * @param syncGain specifies the gain constant for synchronizing motor1
+     *                 and motor2.
      * @param pidCtrl specifies the PID controller object.
      */
     public TrcPidMotor(
             final String instanceName,
-            TrcMotorController motor1,
-            TrcMotorController motor2,
+            HalMotorController motor1,
+            HalMotorController motor2,
+            double syncGain,
             TrcPidController pidCtrl)
     {
         if (debugEnabled)
@@ -104,7 +108,26 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         this.instanceName = instanceName;
         this.motor1 = motor1;
         this.motor2 = motor2;
+        this.syncGain = syncGain;
         this.pidCtrl = pidCtrl;
+    }   //TrcPidMotor
+
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param motor1 specifies motor1 object.
+     * @param motor2 specifies motor2 object.
+     *               If there is only one motor, this can be set to nul.
+     * @param pidCtrl specifies the PID controller object.
+     */
+    public TrcPidMotor(
+            final String instanceName,
+            HalMotorController motor1,
+            HalMotorController motor2,
+            TrcPidController pidCtrl)
+    {
+        this(instanceName, motor1, motor2, 0.0, pidCtrl);
     }   //TrcPidMotor
 
     /**
@@ -115,9 +138,11 @@ public class TrcPidMotor implements TrcTaskMgr.Task
      * @param pidCtrl specifies the PID controller object.
      */
     public TrcPidMotor(
-            final String instanceName, TrcMotorController motor, TrcPidController pidCtrl)
+            final String instanceName,
+            HalMotorController motor,
+            TrcPidController pidCtrl)
     {
-        this(instanceName, motor, null, pidCtrl);
+        this(instanceName, motor, null, 0.0, pidCtrl);
     }   //TrcPidMotor
 
     /**
@@ -129,28 +154,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     {
         return instanceName;
     }   //toString
-
-    /**
-     * This method sets the sync constants to synchronize the two motors. This is only a valid
-     * call if there are two motors. It is ignored otherwise.
-     *
-     * @param syncConstant specifies the sync constant for synchronizing the two motors.
-     */
-    public void setSyncConstant(double syncConstant)
-    {
-        final String funcName = "setSyncConstant";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "syncK=%f", syncConstant);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        if (motor1 != null && motor2 != null)
-        {
-            this.syncConstant = syncConstant;
-        }
-    }   //setSyncConstant
 
     /**
      * This method returns the state of the PID motor.
@@ -222,7 +225,35 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         }
 
         this.positionScale = positionScale;
-    }   //setTargetScale
+    }   //setPositionScale
+
+    /**
+     * This method returns the current scaled motor position.
+     *
+     * @return scaled motor position.
+     */
+    public double getPosition()
+    {
+        final String funcName = "getPosition";
+        int n = 1;
+        double pos = motor1.getPosition();
+
+        if (motor2 != null && syncGain != 0.0)
+        {
+            pos += motor2.getPosition();
+            n++;
+        }
+        pos *= positionScale/n;
+        
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(
+                    funcName, TrcDbgTrace.TraceLevel.API, "=%f", pos);
+        }
+
+        return pos;
+    }   //getPosition
 
     /**
      * This method sets stall protection. When stall protection is turned ON, it will
@@ -375,11 +406,11 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         }
 
         //
-        // If the limit switch of the direction the motor is travelling is active,
+        // If the limit switch of the direction the motor is traveling is active,
         // don't allow the motor to move.
         //
-        if (power > 0.0 && !motor1.isForwardLimitSwitchActive() ||
-            power < 0.0 && !motor1.isReverseLimitSwitchActive())
+        if (power > 0.0 && motor1.isFwdLimitSwitchClosed() ||
+            power < 0.0 && motor1.isRevLimitSwitchClosed())
         {
             if (active && stopPid)
             {
@@ -518,8 +549,8 @@ public class TrcPidMotor implements TrcTaskMgr.Task
         // to move in that direction. Reset the position sensor if the
         // lower limit switch is active.
         //
-        if (motor1.isReverseLimitSwitchActive() && power < 0.0 ||
-            motor1.isForwardLimitSwitchActive() && power > 0.0)
+        if (!motor1.isRevLimitSwitchClosed() && power < 0.0 ||
+            !motor1.isFwdLimitSwitchClosed() && power > 0.0)
         {
             if (power < 0.0)
             {
@@ -594,25 +625,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
     }   //setPidPower
 
     /**
-     * This method returns the current scaled motor position.
-     *
-     * @return scaled motor position.
-     */
-    public double getPosition()
-    {
-        final String funcName = "zeroCalibrate";
-        double value = motor1.getPosition()*positionScale;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getPosition
-
-    /**
      * This method starts zero calibration mode by moving the motor with specified
      * calibration power until a limit switch is hit.
      *
@@ -655,35 +667,51 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     "power=%f", power);
         }
 
-        double power1 = power;
-        double power2 = power;
-        if (syncConstant != 0.0)
+        if (power == 0.0 || syncGain == 0.0)
+        {
+            //
+            // If we are not sync'ing, just set the motor power.
+            // If we are stopping the motor, even if we are sync'ing,
+            // we should just stop.
+            //
+            motor1.setOutput(power);;
+            if (motor2 != null)
+            {
+                motor2.setOutput(power);
+            }
+        }
+        else
         {
             double pos1 = motor1.getPosition();
             double pos2 = motor2.getPosition();
-            double deltaPower = syncConstant*(pos1 - pos2);
-            power1 -= deltaPower;
-            if (power1 > 1.0)
+            double deltaPower = TrcUtil.limit((pos2 - pos1)*syncGain);
+            double power1 = power + deltaPower;
+            double power2 = power - deltaPower;
+
+            //
+            // We don't want the motors to switch direction in order to sync,
+            // so make sure the motor powers are in the same direction.
+            //
+            if (power > 0.0)
             {
-                power2 -= power1 - 1.0;
-                power1 = 1.0;
+                power1 = TrcUtil.limit(power1, 0.0, 1.0);
+                power2 = TrcUtil.limit(power2, 0.0, 1.0);
             }
-            else if (power1 < 1.0)
+            else
             {
-                power2 -= power1 + 1.0;
-                power1 = -1.0;
+                power1 = TrcUtil.limit(power1, -1.0, 0.0);
+                power2 = TrcUtil.limit(power2, -1.0, 0.0);
             }
-        }
-        motor1.setPower(power1);
-        if (motor2 != null)
-        {
-            motor2.setPower(power2);
-            /*
-            if (motor2 instanceof CANJaguar)
+            
+            motor1.setOutput(power1);
+            motor2.setOutput(power2);
+            
+            if (debugEnabled)
             {
-                CANJaguar.updateSyncGroup(syncGroup);
+                dbgTrace.traceInfo(funcName,
+                        "P=%.2f,dP=%.2f,enc1=%.0f,enc2=%.0f,P1=%.2f,P2=%.2f",
+                        power, deltaPower, pos1, pos2, power1, power2);
             }
-            */
         }
 
         if (debugEnabled)
@@ -841,8 +869,8 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             //
             // We are in zero calibration mode.
             //
-            if (calPower < 0.0 && !motor1.isReverseLimitSwitchActive() ||
-                calPower > 0.0 && !motor1.isForwardLimitSwitchActive())
+            if (calPower < 0.0 && motor1.isRevLimitSwitchClosed() ||
+                calPower > 0.0 && motor1.isFwdLimitSwitchClosed())
             {
                 //
                 // We are still calibrating and no limit switches are active yet.
@@ -856,7 +884,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                 //
                 calPower = 0.0;
                 setMotorPower(0.0);
-                if (motor1.isReverseLimitSwitchActive())
+                if (!motor1.isRevLimitSwitchClosed())
                 {
                     //
                     // Reset encoder only if lower limit switch is active.

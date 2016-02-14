@@ -23,6 +23,8 @@
 
 package trclib;
 
+import hallib.HalGyro;
+import hallib.HalMotorController;
 import hallib.HalRobotDrive;
 
 public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
@@ -31,11 +33,11 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private static final boolean debugEnabled = false;
     private TrcDbgTrace dbgTrace = null;
 
-    private TrcMotorController leftFrontMotor;
-    private TrcMotorController leftRearMotor;
-    private TrcMotorController rightFrontMotor;
-    private TrcMotorController rightRearMotor;
-    private TrcGyro gyro;
+    private HalMotorController leftFrontMotor;
+    private HalMotorController leftRearMotor;
+    private HalMotorController rightFrontMotor;
+    private HalMotorController rightRearMotor;
+    private HalGyro gyro;
 
     private boolean fourMotors;
     private double xPos;
@@ -50,11 +52,11 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     private double turnSpeed;
 
     public TrcDriveBase(
-            TrcMotorController leftFrontMotor,
-            TrcMotorController leftRearMotor,
-            TrcMotorController rightFrontMotor,
-            TrcMotorController rightRearMotor,
-            TrcGyro gyro)
+            HalMotorController leftFrontMotor,
+            HalMotorController leftRearMotor,
+            HalMotorController rightFrontMotor,
+            HalMotorController rightRearMotor,
+            HalGyro gyro)
     {
         super(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor);
 
@@ -94,23 +96,23 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
     }   //TrcDriveBase
 
     public TrcDriveBase(
-            TrcMotorController leftFrontMotor,
-            TrcMotorController leftRearMotor,
-            TrcMotorController rightFrontMotor,
-            TrcMotorController rightRearMotor)
+            HalMotorController leftFrontMotor,
+            HalMotorController leftRearMotor,
+            HalMotorController rightFrontMotor,
+            HalMotorController rightRearMotor)
     {
         this(leftFrontMotor, leftRearMotor, rightFrontMotor, rightRearMotor, null);
     }   //TrcDriveBase
 
     public TrcDriveBase(
-            TrcMotorController leftMotor,
-            TrcMotorController rightMotor,
-            TrcGyro gyro)
+            HalMotorController leftMotor,
+            HalMotorController rightMotor,
+            HalGyro gyro)
     {
         this(null, leftMotor, null, rightMotor, gyro);
     }   //TrcDriveBase
 
-    public TrcDriveBase(TrcMotorController leftMotor, TrcMotorController rightMotor)
+    public TrcDriveBase(HalMotorController leftMotor, HalMotorController rightMotor)
     {
         this(null, leftMotor, null, rightMotor, null);
     }   //TrcDriveBase
@@ -307,7 +309,6 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
         return turnSpeed;
     }   //getTurnSpeed
 
-    /*
     public void setBrakeMode(boolean enabled)
     {
         final String funcName = "setBrakeMode";
@@ -322,57 +323,24 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         if (leftFrontMotor != null)
         {
-            if (leftFrontMotor instanceof CANTalon)
-            {
-                ((CANTalon)leftFrontMotor).enableBrakeMode(enabled);
-            }
-            else if (leftFrontMotor instanceof CANJaguar)
-            {
-                ((CANJaguar)leftFrontMotor).configNeutralMode(
-                        enabled? NeutralMode.Brake: NeutralMode.Coast);
-            }
+            leftFrontMotor.setBrakeModeEnabled(enabled);
         }
 
         if (rightFrontMotor != null)
         {
-            if (rightFrontMotor instanceof CANTalon)
-            {
-                ((CANTalon)rightFrontMotor).enableBrakeMode(enabled);
-            }
-            else if (rightFrontMotor instanceof CANJaguar)
-            {
-                ((CANJaguar)rightFrontMotor).configNeutralMode(
-                        enabled? NeutralMode.Brake: NeutralMode.Coast);
-            }
+            rightFrontMotor.setBrakeModeEnabled(enabled);
         }
 
         if (leftRearMotor != null)
         {
-            if (leftRearMotor instanceof CANTalon)
-            {
-                ((CANTalon)leftRearMotor).enableBrakeMode(enabled);
-            }
-            else if (leftRearMotor instanceof CANJaguar)
-            {
-                ((CANJaguar)leftRearMotor).configNeutralMode(
-                        enabled? NeutralMode.Brake: NeutralMode.Coast);
-            }
+            leftRearMotor.setBrakeModeEnabled(enabled);
         }
 
         if (rightRearMotor != null)
         {
-            if (rightRearMotor instanceof CANTalon)
-            {
-                ((CANTalon)rightRearMotor).enableBrakeMode(enabled);
-            }
-            else if (rightRearMotor instanceof CANJaguar)
-            {
-                ((CANJaguar)rightRearMotor).configNeutralMode(
-                        enabled? NeutralMode.Brake: NeutralMode.Coast);
-            }
+            rightRearMotor.setBrakeModeEnabled(enabled);
         }
     }   //setBrakeMode
-    */
 
     public void stop()
     {

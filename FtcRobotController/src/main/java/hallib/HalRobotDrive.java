@@ -23,7 +23,6 @@
 
 package hallib;
 
-import trclib.TrcMotorController;
 import trclib.TrcDbgTrace;
 import trclib.TrcUtil;
 
@@ -69,10 +68,10 @@ public class HalRobotDrive
     private double sensitivity;
     private double maxOutput;
     private int numMotors;
-    private TrcMotorController frontLeftMotor;
-    private TrcMotorController frontRightMotor;
-    private TrcMotorController rearLeftMotor;
-    private TrcMotorController rearRightMotor;
+    private HalMotorController frontLeftMotor;
+    private HalMotorController frontRightMotor;
+    private HalMotorController rearLeftMotor;
+    private HalMotorController rearRightMotor;
 
     /**
      * The method initializes this instance object and is called by different
@@ -84,10 +83,10 @@ public class HalRobotDrive
      * @param rearRightMotor specifies the right rear motor controller object.
      */
     private void robotDriveInit(
-            TrcMotorController frontLeftMotor,
-            TrcMotorController rearLeftMotor,
-            TrcMotorController frontRightMotor,
-            TrcMotorController rearRightMotor)
+            HalMotorController frontLeftMotor,
+            HalMotorController rearLeftMotor,
+            HalMotorController frontRightMotor,
+            HalMotorController rearRightMotor)
     {
         if (debugEnabled)
         {
@@ -123,10 +122,10 @@ public class HalRobotDrive
      * @param rearRightMotor specifies the right rear motor controller object.
      */
     public HalRobotDrive(
-            TrcMotorController frontLeftMotor,
-            TrcMotorController rearLeftMotor,
-            TrcMotorController frontRightMotor,
-            TrcMotorController rearRightMotor)
+            HalMotorController frontLeftMotor,
+            HalMotorController rearLeftMotor,
+            HalMotorController frontRightMotor,
+            HalMotorController rearRightMotor)
     {
         if (frontLeftMotor == null || rearLeftMotor == null ||
             frontRightMotor == null || rearRightMotor == null)
@@ -145,7 +144,7 @@ public class HalRobotDrive
      * @param leftMotor specifies the left motor controller object.
      * @param rightMotor specifies the right motor controller object.
      */
-    public HalRobotDrive(TrcMotorController leftMotor, TrcMotorController rightMotor)
+    public HalRobotDrive(HalMotorController leftMotor, HalMotorController rightMotor)
     {
         if (leftMotor == null || rightMotor == null)
         {
@@ -230,10 +229,10 @@ public class HalRobotDrive
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (frontLeftMotor != null) frontLeftMotor.setPower(0.0);
-        if (frontRightMotor != null) frontRightMotor.setPower(0.0);
-        if (rearLeftMotor != null) rearLeftMotor.setPower(0.0);
-        if (rearRightMotor != null) rearRightMotor.setPower(0.0);
+        if (frontLeftMotor != null) frontLeftMotor.setOutput(0.0);
+        if (frontRightMotor != null) frontRightMotor.setOutput(0.0);
+        if (rearLeftMotor != null) rearLeftMotor.setOutput(0.0);
+        if (rearRightMotor != null) rearRightMotor.setOutput(0.0);
     }   //stopMotor
 
     /**
@@ -373,22 +372,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setPower(leftPower);
+            frontLeftMotor.setOutput(leftPower);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setPower(rightPower);
+            frontRightMotor.setOutput(rightPower);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setPower(leftPower);
+            rearLeftMotor.setOutput(leftPower);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setPower(rightPower);
+            rearRightMotor.setOutput(rightPower);
         }
     }   //tankDrive
 
@@ -544,22 +543,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setPower(wheelSpeeds[MotorType.kFrontLeft_val]);
+            frontLeftMotor.setOutput(wheelSpeeds[MotorType.kFrontLeft_val]);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setPower(wheelSpeeds[MotorType.kFrontRight_val]);
+            frontRightMotor.setOutput(wheelSpeeds[MotorType.kFrontRight_val]);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setPower(wheelSpeeds[MotorType.kRearLeft_val]);
+            rearLeftMotor.setOutput(wheelSpeeds[MotorType.kRearLeft_val]);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setPower(wheelSpeeds[MotorType.kRearRight_val]);
+            rearRightMotor.setOutput(wheelSpeeds[MotorType.kRearRight_val]);
         }
     }   //mecanumDrive_Cartesian
 
@@ -639,22 +638,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setPower(wheelSpeeds[MotorType.kFrontLeft_val]);
+            frontLeftMotor.setOutput(wheelSpeeds[MotorType.kFrontLeft_val]);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setPower(wheelSpeeds[MotorType.kFrontRight_val]);
+            frontRightMotor.setOutput(wheelSpeeds[MotorType.kFrontRight_val]);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setPower(wheelSpeeds[MotorType.kRearLeft_val]);
+            rearLeftMotor.setOutput(wheelSpeeds[MotorType.kRearLeft_val]);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setPower(wheelSpeeds[MotorType.kRearRight_val]);
+            rearRightMotor.setOutput(wheelSpeeds[MotorType.kRearRight_val]);
         }
     }   //mecanumDrive_Polar
 

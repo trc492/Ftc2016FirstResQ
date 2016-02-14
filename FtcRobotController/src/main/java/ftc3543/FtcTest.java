@@ -2,6 +2,7 @@ package ftc3543;
 
 import ftclib.FtcChoiceMenu;
 import ftclib.FtcMenu;
+import ftclib.FtcOpMode;
 import ftclib.FtcValueMenu;
 import trclib.TrcEvent;
 import trclib.TrcStateMachine;
@@ -80,12 +81,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     // Must override TeleOp so it doesn't fight with us.
     //
     @Override
-    public void runPeriodic()
-    {
-    }   //runPeriodic
-
-    @Override
-    public void runContinuous()
+    public void runContinuous(double elapsedTime)
     {
         State state = (State)sm.getState();
         dashboard.displayPrintf(
@@ -187,7 +183,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
         //
         // Allow TeleOp to run so we can control the robot in test sensor mode.
         //
-        super.runPeriodic();
+        super.runPeriodic(FtcOpMode.getElapsedTime());
         //
         // Read all sensors and display on the dashboard.
         // Drive the robot around to sample different locations of the field.
@@ -239,31 +235,31 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     switch (motorIndex)
                     {
                         case 0:
-                            robot.leftFrontWheel.setPower(0.5);
-                            robot.rightFrontWheel.setPower(0.0);
-                            robot.leftRearWheel.setPower(0.0);
-                            robot.rightRearWheel.setPower(0.0);
+                            robot.leftFrontWheel.setOutput(0.5);
+                            robot.rightFrontWheel.setOutput(0.0);
+                            robot.leftRearWheel.setOutput(0.0);
+                            robot.rightRearWheel.setOutput(0.0);
                             break;
 
                         case 1:
-                            robot.leftFrontWheel.setPower(0.0);
-                            robot.rightFrontWheel.setPower(0.5);
-                            robot.leftRearWheel.setPower(0.0);
-                            robot.rightRearWheel.setPower(0.0);
+                            robot.leftFrontWheel.setOutput(0.0);
+                            robot.rightFrontWheel.setOutput(0.5);
+                            robot.leftRearWheel.setOutput(0.0);
+                            robot.rightRearWheel.setOutput(0.0);
                             break;
 
                         case 2:
-                            robot.leftFrontWheel.setPower(0.0);
-                            robot.rightFrontWheel.setPower(0.0);
-                            robot.leftRearWheel.setPower(0.5);
-                            robot.rightRearWheel.setPower(0.0);
+                            robot.leftFrontWheel.setOutput(0.0);
+                            robot.rightFrontWheel.setOutput(0.0);
+                            robot.leftRearWheel.setOutput(0.5);
+                            robot.rightRearWheel.setOutput(0.0);
                             break;
 
                         case 3:
-                            robot.leftFrontWheel.setPower(0.0);
-                            robot.rightFrontWheel.setPower(0.0);
-                            robot.leftRearWheel.setPower(0.0);
-                            robot.rightRearWheel.setPower(0.5);
+                            robot.leftFrontWheel.setOutput(0.0);
+                            robot.rightFrontWheel.setOutput(0.0);
+                            robot.leftRearWheel.setOutput(0.0);
+                            robot.rightRearWheel.setOutput(0.5);
                             break;
                     }
                     motorIndex = motorIndex + 1;
@@ -277,10 +273,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // We are done.
                     //
-                    robot.leftFrontWheel.setPower(0.0);
-                    robot.rightFrontWheel.setPower(0.0);
-                    robot.leftRearWheel.setPower(0.0);
-                    robot.rightRearWheel.setPower(0.0);
+                    robot.leftFrontWheel.setOutput(0.0);
+                    robot.rightFrontWheel.setOutput(0.0);
+                    robot.leftRearWheel.setOutput(0.0);
+                    robot.rightRearWheel.setOutput(0.0);
                     sm.stop();
                     break;
             }

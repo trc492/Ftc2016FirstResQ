@@ -58,6 +58,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private TrcRobot.RunMode runMode = TrcRobot.RunMode.INVALID_MODE;
     private static FtcOpMode instance = null;
     private static double startTime = 0.0;
+    private static double elapsedTime = 0.0;
 
     /**
      * Constructor: Creates an instance of the object. It calls the constructor
@@ -141,7 +142,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      */
     public static double getElapsedTime()
     {
-        return HalUtil.getCurrentTime() - startTime;
+        elapsedTime = HalUtil.getCurrentTime() - startTime;
+        return elapsedTime;
     }   //getElapsedTime
 
     //
@@ -246,8 +248,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         long nextPeriodTime = HalUtil.getCurrentTimeMillis();
         while (opModeIsActive())
         {
-            dashboard.displayPrintf(
-                    0, "%s: %.3f", opModeName, HalUtil.getCurrentTime() - startTime);
+            elapsedTime = HalUtil.getCurrentTime() - startTime;
+            dashboard.displayPrintf(0, "%s: %.3f", opModeName, elapsedTime);
 
             if (debugEnabled)
             {
@@ -259,7 +261,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             {
                 dbgTrace.traceInfo(funcName, "Runing runContinuous ...");
             }
-            runContinuous();
+            runContinuous(elapsedTime);
 
             if (debugEnabled)
             {
@@ -281,7 +283,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 {
                     dbgTrace.traceInfo(funcName, "Runing runPeriodic ...");
                 }
-                runPeriodic();
+                runPeriodic(elapsedTime);
 
                 if (debugEnabled)
                 {
@@ -331,9 +333,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * This method is called periodically about 50 times a second. Typically, you put code
      * that doesn't require frequent update here. For example, TeleOp joystick code can be
      * put here since human responses are considered slow.
+     *
+     * @param elapsedTime specifies the elapsed time since the mode started.
      */
     @Override
-    public void runPeriodic()
+    public void runPeriodic(double elapsedTime)
     {
     }   //runPeriodic
 
@@ -342,9 +346,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * you put code that requires servicing at a higher frequency here. To make the robot
      * as responsive and as accurate as possible especially in autonomous mode, you will
      * typically put that code here.
+     *
+     * @param elapsedTime specifies the elapsed time since the mode started.
      */
     @Override
-    public void runContinuous()
+    public void runContinuous(double elapsedTime)
     {
     }   //runContinuous
 
