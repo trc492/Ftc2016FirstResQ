@@ -91,50 +91,50 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
     //
 
     @Override
-    public void gamepadButtonEvent(FtcGamepad gamepad, int btnMask, boolean pressed)
+    public void gamepadButtonEvent(FtcGamepad gamepad, FtcGamepad.Button button, boolean pressed)
     {
-        dashboard.displayPrintf(7, "%s: %04x->%s",
-                gamepad.toString(), btnMask, pressed? "Pressed": "Released");
+        dashboard.displayPrintf(7, "%s: %s->%s",
+                gamepad.toString(), button.toString(), pressed? "Pressed": "Released");
         if (gamepad == driverGamepad)
         {
-            switch (btnMask)
+            switch (button)
             {
-                case FtcGamepad.GAMEPAD_A:
+                case A:
                     break;
 
-                case FtcGamepad.GAMEPAD_B:
+                case B:
                     break;
 
-                case FtcGamepad.GAMEPAD_X:
+                case X:
                     break;
 
-                case FtcGamepad.GAMEPAD_Y:
+                case Y:
                     break;
 
-                case FtcGamepad.GAMEPAD_RBUMPER:
+                case RBUMPER:
                     invertedDrive = pressed;
                     break;
             }
         }
         else if (gamepad == operatorGamepad)
         {
-            switch (btnMask)
+            switch (button)
             {
-                case FtcGamepad.GAMEPAD_A:
+                case A:
                     if (pressed)
                     {
                         robot.winch.setBrakeOn(false);
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_Y:
+                case Y:
                     if (pressed)
                     {
                         robot.winch.setBrakeOn(true);
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_X:
+                case X:
                     if (pressed)
                     {
                         robot.leftButtonPusher.extend();
@@ -145,7 +145,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_B:
+                case B:
                     if (pressed)
                     {
                         robot.rightButtonPusher.extend();
@@ -156,7 +156,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_LBUMPER:
+                case LBUMPER:
                     if (pressed)
                     {
                         robot.leftWing.setPosition(RobotInfo.WING_LEFT_EXTEND_POSITION);
@@ -167,7 +167,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_RBUMPER:
+                case RBUMPER:
                     if (pressed)
                     {
                         robot.rightWing.setPosition(RobotInfo.WING_RIGHT_EXTEND_POSITION);
@@ -178,35 +178,35 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_START:
+                case START:
                     if (pressed)
                     {
                         robot.winch.zeroCalibrate();
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_DPAD_UP:
+                case DPAD_UP:
                     if (pressed)
                     {
                         robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_EXTEND_POSITION);
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_DPAD_DOWN:
+                case DPAD_DOWN:
                     if (pressed)
                     {
                         robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_RETRACT_POSITION);
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_DPAD_LEFT:
+                case DPAD_LEFT:
                     if (pressed)
                     {
                         robot.climberDepositor.setPosition(RobotInfo.DEPOSITOR_MIN_POSITION);
                     }
                     break;
 
-                case FtcGamepad.GAMEPAD_DPAD_RIGHT:
+                case DPAD_RIGHT:
                     break;
             }
         }

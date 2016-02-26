@@ -181,7 +181,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         HOVER_RIGHT(GESTURE_HOVER_RIGHT),
         HOVER_UP(GESTURE_HOVER_UP);
 
-        private final int value;
+        public final int value;
 
         /**
          * Constructor: Create an instance of the enum type.
@@ -192,16 +192,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcI2cDevice.Co
         {
             this.value = value;
         }   //Gesture
-
-        /**
-         * This method returns the ordinal value of the enum type.
-         *
-         * @return ordinal value of the enum type.
-         */
-        public int getValue()
-        {
-            return value;
-        }   //getValue
 
         /**
          * This method returns the Gesture enum object matching the specified ordinal value.
