@@ -53,60 +53,6 @@ public class FtcGamepad implements TrcTaskMgr.Task
     public static final int GAMEPAD_DPAD_DOWN   = ((int)1 << 13);
 
     /**
-     * Specifies the various gamepad buttons.
-     */
-    public enum Button
-    {
-        INVALID(0),
-        A(GAMEPAD_A),
-        B(GAMEPAD_B),
-        X(GAMEPAD_X),
-        Y(GAMEPAD_Y),
-        BACK(GAMEPAD_BACK),
-        START(GAMEPAD_START),
-        LBUMPER(GAMEPAD_LBUMPER),
-        RBUMPER(GAMEPAD_RBUMPER),
-        LSTICK_BTN(GAMEPAD_LSTICK_BTN),
-        RSTICK_BTN(GAMEPAD_RSTICK_BTN),
-        DPAD_LEFT(GAMEPAD_DPAD_LEFT),
-        DPAD_RIGHT(GAMEPAD_DPAD_RIGHT),
-        DPAD_UP(GAMEPAD_DPAD_UP),
-        DPAD_DOWN(GAMEPAD_DPAD_DOWN);
-
-        public final int value;
-
-        /**
-         * Constructor: Create an instance of the enum type.
-         *
-         * @param value specifies the enum ordinal value.
-         */
-        private Button(int value)
-        {
-            this.value = value;
-        }   //Button
-
-        /**
-         * This method returns the Button enum object matching the specified ordinal value.
-         *
-         * @param value specifies the ordinal value to match for.
-         * @return Button enum object matching the ordinal value.
-         */
-        public static Button getButton(int value)
-        {
-            for (Button b: Button.values())
-            {
-                if (value == b.value)
-                {
-                    return b;
-                }
-            }
-
-            return INVALID;
-        }   //getButton
-
-    }   //enum Button
-
-    /**
      * This interface if provided will allow this class to do a
      * notification callback when there are button activities.
      */
@@ -116,10 +62,10 @@ public class FtcGamepad implements TrcTaskMgr.Task
          * This method is called when button event is detected.
          *
          * @param gamepad specifies the gamepad object that generated the event.
-         * @param button specifies the button that generates the event
+         * @param button specifies the button ID that generates the event
          * @param pressed specifies true if the button is pressed, false otherwise.
          */
-        public void gamepadButtonEvent(FtcGamepad gamepad, Button button, boolean pressed);
+        public void gamepadButtonEvent(FtcGamepad gamepad, int button, boolean pressed);
     }   //interface ButonHandler
 
     private static final String moduleName = "FtcGamepad";
@@ -787,7 +733,7 @@ public class FtcGamepad implements TrcTaskMgr.Task
                             buttonMask);
                 }
                 buttonHandler.gamepadButtonEvent(
-                        this, Button.getButton(buttonMask), true);
+                        this, buttonMask, true);
             }
             else
             {
@@ -802,7 +748,7 @@ public class FtcGamepad implements TrcTaskMgr.Task
                             buttonMask);
                 }
                 buttonHandler.gamepadButtonEvent(
-                        this, Button.getButton(buttonMask), false);
+                        this, buttonMask, false);
             }
             //
             // Clear the least significant set bit.
