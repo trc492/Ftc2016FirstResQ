@@ -7,13 +7,12 @@ import trclib.TrcRobot;
 
 public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
 {
-    public HalDashboard dashboard;
-    public Robot robot;
-
+    protected HalDashboard dashboard = HalDashboard.getInstance();
+    protected Robot robot;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
 
-    private boolean reverseDrive = false;
+    private boolean invertedDrive = false;
     //
     // Implements FtcOpMode abstract method.
     //
@@ -24,7 +23,6 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         //
         // Initializing global objects.
         //
-        dashboard = HalDashboard.getInstance();
         robot = new Robot(TrcRobot.RunMode.TELEOP_MODE);
         //
         // Initializing Gamepads.
@@ -67,7 +65,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         //
         double leftPower  = driverGamepad.getLeftStickY(true);
         double rightPower = driverGamepad.getRightStickY(true);
-        robot.driveBase.tankDrive(leftPower, rightPower, reverseDrive);
+        robot.driveBase.tankDrive(leftPower, rightPower, invertedDrive);
         dashboard.displayPrintf(1, "leftPower=%.2f,rightPower=%.2f", leftPower, rightPower);
         dashboard.displayPrintf(2, "yPos=%.2f,heading=%.2f",
                                 robot.driveBase.getYPosition(), robot.driveBase.getHeading());
@@ -114,7 +112,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
                     break;
 
                 case FtcGamepad.GAMEPAD_RBUMPER:
-                    reverseDrive = pressed;
+                    invertedDrive = pressed;
                     break;
             }
         }
