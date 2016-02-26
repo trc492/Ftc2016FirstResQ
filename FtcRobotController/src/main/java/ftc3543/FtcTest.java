@@ -235,31 +235,31 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     switch (motorIndex)
                     {
                         case 0:
-                            robot.leftFrontWheel.setOutput(0.5);
-                            robot.rightFrontWheel.setOutput(0.0);
-                            robot.leftRearWheel.setOutput(0.0);
-                            robot.rightRearWheel.setOutput(0.0);
+                            robot.leftFrontWheel.setPower(0.5);
+                            robot.rightFrontWheel.setPower(0.0);
+                            robot.leftRearWheel.setPower(0.0);
+                            robot.rightRearWheel.setPower(0.0);
                             break;
 
                         case 1:
-                            robot.leftFrontWheel.setOutput(0.0);
-                            robot.rightFrontWheel.setOutput(0.5);
-                            robot.leftRearWheel.setOutput(0.0);
-                            robot.rightRearWheel.setOutput(0.0);
+                            robot.leftFrontWheel.setPower(0.0);
+                            robot.rightFrontWheel.setPower(0.5);
+                            robot.leftRearWheel.setPower(0.0);
+                            robot.rightRearWheel.setPower(0.0);
                             break;
 
                         case 2:
-                            robot.leftFrontWheel.setOutput(0.0);
-                            robot.rightFrontWheel.setOutput(0.0);
-                            robot.leftRearWheel.setOutput(0.5);
-                            robot.rightRearWheel.setOutput(0.0);
+                            robot.leftFrontWheel.setPower(0.0);
+                            robot.rightFrontWheel.setPower(0.0);
+                            robot.leftRearWheel.setPower(0.5);
+                            robot.rightRearWheel.setPower(0.0);
                             break;
 
                         case 3:
-                            robot.leftFrontWheel.setOutput(0.0);
-                            robot.rightFrontWheel.setOutput(0.0);
-                            robot.leftRearWheel.setOutput(0.0);
-                            robot.rightRearWheel.setOutput(0.5);
+                            robot.leftFrontWheel.setPower(0.0);
+                            robot.rightFrontWheel.setPower(0.0);
+                            robot.leftRearWheel.setPower(0.0);
+                            robot.rightRearWheel.setPower(0.5);
                             break;
                     }
                     motorIndex = motorIndex + 1;
@@ -273,10 +273,10 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                     //
                     // We are done.
                     //
-                    robot.leftFrontWheel.setOutput(0.0);
-                    robot.rightFrontWheel.setOutput(0.0);
-                    robot.leftRearWheel.setOutput(0.0);
-                    robot.rightRearWheel.setOutput(0.0);
+                    robot.leftFrontWheel.setPower(0.0);
+                    robot.rightFrontWheel.setPower(0.0);
+                    robot.leftRearWheel.setPower(0.0);
+                    robot.rightRearWheel.setPower(0.0);
                     sm.stop();
                     break;
             }

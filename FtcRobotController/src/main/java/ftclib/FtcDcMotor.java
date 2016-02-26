@@ -46,8 +46,8 @@ public class FtcDcMotor implements HalMotorController
     private TrcDbgTrace dbgTrace = null;
 
     private String instanceName;
-    private TrcDigitalInput reverseLimitSwitch = null;
-    private TrcDigitalInput forwardLimitSwitch = null;
+    private TrcDigitalInput lowerLimitSwitch = null;
+    private TrcDigitalInput upperLimitSwitch = null;
     private DcMotor motor;
     private int zeroEncoderValue;
     private int positionSensorSign = 1;
@@ -58,14 +58,14 @@ public class FtcDcMotor implements HalMotorController
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
-     * @param reverseLimitSwitch specifies the limit switch object for the reverse direction.
-     * @param forwardLimitSwitch specifies the limit switch object for the forward direction.
+     * @param lowerLimitSwitch specifies the lower limit switch object.
+     * @param upperLimitSwitch specifies the upper limit switch object.
      */
     public FtcDcMotor(
             HardwareMap hardwareMap,
             String instanceName,
-            TrcDigitalInput reverseLimitSwitch,
-            TrcDigitalInput forwardLimitSwitch)
+            TrcDigitalInput lowerLimitSwitch,
+            TrcDigitalInput upperLimitSwitch)
     {
         this.instanceName = instanceName;
 
@@ -78,8 +78,8 @@ public class FtcDcMotor implements HalMotorController
                     TrcDbgTrace.MsgLevel.INFO);
         }
 
-        this.reverseLimitSwitch = reverseLimitSwitch;
-        this.forwardLimitSwitch = forwardLimitSwitch;
+        this.lowerLimitSwitch = lowerLimitSwitch;
+        this.upperLimitSwitch = upperLimitSwitch;
         motor = hardwareMap.dcMotor.get(instanceName);
         zeroEncoderValue = motor.getCurrentPosition();
     }   //FtcDcMotor
@@ -88,31 +88,31 @@ public class FtcDcMotor implements HalMotorController
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param reverseLimitSwitch specifies the limit switch object for the reverse direction.
-     * @param forwardLimitSwitch specifies the limit switch object for the forward direction.
+     * @param lowerLimitSwitch specifies the lower limit switch object.
+     * @param upperLimitSwitch specifies the upper limit switch object.
      */
     public FtcDcMotor(
             String instanceName,
-            TrcDigitalInput reverseLimitSwitch,
-            TrcDigitalInput forwardLimitSwitch)
+            TrcDigitalInput lowerLimitSwitch,
+            TrcDigitalInput upperLimitSwitch)
     {
         this(FtcOpMode.getInstance().hardwareMap,
              instanceName,
-             reverseLimitSwitch,
-             forwardLimitSwitch);
+             lowerLimitSwitch,
+             upperLimitSwitch);
     }   //FtcDcMotor
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param reverseLimitSwitch specifies the limit switch object for the reverse direction.
+     * @param lowerLimitSwitch specifies the lower limit switch object.
      */
     public FtcDcMotor(
             String instanceName,
-            TrcDigitalInput reverseLimitSwitch)
+            TrcDigitalInput lowerLimitSwitch)
     {
-        this(instanceName, reverseLimitSwitch, null);
+        this(instanceName, lowerLimitSwitch, null);
     }   //FtcDcMotor
 
     /**
@@ -138,6 +138,26 @@ public class FtcDcMotor implements HalMotorController
     //
     // Implements HalMotorController interface.
     //
+
+    /**
+     * This method returns the state of the motor controller direction.
+     *
+     * @return true if the motor direction is inverted, false otherwise.
+     */
+    public boolean getInverted()
+    {
+        final String funcName = "getInverted";
+        boolean inverted = motor.getDirection() == DcMotor.Direction.REVERSE;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
+                               "=%s", Boolean.toString(inverted));
+        }
+
+        return inverted;
+    }   //getInverted
 
     /**
      * This method returns the motor position by reading the position sensor. The position
@@ -182,56 +202,44 @@ public class FtcDcMotor implements HalMotorController
     }   //getSpeed
 
     /**
-     * This method returns the state of the forward limit switch.
+     * This method returns the state of the lower limit switch.
      *
-     * @return true if forward limit switch is closed, false otherwise.
+     * @return true if lower limit switch is active, false otherwise.
      */
-    @Override
-    public boolean isFwdLimitSwitchClosed()
+    public boolean isLowerLimitSwitchActive()
     {
-        final String funcName = "isFwdLimitSwitchClosed";
-        boolean isClosed = false;
-
-        if (forwardLimitSwitch != null)
-        {
-            isClosed = forwardLimitSwitch.isActive();
-        }
+        final String funcName = "isLowerLimitSwitchActive";
+        boolean isActive = lowerLimitSwitch != null? lowerLimitSwitch.isActive(): false;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(isClosed));
+                               "=%s", Boolean.toString(isActive));
         }
 
-        return isClosed;
-    }   //isFwdLimitSwitchClosed
+        return isActive;
+    }   //isLowerLimitSwitchActive
 
     /**
-     * This method returns the state of the reverse limit switch.
+     * This method returns the state of the upper limit switch.
      *
-     * @return true if reverse limit switch is closed, false otherwise.
+     * @return true if upper limit switch is active, false otherwise.
      */
-    @Override
-    public boolean isRevLimitSwitchClosed()
+    public boolean isUpperLimitSwitchActive()
     {
-        final String funcName = "isRevLimitSwitchClosed";
-        boolean isClosed = false;
-
-        if (reverseLimitSwitch != null)
-        {
-            isClosed = reverseLimitSwitch.isActive();
-        }
+        final String funcName = "isUpperLimitSwitchActive";
+        boolean isActive = upperLimitSwitch != null? upperLimitSwitch.isActive(): false;
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", Boolean.toString(isClosed));
+                               "=%s", Boolean.toString(isActive));
         }
 
-        return isClosed;
-    }   //isRevLimitSwitchClosed
+        return isActive;
+    }   //isUpperLimitSwitchActive
 
     /**
      * This method resets the motor position sensor, typically an encoder.
@@ -303,43 +311,39 @@ public class FtcDcMotor implements HalMotorController
     }   //setInverted
 
     /**
-     * This method sets the output of the motor controller. Typically, the output is power.
-     * However, some motor controllers are capable of other operating modes such as position,
-     * speed, voltage, current, etc. When operating in those modes, output specifies the
-     * appropriate value for that operating mode.
+     * This method sets the output power of the motor controller.
      *
-     * @param output specifies the output for the motor controller. If the output is power, it
-     *               is in the range of -1.0 to 1.0.
+     * @param power specifies the output power for the motor controller in the range of
+     *              -1.0 to 1.0.
      */
-    @Override
-    public void setOutput(double output)
+    public void setPower(double power)
     {
-        final String funcName = "setOutput";
+        final String funcName = "setPower";
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "output=%f", output);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "power=%f", power);
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
         //
         // If we have limit switches, respect them.
         //
-        if (output > 0.0 && forwardLimitSwitch != null && forwardLimitSwitch.isActive() ||
-            output < 0.0 && reverseLimitSwitch != null && reverseLimitSwitch.isActive())
+        if (power > 0.0 && upperLimitSwitch != null && upperLimitSwitch.isActive() ||
+            power < 0.0 && lowerLimitSwitch != null && lowerLimitSwitch.isActive())
         {
-            output = 0.0;
+            power = 0.0;
         }
 
-        if (output != 0.0 || brakeModeEnabled)
+        if (power != 0.0 || brakeModeEnabled)
         {
-            motor.setPower(output);
+            motor.setPower(power);
         }
         else
         {
             motor.setPowerFloat();
         }
-    }   //setOutput
+    }   //setPower
 
     /**
      * This method inverts the position sensor direction. This may be rare but

@@ -229,10 +229,10 @@ public class HalRobotDrive
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (frontLeftMotor != null) frontLeftMotor.setOutput(0.0);
-        if (frontRightMotor != null) frontRightMotor.setOutput(0.0);
-        if (rearLeftMotor != null) rearLeftMotor.setOutput(0.0);
-        if (rearRightMotor != null) rearRightMotor.setOutput(0.0);
+        if (frontLeftMotor != null) frontLeftMotor.setPower(0.0);
+        if (frontRightMotor != null) frontRightMotor.setPower(0.0);
+        if (rearLeftMotor != null) rearLeftMotor.setPower(0.0);
+        if (rearRightMotor != null) rearRightMotor.setPower(0.0);
     }   //stopMotor
 
     /**
@@ -372,22 +372,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setOutput(leftPower);
+            frontLeftMotor.setPower(leftPower);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setOutput(rightPower);
+            frontRightMotor.setPower(rightPower);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setOutput(leftPower);
+            rearLeftMotor.setPower(leftPower);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setOutput(rightPower);
+            rearRightMotor.setPower(rightPower);
         }
     }   //tankDrive
 
@@ -543,22 +543,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setOutput(wheelSpeeds[MotorType.kFrontLeft_val]);
+            frontLeftMotor.setPower(wheelSpeeds[MotorType.kFrontLeft_val]);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setOutput(wheelSpeeds[MotorType.kFrontRight_val]);
+            frontRightMotor.setPower(wheelSpeeds[MotorType.kFrontRight_val]);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setOutput(wheelSpeeds[MotorType.kRearLeft_val]);
+            rearLeftMotor.setPower(wheelSpeeds[MotorType.kRearLeft_val]);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setOutput(wheelSpeeds[MotorType.kRearRight_val]);
+            rearRightMotor.setPower(wheelSpeeds[MotorType.kRearRight_val]);
         }
     }   //mecanumDrive_Cartesian
 
@@ -638,22 +638,22 @@ public class HalRobotDrive
 
         if (frontLeftMotor != null)
         {
-            frontLeftMotor.setOutput(wheelSpeeds[MotorType.kFrontLeft_val]);
+            frontLeftMotor.setPower(wheelSpeeds[MotorType.kFrontLeft_val]);
         }
 
         if (frontRightMotor != null)
         {
-            frontRightMotor.setOutput(wheelSpeeds[MotorType.kFrontRight_val]);
+            frontRightMotor.setPower(wheelSpeeds[MotorType.kFrontRight_val]);
         }
 
         if (rearLeftMotor != null)
         {
-            rearLeftMotor.setOutput(wheelSpeeds[MotorType.kRearLeft_val]);
+            rearLeftMotor.setPower(wheelSpeeds[MotorType.kRearLeft_val]);
         }
 
         if (rearRightMotor != null)
         {
-            rearRightMotor.setOutput(wheelSpeeds[MotorType.kRearRight_val]);
+            rearRightMotor.setPower(wheelSpeeds[MotorType.kRearRight_val]);
         }
     }   //mecanumDrive_Polar
 

@@ -87,7 +87,7 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         lineFollowColorSensor = new FtcMRI2cColorSensor("i2cColorSensor", 0x40);
         lineFollowColorSensor.setLEDEnabled(true);
         sonarSensor = new FtcUltrasonicSensor("legoSonarSensor");
-        sonarSensor.setScale(RobotInfo.SONAR_INCHES_PER_CM);
+        sonarSensor.setScale(RobotInfo.SONAR_CM_PER_INCH);
         //
         // DriveBase subsystem.
         //
@@ -99,7 +99,7 @@ public class Robot implements TrcPidController.PidInput, TrcAnalogTrigger.Trigge
         leftRearWheel.setInverted(true);
         driveBase = new TrcDriveBase(
                 leftFrontWheel, leftRearWheel, rightFrontWheel, rightRearWheel, gyro);
-        driveBase.setYPositionScale(RobotInfo.DRIVE_INCHES_PER_CLICK);
+        driveBase.setYPositionScale(RobotInfo.DRIVE_COUNT_PER_INCH);
         //
         // PID Drive.
         //

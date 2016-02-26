@@ -525,17 +525,17 @@ public class TrcDriveBase extends HalRobotDrive implements TrcTaskMgr.Task
 
         if (fourMotors)
         {
-            xPos = ((lfEnc + rrEnc) - (rfEnc + lrEnc))*xScale/4.0;
-            yPos = (lfEnc + lrEnc + rfEnc + rrEnc)*yScale/4.0;
-            rotPos = ((lfEnc + lrEnc) - (rfEnc + rrEnc))*rotScale/4.0;
-            xSpeed = ((lfSpeed + rrSpeed) - (rfSpeed + lrSpeed))*xScale/4.0;
-            ySpeed = (lfSpeed + lrSpeed + rfSpeed + rrSpeed)*yScale/4.0;
+            xPos = ((lfEnc + rrEnc) - (rfEnc + lrEnc))/xScale/4.0;
+            yPos = (lfEnc + lrEnc + rfEnc + rrEnc)/yScale/4.0;
+            rotPos = ((lfEnc + lrEnc) - (rfEnc + rrEnc))/rotScale/4.0;
+            xSpeed = ((lfSpeed + rrSpeed) - (rfSpeed + lrSpeed))/xScale/4.0;
+            ySpeed = (lfSpeed + lrSpeed + rfSpeed + rrSpeed)/yScale/4.0;
         }
         else
         {
-            yPos = (lrEnc + rrEnc)*yScale/2.0;
-            rotPos = (lrEnc - rrEnc)*rotScale/2.0;
-            ySpeed = (lrSpeed + rrSpeed)*yScale/2.0;
+            yPos = (lrEnc + rrEnc)/yScale/2.0;
+            rotPos = (lrEnc - rrEnc)/rotScale/2.0;
+            ySpeed = (lrSpeed + rrSpeed)/yScale/2.0;
         }
 
         if (gyro != null)

@@ -3,6 +3,13 @@ package hallib;
 public interface HalMotorController
 {
     /**
+     * This method returns the state of the motor controller direction.
+     *
+     * @return true if the motor direction is inverted, false otherwise.
+     */
+    public boolean getInverted();
+
+    /**
      * This method returns the motor position by reading the position sensor. The position
      * sensor can be an encoder or a potentiometer.
      *
@@ -18,18 +25,18 @@ public interface HalMotorController
     public double getSpeed();
 
     /**
-     * This method returns the state of the forward limit switch.
+     * This method returns the state of the lower limit switch.
      *
-     * @return true if forward limit switch is closed, false otherwise.
+     * @return true if lower limit switch is active, false otherwise.
      */
-    public boolean isFwdLimitSwitchClosed();
+    public boolean isLowerLimitSwitchActive();
 
     /**
-     * This method returns the state of the reverse limit switch.
+     * This method returns the state of the upper limit switch.
      *
-     * @return true if reverse limit switch is closed, false otherwise.
+     * @return true if upper limit switch is active, false otherwise.
      */
-    public boolean isRevLimitSwitchClosed();
+    public boolean isUpperLimitSwitchActive();
 
     /**
      * This method resets the motor position sensor, typically an encoder.
@@ -42,7 +49,7 @@ public interface HalMotorController
      * back EMF to stop the motor. When brakMode is false (i.e. float/coast mode), the motor wires
      * are just disconnected from the motor controller so the motor will stop gradually.
      *
-     * @param brakeMode specifies true to enable brake mode, false otherwise.
+     * @param enabled specifies true to enable brake mode, false otherwise.
      */
     public void setBrakeModeEnabled(boolean enabled);
 
@@ -54,15 +61,12 @@ public interface HalMotorController
     public void setInverted(boolean inverted);
 
     /**
-     * This method sets the output of the motor controller. Typically, the output is power.
-     * However, some motor controllers are capable of other operating modes such as position,
-     * speed, voltage, current, etc. When operating in those modes, output specifies the
-     * appropriate value for that operating mode.
+     * This method sets the output power of the motor controller.
      *
-     * @param output specifies the output for the motor controller. If the output is power, it
-     *               is in the range of -1.0 to 1.0.
+     * @param power specifies the output power for the motor controller in the range of
+     *              -1.0 to 1.0.
      */
-    public void setOutput(double output);
+    public void setPower(double power);
 
     /**
      * This method inverts the position sensor direction. This may be rare but

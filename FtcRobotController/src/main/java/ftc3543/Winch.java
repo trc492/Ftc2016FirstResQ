@@ -47,7 +47,7 @@ public class Winch implements TrcPidController.PidInput,
                 this);
         pidCtrl.setAbsoluteSetPoint(true);
         pidMotor = new TrcPidMotor("winch", feederMotor, winchMotor, pidCtrl);
-        pidMotor.setPositionScale(RobotInfo.WINCH_INCHES_PER_CLICK);
+        pidMotor.setPositionScale(RobotInfo.WINCH_COUNT_PER_INCH);
         brake = new FtcServo("brake");
         setBrakeOn(false);
         tilterServo = new FtcServo("tilterServo");

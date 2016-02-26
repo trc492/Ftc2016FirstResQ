@@ -11,7 +11,7 @@ public class RobotInfo
     public static final double DRIVE_KF                         = 0.0;
     public static final double DRIVE_TOLERANCE                  = 2.0;
     public static final double DRIVE_SETTLING                   = 0.2;
-    public static final double DRIVE_INCHES_PER_CLICK           = (104.0/7416.5);
+    public static final double DRIVE_COUNT_PER_INCH             = (7416.5/104.0);
 
     public static final double GYRO_KP                          = 0.05;
     public static final double GYRO_KI                          = 0.0;
@@ -29,7 +29,7 @@ public class RobotInfo
     public static final double SONAR_KF                         = 0.0;
     public static final double SONAR_TOLERANCE                  = 0.2;
     public static final double SONAR_SETTLING                   = 0.2;
-    public static final double SONAR_INCHES_PER_CM              = (1.0/2.54);
+    public static final double SONAR_CM_PER_INCH                = 2.54;
     public static final double SONAR_BEACON_DISTANCE            = 2.0;
 
     public static final double COLOR_KP                         = 0.125;
@@ -56,7 +56,7 @@ public class RobotInfo
     public static final double WINCH_KF                         = 0.0;
     public static final double WINCH_TOLERANCE                  = 0.2;
     public static final double WINCH_SETTLING                   = 0.2;
-    public static final double WINCH_INCHES_PER_CLICK           = 1.0;
+    public static final double WINCH_COUNT_PER_INCH             = 1.0;
     public static final double WINCH_MIN_LENGTH                 = 0.0;
     public static final double WINCH_MAX_LENGTH                 = 23.5;
     public static final double WINCH_CAL_POWER                  = -0.2;
