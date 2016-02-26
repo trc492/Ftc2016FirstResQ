@@ -245,7 +245,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             pos += motor2.getPosition();
             n++;
         }
-        pos /= positionScale/n;
+        pos *= positionScale/n;
 
         if (debugEnabled)
         {
@@ -556,7 +556,7 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                     //
                     // Hold target at current position.
                     //
-                    setTarget(motor1.getPosition()/positionScale, true, null, 0.0);
+                    setTarget(motor1.getPosition()*positionScale, true, null, 0.0);
                 }
                 else
                 {
@@ -893,10 +893,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
             if (!holdTarget && pidCtrl.isOnTarget() ||
                 expiredTime != 0.0 && HalUtil.getCurrentTime() >= expiredTime)
             {
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Reached target");
-                }
                 stop(true);
                 if (notifyEvent != null)
                 {
@@ -912,13 +908,6 @@ public class TrcPidMotor implements TrcTaskMgr.Task
                 //
                 motorPower = pidCtrl.getOutput();
                 setPower(motorPower, MIN_MOTOR_POWER, MAX_MOTOR_POWER, false);
-                if (debugEnabled)
-                {
-                    if (instanceName.contains("arm"))
-                    {
-                        dbgTrace.traceInfo(funcName, "pidPower=%.2f", motorPower);
-                    }
-                }
             }
         }
 
