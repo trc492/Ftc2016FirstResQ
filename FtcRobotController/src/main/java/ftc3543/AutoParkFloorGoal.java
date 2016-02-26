@@ -21,10 +21,10 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoParkFloorGoal";
 
-    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
+    private Robot robot;
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
     private double delay;
@@ -33,8 +33,9 @@ public class AutoParkFloorGoal implements TrcRobot.AutoStrategy
     private TrcStateMachine sm;
 
     public AutoParkFloorGoal(
-            FtcAuto.Alliance alliance, FtcAuto.StartPosition startPos, double delay)
+            Robot robot, FtcAuto.Alliance alliance, FtcAuto.StartPosition startPos, double delay)
     {
+        this.robot = robot;
         this.alliance = alliance;
         this.startPos = startPos;
         this.delay = delay;

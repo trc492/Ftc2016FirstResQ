@@ -33,10 +33,10 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoBeacon";
 
-    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
+    private Robot robot;
     private FtcAuto.Alliance alliance;
     private FtcAuto.StartPosition startPos;
     private double delay;
@@ -50,6 +50,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
     private boolean rightPusherExtended = false;
 
     public AutoBeacon(
+            Robot robot,
             FtcAuto.Alliance alliance,
             FtcAuto.StartPosition startPos,
             double delay,
@@ -57,6 +58,7 @@ public class AutoBeacon implements TrcRobot.AutoStrategy
             boolean depositClimbers,
             FtcAuto.BeaconOption option)
     {
+        this.robot = robot;
         this.alliance = alliance;
         this.startPos = startPos;
         this.delay = delay;

@@ -19,18 +19,19 @@ public class AutoDefense implements TrcRobot.AutoStrategy
 
     private static final String moduleName = "AutoDefense";
 
-    private Robot robot = ((FtcAuto)FtcOpMode.getInstance()).robot;
     private HalDashboard dashboard = HalDashboard.getInstance();
     private TrcDbgTrace tracer = FtcOpMode.getOpModeTracer();
 
+    private Robot robot;
     private double delay;
     private double distance;
     private TrcEvent event;
     private TrcTimer timer;
     private TrcStateMachine sm;
 
-    public AutoDefense(double delay, double distance)
+    public AutoDefense(Robot robot, double delay, double distance)
     {
+        this.robot = robot;
         this.delay = delay;
         this.distance = distance;
         event = new TrcEvent(moduleName);

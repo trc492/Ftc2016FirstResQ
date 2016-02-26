@@ -73,20 +73,21 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         switch (strategy)
         {
             case DEFENSE:
-                autoStrategy = new AutoDefense(delay, driveDistance);
+                autoStrategy = new AutoDefense(robot, delay, driveDistance);
                 break;
 
             case PARK_FLOOR_GOAL:
-                autoStrategy = new AutoParkFloorGoal(alliance, startPos, delay);
+                autoStrategy = new AutoParkFloorGoal(robot, alliance, startPos, delay);
                 break;
 
             case PARK_MOUNTAIN:
-                autoStrategy = new AutoParkMountain(alliance, startPos, delay);
+                autoStrategy = new AutoParkMountain(robot, alliance, startPos, delay);
                 break;
 
             case BEACON:
                 autoStrategy = new AutoBeacon(
-                        alliance, startPos, delay, pushButton, depositClimbers, beaconOption);
+                        robot, alliance, startPos, delay,
+                        pushButton, depositClimbers, beaconOption);
                 break;
 
             case DO_NOTHING:
