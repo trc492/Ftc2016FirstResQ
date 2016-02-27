@@ -104,7 +104,7 @@ public class FtcMRI2cDevice extends FtcI2cDevice implements TrcI2cDevice.Complet
         }
 
         byte[] data = {newAddress, I2CADDR_TRIGGER_BYTE_1, I2CADDR_TRIGGER_BYTE_2};
-        sendWriteCommand(REG_SET_I2C_ADDRESS, data.length, data);
+        write(REG_SET_I2C_ADDRESS, data.length, data);
         updateI2cAddress(newAddress);
     }   //setI2cAddress
 

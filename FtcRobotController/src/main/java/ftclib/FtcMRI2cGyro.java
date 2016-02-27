@@ -67,10 +67,10 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
     private static final int READ_END               = REG_Z_SCALING_MSB;
     private static final int READ_LENGTH            = (READ_START - READ_END + 1);
 
-    private static final int CMD_MEASUREMENT_MODE   = 0x00;
-    private static final int CMD_RESET_OFFSET_CAL   = 0x4e;
-    private static final int CMD_RESET_Z_INTEGRATOR = 0x52;
-    private static final int CMD_WRITE_EEPROM_DATA  = 0x57;
+    private static final byte CMD_MEASUREMENT_MODE  = 0x00;
+    private static final byte CMD_RESET_OFFSET_CAL  = 0x4e;
+    private static final byte CMD_RESET_Z_INTEGRATOR= 0x52;
+    private static final byte CMD_WRITE_EEPROM_DATA = 0x57;
 
     private TrcSensor.SensorData heading = new TrcSensor.SensorData(0.0, null);
     private TrcSensor.SensorData integratedZ = new TrcSensor.SensorData(0.0, null);
@@ -134,8 +134,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
     {
         final String funcName = "calibrate";
 
-        byte[] data = {CMD_RESET_OFFSET_CAL};
-        sendWriteCommand(REG_COMMAND, 1, data);
+        sendByteCommand(REG_COMMAND, CMD_RESET_OFFSET_CAL);
         calibrating = true;
 
         if (debugEnabled)
@@ -171,8 +170,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice implements TrcI2cDevice.Complet
     {
         final String funcName = "resetZIntegrator";
 
-        byte[] data = {CMD_RESET_Z_INTEGRATOR};
-        sendWriteCommand(REG_COMMAND, 1, data);
+        sendByteCommand(REG_COMMAND, CMD_RESET_Z_INTEGRATOR);
 
         if (debugEnabled)
         {
