@@ -38,7 +38,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         BEACON
     }   //enum Strategy
 
-    private HalDashboard dashboard = HalDashboard.getInstance();
+    private HalDashboard dashboard;
     private Robot robot = null;
     private TrcRobot.AutoStrategy autoStrategy = null;
     private Alliance alliance = Alliance.RED_ALLIANCE;
@@ -60,6 +60,7 @@ public class FtcAuto extends FtcOpMode implements FtcMenu.MenuButtons
         //
         // Initializing global objects.
         //
+        dashboard = HalDashboard.getInstance();
         robot = new Robot(TrcRobot.RunMode.AUTO_MODE);
         //
         // Choice menus.

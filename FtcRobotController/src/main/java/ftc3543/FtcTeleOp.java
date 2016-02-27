@@ -7,7 +7,7 @@ import trclib.TrcRobot;
 
 public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
 {
-    protected HalDashboard dashboard = HalDashboard.getInstance();
+    protected HalDashboard dashboard;
     protected Robot robot;
     private FtcGamepad driverGamepad;
     private FtcGamepad operatorGamepad;
@@ -23,6 +23,7 @@ public class FtcTeleOp extends FtcOpMode implements FtcGamepad.ButtonHandler
         //
         // Initializing global objects.
         //
+        dashboard = HalDashboard.getInstance();
         robot = new Robot(TrcRobot.RunMode.TELEOP_MODE);
         //
         // Initializing Gamepads.
