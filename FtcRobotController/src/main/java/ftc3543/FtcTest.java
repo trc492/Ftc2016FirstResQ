@@ -81,6 +81,18 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
     // Must override TeleOp so it doesn't fight with us.
     //
     @Override
+    public void runPeriodic(double elapsedTime)
+    {
+        //
+        // Allow TeleOp to run so we can control the robot in test sensor mode.
+        //
+        if (test == Test.SENSORS_TEST)
+        {
+            super.runPeriodic(elapsedTime);
+        }
+    }   //runPeriodic
+
+    @Override
     public void runContinuous(double elapsedTime)
     {
         State state = (State)sm.getState();
@@ -112,7 +124,7 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
                 doLineFollow(alliance, wallDistance);
                 break;
         }
-    }   //runPeriodic
+    }   //runContinuous
 
     //
     // Implements FtcMenu.MenuButtons interface.
@@ -180,10 +192,6 @@ public class FtcTest extends FtcTeleOp implements FtcMenu.MenuButtons
 
     private void doSensorsTest()
     {
-        //
-        // Allow TeleOp to run so we can control the robot in test sensor mode.
-        //
-        super.runPeriodic(FtcOpMode.getElapsedTime());
         //
         // Read all sensors and display on the dashboard.
         // Drive the robot around to sample different locations of the field.
